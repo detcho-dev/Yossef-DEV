@@ -4,33 +4,326 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Yossef DEV</title>
+    <title>Yossef DEV | Professional Website Developer</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="index.css" />
   </head>
   <body>
-    <header>
-      <div class="left_header">
-        <h2 class="logo">Yossef DEV</h2>
+    <!-- Desktop Header -->
+    <header class="computer-header">
+      <div class="logo-container">
+        <i class="fas fa-code logo-icon"></i>
+        <h1 class="logo">Yossef DEV</h1>
       </div>
-
-      <div class="right_header">
-        <nav>
-          <a href="/" class="link">
-            <li class="nav_el">Home</li>
-          </a>
-
-          <a href="#" class="link">
-            <li class="nav_el cer">My Certificates</li>
-          </a>
-
-          <a href="#" class="link">
-            <li class="nav_el pro">My Projects</li>
-          </a>
-
-          <a href="#" class="link">
-            <li class="nav_el con">Contact</li>
-          </a>
-        </nav>
-      </div>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="#home" class="nav-link active">Home</a></li>
+          <li><a href="#certificates" class="nav-link">My Certificates</a></li>
+          <li><a href="#works" class="nav-link">My Works</a></li>
+          <li><a href="#reviews" class="nav-link">Reviews</a></li>
+          <li><a href="#contact" class="nav-link">Contact</a></li>
+        </ul>
+      </nav>
     </header>
+
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+      <div class="logo-container">
+        <i class="fas fa-code logo-icon"></i>
+        <h1 class="logo">Yossef DEV</h1>
+      </div>
+      <button class="menu-toggle" aria-label="Open menu" id="menuToggle">
+        <i class="fas fa-bars"></i>
+      </button>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div class="overlay" id="menuOverlay"></div>
+    <div class="mobile-menu" id="mobileMenu">
+      <div class="mobile-menu-header">
+        <div class="logo-container">
+          <i class="fas fa-code logo-icon"></i>
+          <h2 class="logo">Yossef DEV</h2>
+        </div>
+        <button class="close-menu" aria-label="Close menu" id="closeMenu">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <nav>
+        <ul class="mobile-nav-links">
+          <li><a href="#home" class="mobile-nav-link active">Home</a></li>
+          <li>
+            <a href="#certificates" class="mobile-nav-link">My Certificates</a>
+          </li>
+          <li><a href="#works" class="mobile-nav-link">My Works</a></li>
+          <li><a href="#reviews" class="mobile-nav-link">Reviews</a></li>
+          <li><a href="#contact" class="mobile-nav-link">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+      <div class="hero-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+      </div>
+      <div class="hero-content">
+        <div class="hero-badge">
+          <i class="fas fa-star"></i>
+          <span>Building exceptional digital experiences</span>
+        </div>
+        <h1>Welcome to <span>Yossef DEV</span></h1>
+        <p>
+          Creating elegant, high-performance web applications that transform
+          ideas into reality. Specializing in modern frontend development with a
+          focus on user experience and visual design.
+        </p>
+        <div class="hero-btns">
+          <a href="#works" class="btn btn-primary">
+            <i class="fas fa-rocket"></i> View My Work
+          </a>
+          <a href="#contact" class="btn btn-outline">
+            <i class="fas fa-envelope"></i> Contact Me
+          </a>
+        </div>
+      </div>
+      <div class="scroll-indicator">
+        <i class="fas fa-chevron-down"></i>
+        <span>Scroll Down</span>
+      </div>
+    </section>
+
+    <!-- Certificates Section -->
+    <section class="section" id="certificates">
+      <div class="container">
+        <div class="section-title">
+          <h2>My Certificates</h2>
+          <p>
+            Professional certifications validating my expertise in various
+            technologies and frameworks
+          </p>
+        </div>
+
+        <div class="cards-grid">
+          <!-- Certificate 1 -->
+          <div class="card certificate-card">
+            <div class="certificate-icon">
+              <i class="fas fa-code"></i>
+            </div>
+            <div class="certificate-org">
+              Digital Egypt Cubs Initiative (DECI)
+            </div>
+            <div class="certificate-name">Level Two (NANODEGREE PROGRAM)</div>
+            <a
+              href="https://confirm.udacity.com/TZ5CT3U7"
+              class="certificate-link"
+            >
+              <i class="fas fa-certificate"></i> View Certificate
+            </a>
+          </div>
+
+          <!--
+          <div class="card certificate-card">
+            <div class="certificate-icon">
+              <i class="fas fa-database"></i>
+            </div>
+            <div class="certificate-org">MongoDB University</div>
+            <div class="certificate-name">MongoDB for Developers</div>
+            <a href="#" class="certificate-link">
+              <i class="fas fa-certificate"></i> View Certificate
+            </a>
+          </div>
+        -->
+
+          <!--
+          <div class="card certificate-card">
+            <div class="certificate-icon">
+              <i class="fab fa-aws"></i>
+            </div>
+            <div class="certificate-org">AWS</div>
+            <div class="certificate-name">Cloud Practitioner Certification</div>
+            <a href="#" class="certificate-link">
+              <i class="fas fa-certificate"></i> View Certificate
+            </a>
+          </div>-->
+        </div>
+      </div>
+    </section>
+
+    <!-- Works Section -->
+    <section
+      class="section"
+      id="works"
+      style="background: linear-gradient(145deg, #161625 0%, #1a1a2e 100%)"
+    >
+      <div class="container">
+        <div class="section-title">
+          <h2>My Projects</h2>
+          <p>
+            A selection of my most impactful projects showcasing technical
+            expertise and creative problem-solving
+          </p>
+        </div>
+
+        <div class="cards-grid">
+          <!-- Project 1 -->
+          <div class="card project-card">
+            <div class="project-img">
+              <i class="fas fa-dumbbell"></i>
+            </div>
+            <div class="project-content">
+              <h3 class="project-title">E-Gymmawy</h3>
+              <p class="project-desc">
+                A gym trainer offers online programs at low prices with many
+                benefits and trains you from your home.
+              </p>
+              <a
+                href="https://detcho-dev.github.io/E-coaching/"
+                target="_blank"
+                class="project-link"
+              >
+                <i class="fas fa-external-link-alt"></i> Live Demo
+              </a>
+            </div>
+          </div>
+
+          <!-- 
+          <div class="card project-card">
+            <div class="project-img">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="project-content">
+              <h3 class="project-title">Data Analytics Dashboard</h3>
+              <p class="project-desc">
+                Interactive dashboard with real-time data visualization and
+                customizable reporting features.
+              </p>
+              <a href="#" class="project-link">
+                <i class="fas fa-external-link-alt"></i> Live Demo
+              </a>
+            </div>
+          </div>
+
+          
+          <div class="card project-card">
+            <div class="project-img">
+              <i class="fas fa-users"></i>
+            </div>
+            <div class="project-content">
+              <h3 class="project-title">Social Community App</h3>
+              <p class="project-desc">
+                A platform for professionals to connect, share ideas, and
+                collaborate on projects.
+              </p>
+              <a href="#" class="project-link">
+                <i class="fas fa-external-link-alt"></i> Live Demo
+              </a>
+            </div>
+          </div>-->
+        </div>
+      </div>
+    </section>
+
+    <!-- Reviews Section -->
+    <section class="section" id="reviews">
+      <div class="container">
+        <div class="section-title">
+          <h2>Client Reviews</h2>
+          <p>
+            Feedback from clients and colleagues on my work and professional
+            approach
+          </p>
+        </div>
+
+        <div class="cards-grid">
+          <!-- Review 1 -->
+          <div class="card review-card">
+            <div class="review-icon">
+              <i class="fab fa-whatsapp"></i>
+            </div>
+            <p class="review-content">
+              "Yossef delivered our project ahead of schedule with exceptional
+              attention to detail. His communication was clear throughout the
+              process, and he took the time to understand our business needs."
+            </p>
+            <div class="review-author">Mustafa Hassan</div>
+            <div class="review-position">Gym Coach</div>
+          </div>
+
+          <!-- 
+          <div class="card review-card">
+            <div class="review-icon">
+              <i class="fas fa-envelope"></i>
+            </div>
+            <p class="review-content">
+              "Working with Yossef was a pleasure. He transformed our outdated
+              website into a modern, responsive platform that significantly
+              improved our conversion rates. His expertise in UI/UX design is
+              outstanding."
+            </p>
+            <div class="review-author">Michael Chen</div>
+            <div class="review-position">Marketing Director, GrowthLabs</div>
+          </div>-->
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section
+      class="section"
+      id="contact"
+      style="background: linear-gradient(145deg, #12121c 0%, #1a1a2e 100%)"
+    >
+      <div class="container">
+        <div class="section-title">
+          <h2>Contact Me</h2>
+          <p>
+            Have a project in mind or want to discuss opportunities? Let's
+            connect!
+          </p>
+        </div>
+
+        <div class="contact-container">
+          <div class="contact-icon">
+            <i class="fas fa-envelope"></i>
+          </div>
+          <h3 class="contact-title">Get In Touch</h3>
+          <p class="contact-text">
+            I'm currently available for freelance projects and full-time
+            opportunities. Feel free to reach out via email for any inquiries or
+            collaboration requests.
+          </p>
+          <a href="mailto:yossef.devs@outlook.com" class="contact-email">
+            <i class="fas fa-envelope"></i> yossef.devs@outlook.com
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-logo">
+            <i class="fas fa-code footer-logo-icon"></i>
+            <span>Yossef DEV</span>
+          </div>
+          <p class="copyright">
+            © 2025 Yossef Development. All rights reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="index.js"></script>
   </body>
 </html>
