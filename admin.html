@@ -6,7 +6,7 @@
     <title>Admin Dashboard - Projects</title>
     <link rel="stylesheet" href="admin.css" />
     <!-- Firebase SDKs -->
-   <script type="module">
+    <script type="module">
       // استيراد الدوال المطلوبة
       import * as admin from "./admin.js";
 
@@ -124,20 +124,17 @@
           placeholder="Project Name"
           required
         />
-        <input
-          type="text"
-          id="new-status"
-          placeholder="Project Status (Live/Under Development)"
-          value="Live"
-          required
-        />
-        <input
-          type="text"
-          id="new-support-status"
-          placeholder="Support Status (Active/Ended)"
-          value="Active"
-          required
-        />
+        <select id="new-status" required>
+            <option value="Live">Live</option>
+            <option value="Under Development">Under Development</option>
+            <option value="Closed">Closed</option>
+            <option value="Fixing Bugs">Fixing Bugs</option>
+          </select>
+          <select id="new-support-status" required>
+            <option value="Active">Active</option>
+            <option value="Expire Soon">Expire Soon</option>
+            <option value="Expired">Expired</option>
+          </select>
         <input
           type="text"
           id="new-deployment"
