@@ -6,20 +6,7 @@
     <title>Admin Dashboard - Projects</title>
     <link rel="stylesheet" href="admin.css" />
     <!-- Firebase SDKs -->
-    <script type="module">
-      // استورد كل الوظائف من script.js
-      import * as admin from 'admin.js';
-  
-      // عرّفها كدوال عالمية
-      window.login = admin.login;
-      window.logout = admin.logout;
-      window.openNewProjectModal = admin.openNewProjectModal;
-      window.closeModal = admin.closeModal;
-      window.addNewProject = admin.addNewProject;
-      window.openEditModal = admin.openEditModal;
-      window.updateProject = admin.updateProject;
-      window.deleteProject = admin.deleteProject;
-    </script>
+    <script type="module" src="admin.js"></script>
   </head>
   <body>
     <!-- Login Screen -->
@@ -28,7 +15,7 @@
         <h1>Admin Dashboard</h1>
         <input type="email" id="email" placeholder="Email" />
         <input type="password" id="password" placeholder="Password" />
-        <button onclick="login()">Login</button>
+        <button id="login-btn">Login</button>
         <p
           id="login-error"
           style="color: #ff4444; margin-top: 15px; display: none"
@@ -40,17 +27,12 @@
     <div id="dashboard" class="screen" style="display: none">
       <header>
         <h1>Projects Management</h1>
-        <button id="logout-btn" onclick="logout()">Logout</button>
+        <button id="logout-btn">Logout</button>
       </header>
 
       <div class="controls">
-        <input
-          type="text"
-          id="search"
-          placeholder="Search all fields..."
-          oninput="searchTable()"
-        />
-        <button onclick="openNewProjectModal()">New Project</button>
+        <input type="text" id="search" placeholder="Search all fields..." />
+        <button id="new-project-btn">New Project</button>
       </div>
 
       <table id="projects-table">
@@ -76,9 +58,7 @@
     <!-- New Project Modal -->
     <div id="new-project-modal" class="modal">
       <div class="modal-content">
-        <span class="close" onclick="closeModal('new-project-modal')"
-          >&times;</span
-        >
+        <span class="close" id="close-new-modal">&times;</span>
         <h2>New Project</h2>
         <input
           type="text"
@@ -125,16 +105,14 @@
           required
         />
         <input type="url" id="new-url" placeholder="Website URL" required />
-        <button onclick="addNewProject()">Add Project</button>
+        <button id="add-project-btn">Add Project</button>
       </div>
     </div>
 
     <!-- Edit Project Modal -->
     <div id="edit-project-modal" class="modal">
       <div class="modal-content">
-        <span class="close" onclick="closeModal('edit-project-modal')"
-          >&times;</span
-        >
+        <span class="close" id="close-edit-modal">&times;</span>
         <h2>Edit Project</h2>
         <input type="text" id="edit-id" readonly />
         <input
@@ -174,7 +152,7 @@
           required
         />
         <input type="url" id="edit-url" placeholder="Website URL" required />
-        <button onclick="updateProject()">Save Changes</button>
+        <button id="update-project-btn">Save Changes</button>
       </div>
     </div>
   </body>
