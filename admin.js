@@ -219,3 +219,13 @@ auth.onAuthStateChanged((user) => {
     loadProjects();
   }
 });
+
+// 👇 أضف هذه الأسطر في نهاية script.js بعد كل الشيفرة
+window.login = login;
+window.logout = logout;
+window.openNewProjectModal = openNewProjectModal;
+window.closeModal = closeModal;
+window.addNewProject = addNewProject;
+window.openEditModal = openEditModal;
+window.updateProject = updateProject;
+window.deleteProject = deleteProject;
