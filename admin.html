@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - Projects</title>
+    <link rel="stylesheet" href="admin.css" />
+    <!-- Firebase SDKs -->
+    <script type="module" src="admin.js"></script>
+  </head>
+  <body>
+    <!-- Login Screen -->
+    <div id="login-screen" class="screen">
+      <div class="login-container">
+        <h1>Admin Dashboard</h1>
+        <input type="email" id="email" placeholder="Email" />
+        <input type="password" id="password" placeholder="Password" />
+        <button onclick="login()">Login</button>
+        <p
+          id="login-error"
+          style="color: #ff4444; margin-top: 15px; display: none"
+        ></p>
+      </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard" class="screen" style="display: none">
+      <header>
+        <h1>Projects Management</h1>
+        <button id="logout-btn" onclick="logout()">Logout</button>
+      </header>
+
+      <div class="controls">
+        <input
+          type="text"
+          id="search"
+          placeholder="Search all fields..."
+          oninput="searchTable()"
+        />
+        <button onclick="openNewProjectModal()">New Project</button>
+      </div>
+
+      <table id="projects-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Customer</th>
+            <th>Project</th>
+            <th>Status</th>
+            <th>Support</th>
+            <th>Deployed</th>
+            <th>Support Ends</th>
+            <th>Website</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="table-body">
+          <!-- Data will be loaded dynamically -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- New Project Modal -->
+    <div id="new-project-modal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeModal('new-project-modal')"
+          >&times;</span
+        >
+        <h2>New Project</h2>
+        <input
+          type="text"
+          id="new-id"
+          placeholder="Document ID (Custom)"
+          required
+        />
+        <input
+          type="text"
+          id="new-customer"
+          placeholder="Customer Name"
+          required
+        />
+        <input
+          type="text"
+          id="new-project-name"
+          placeholder="Project Name"
+          required
+        />
+        <input
+          type="text"
+          id="new-status"
+          placeholder="Project Status (Live/Under Development)"
+          value="Live"
+          required
+        />
+        <input
+          type="text"
+          id="new-support-status"
+          placeholder="Support Status (Active/Ended)"
+          value="Active"
+          required
+        />
+        <input
+          type="text"
+          id="new-deployment"
+          placeholder="Deployment Date (e.g: 29 December 2025)"
+          required
+        />
+        <input
+          type="text"
+          id="new-support-end"
+          placeholder="Support End Date (e.g: 28 January 2026)"
+          required
+        />
+        <input type="url" id="new-url" placeholder="Website URL" required />
+        <button onclick="addNewProject()">Add Project</button>
+      </div>
+    </div>
+
+    <!-- Edit Project Modal -->
+    <div id="edit-project-modal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeModal('edit-project-modal')"
+          >&times;</span
+        >
+        <h2>Edit Project</h2>
+        <input type="text" id="edit-id" readonly />
+        <input
+          type="text"
+          id="edit-customer"
+          placeholder="Customer Name"
+          required
+        />
+        <input
+          type="text"
+          id="edit-project-name"
+          placeholder="Project Name"
+          required
+        />
+        <input
+          type="text"
+          id="edit-status"
+          placeholder="Project Status"
+          required
+        />
+        <input
+          type="text"
+          id="edit-support-status"
+          placeholder="Support Status"
+          required
+        />
+        <input
+          type="text"
+          id="edit-deployment"
+          placeholder="Deployment Date"
+          required
+        />
+        <input
+          type="text"
+          id="edit-support-end"
+          placeholder="Support End Date"
+          required
+        />
+        <input type="url" id="edit-url" placeholder="Website URL" required />
+        <button onclick="updateProject()">Save Changes</button>
+      </div>
+    </div>
+  </body>
+</html>
