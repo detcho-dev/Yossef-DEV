@@ -6,7 +6,53 @@
     <title>Admin Dashboard - Projects</title>
     <link rel="stylesheet" href="admin.css" />
     <!-- Firebase SDKs -->
-    <script type="module" src="admin.js"></script>
+   <script type="module">
+      // استيراد الدوال المطلوبة
+      import * as admin from "./admin.js";
+
+      // ربط الأحداث بعد تحميل الصفحة
+      document.addEventListener("DOMContentLoaded", () => {
+        // ربط أزرار لوحة التحكم
+        document
+          .getElementById("login-btn")
+          ?.addEventListener("click", admin.login);
+        document
+          .getElementById("logout-btn")
+          ?.addEventListener("click", admin.logout);
+        document
+          .getElementById("new-project-btn")
+          ?.addEventListener("click", admin.openNewProjectModal);
+        document
+          .getElementById("search")
+          ?.addEventListener("input", admin.searchTable);
+        document
+          .getElementById("add-project-btn")
+          ?.addEventListener("click", admin.addNewProject);
+        document
+          .getElementById("update-project-btn")
+          ?.addEventListener("click", admin.updateProject);
+
+        // ربط أزرار الإغلاق
+        document
+          .getElementById("close-new-modal")
+          ?.addEventListener("click", () =>
+            admin.closeModal("new-project-modal")
+          );
+        document
+          .getElementById("close-edit-modal")
+          ?.addEventListener("click", () =>
+            admin.closeModal("edit-project-modal")
+          );
+
+        // إغلاق النوافذ عند الضغط بالخارج
+        window.addEventListener("click", (e) => {
+          if (e.target.classList.contains("modal")) {
+            admin.closeModal("new-project-modal");
+            admin.closeModal("edit-project-modal");
+          }
+        });
+      });
+    </script>
   </head>
   <body>
     <!-- Login Screen -->
