@@ -6,7 +6,20 @@
     <title>Admin Dashboard - Projects</title>
     <link rel="stylesheet" href="admin.css" />
     <!-- Firebase SDKs -->
-    <script type="module" src="admin.js"></script>
+    <script type="module">
+      // استورد كل الوظائف من script.js
+      import * as admin from 'admin.js';
+  
+      // عرّفها كدوال عالمية
+      window.login = admin.login;
+      window.logout = admin.logout;
+      window.openNewProjectModal = admin.openNewProjectModal;
+      window.closeModal = admin.closeModal;
+      window.addNewProject = admin.addNewProject;
+      window.openEditModal = admin.openEditModal;
+      window.updateProject = admin.updateProject;
+      window.deleteProject = admin.deleteProject;
+    </script>
   </head>
   <body>
     <!-- Login Screen -->
