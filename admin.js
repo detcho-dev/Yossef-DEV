@@ -347,3 +347,14 @@ window.onerror = function (message, source, lineno, colno, error) {
   alert(`Critical error: ${message}\nCheck console for details`);
   return true; // منع الرسالة الافتراضية في الكونسول
 };
+
+export {
+  login,
+  logout,
+  openNewProjectModal,
+  addNewProject,
+  updateProject,
+  deleteProject,
+  searchTable,
+  closeModal,
+};
