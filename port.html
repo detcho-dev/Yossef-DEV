@@ -564,30 +564,67 @@
     <script>
       // ⚠️ IMPORTANT: REPLACE WITH YOUR ACTUAL FIREBASE CONFIG ⚠️
       const firebaseConfig = {
-        apiKey: "AIzaSyAemoGMX1PHF55qUTh_5SZIrN3Y-QaqrWA",
-        authDomain: "yossef-dev-216b0.firebaseapp.com",
-        projectId: "yossef-dev-216b0",
-        storageBucket: "yossef-dev-216b0.firebasestorage.app",
-        messagingSenderId: "509948939620",
-        appId: "1:509948939620:web:017b806e995bb114d8be71",
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_AUTH_DOMAIN",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_STORAGE_BUCKET",
+        messagingSenderId: "YOUR_SENDER_ID",
+        appId: "YOUR_APP_ID"
       };
 
       let db = null;
 
-      // Safe element access helper with retry mechanism
-      function $(id, retries = 5, delay = 100) {
+      // Wait for element to be available in DOM with timeout
+      function waitForElement(id, timeout = 5000) {
         return new Promise((resolve) => {
-          const tryGetElement = (attempt) => {
+          const startTime = Date.now();
+          const checkInterval = setInterval(() => {
             const element = document.getElementById(id);
-            if (element || attempt >= retries) {
+            if (element) {
+              clearInterval(checkInterval);
               resolve(element);
-            } else {
-              setTimeout(() => tryGetElement(attempt + 1), delay);
+            } else if (Date.now() - startTime > timeout) {
+              clearInterval(checkInterval);
+              resolve(null);
             }
-          };
-
-          tryGetElement(0);
+          }, 100);
         });
+      }
+
+      // Parse URL parameters
+      function getUrlParams() {
+        const params = new URLSearchParams(window.location.search);
+        return {
+          url: params.get('url'),
+          id: params.get('id')
+        };
+      }
+
+      // Auto-fill form from URL parameters
+      async function autoFillFromUrlParams() {
+        const params = getUrlParams();
+        if (params.url || params.id) {
+          const projectUrlEl = await waitForElement('projectUrl', 3000);
+          const projectIdEl = await waitForElement('projectId', 3000);
+          
+          if (projectUrlEl && params.url) {
+            projectUrlEl.value = params.url;
+          }
+          
+          if (projectIdEl && params.id) {
+            projectIdEl.value = params.id;
+          }
+          
+          // Auto-submit if both parameters are present
+          if (params.url && params.id) {
+            setTimeout(() => {
+              const loginForm = document.getElementById('loginForm');
+              if (loginForm && !loginForm.querySelector('.spinner:not(.hidden)')) {
+                loginForm.requestSubmit();
+              }
+            }, 300);
+          }
+        }
       }
 
       // Translation system
@@ -608,17 +645,14 @@
           projectStatus: "Project Status",
           projectUrl: "Project URL",
           logoutBtn: "Logout",
-          footerText:
-            "Project Portal System &copy; 2025 | Secure Cloud Management",
+          footerText: "Project Portal System &copy; 2025 | Secure Cloud Management",
           loginError: "Invalid URL or Project ID. Please try again.",
           loginSuccess: "Login successful! Redirecting to portal...",
           logoutSuccess: "You have been successfully logged out.",
           configNotice: "Configuration Required:",
-          configMessage:
-            "Firebase is not configured. Replace the firebaseConfig object in the script with your Firebase project details.",
+          configMessage: "Firebase is not configured. Replace the firebaseConfig object in the script with your Firebase project details.",
           systemError: "System error: Please contact administrator.",
-          firebaseError:
-            "Firebase initialization failed. Please check configuration.",
+          firebaseError: "Firebase initialization failed. Please check configuration."
         },
         ar: {
           loginTitle: "تسجيل دخول بوابة المشروع",
@@ -641,10 +675,9 @@
           loginSuccess: "تم تسجيل الدخول بنجاح! جاري التوجيه إلى البوابة...",
           logoutSuccess: "تم تسجيل الخروج بنجاح.",
           configNotice: "الإعدادات مطلوبة:",
-          configMessage:
-            "Firebase غير مضبوط. استبدل كائن firebaseConfig في البرنامج النصي ببيانات مشروع Firebase الخاص بك.",
+          configMessage: "Firebase غير مضبوط. استبدل كائن firebaseConfig في البرنامج النصي ببيانات مشروع Firebase الخاص بك.",
           systemError: "خطأ في النظام: يرجى الاتصال بالمسؤول.",
-          firebaseError: "فشل تهيئة Firebase. يرجى التحقق من التهيئة.",
+          firebaseError: "فشل تهيئة Firebase. يرجى التحقق من التهيئة."
         },
       };
 
@@ -654,21 +687,16 @@
       async function initFirebase() {
         try {
           // Check if config is valid
-          if (
-            !firebaseConfig.apiKey ||
-            firebaseConfig.apiKey === "YOUR_API_KEY"
-          ) {
-            throw new Error(
-              "Firebase configuration is missing. Please update the firebaseConfig object."
-            );
+          if (!firebaseConfig.apiKey || firebaseConfig.apiKey === "YOUR_API_KEY") {
+            throw new Error("Firebase configuration is missing. Please update the firebaseConfig object.");
           }
-
+          
           // Wait for firebase script to be fully loaded
-          if (typeof firebase === "undefined") {
+          if (typeof firebase === 'undefined') {
             console.warn("Firebase SDK not fully loaded yet. Waiting...");
-            await new Promise((resolve) => setTimeout(resolve, 500));
+            await new Promise(resolve => setTimeout(resolve, 500));
           }
-
+          
           // Initialize Firebase
           firebase.initializeApp(firebaseConfig);
           db = firebase.firestore();
@@ -676,21 +704,13 @@
           return true;
         } catch (error) {
           console.error("❌ Firebase initialization failed:", error);
-
+          
           // Show config warning
-          const configWarning = await $("configWarning");
+          const configWarning = await waitForElement("configWarning", 3000);
           if (configWarning) {
             configWarning.classList.remove("hidden");
           }
-
-          // Show error in login alert
-          const loginAlert = await $("loginAlert");
-          if (loginAlert) {
-            loginAlert.textContent = translations[currentLang].firebaseError;
-            loginAlert.className = "alert alert-error";
-            loginAlert.classList.remove("hidden");
-          }
-
+          
           return false;
         }
       }
@@ -709,19 +729,19 @@
         });
 
         // Update login button text
-        const loginBtnText = await $("loginBtnText");
+        const loginBtnText = await waitForElement("loginBtnText", 2000);
         if (loginBtnText && translations[lang].loginBtn) {
           loginBtnText.textContent = translations[lang].loginBtn;
         }
 
         // Update logout button if exists
-        const logoutBtn = await $("logoutBtn");
+        const logoutBtn = await waitForElement("logoutBtn", 2000);
         if (logoutBtn && translations[lang].logoutBtn) {
           logoutBtn.innerHTML = `<i class="fas fa-sign-out-alt"></i> <span>${translations[lang].logoutBtn}</span>`;
         }
 
         // Update config warning if visible
-        const configWarning = await $("configWarning");
+        const configWarning = await waitForElement("configWarning", 2000);
         if (configWarning && !configWarning.classList.contains("hidden")) {
           configWarning.innerHTML = `<strong>${translations[lang].configNotice}</strong> ${translations[lang].configMessage}`;
         }
@@ -731,13 +751,10 @@
         document.body.setAttribute("dir", lang === "ar" ? "rtl" : "ltr");
 
         // Update language switcher
-        const langSwitch = await $("langSwitch");
+        const langSwitch = await waitForElement("langSwitch", 2000);
         if (langSwitch) {
           langSwitch.innerHTML = `<i class="fas fa-language"></i> ${lang.toUpperCase()}`;
-          langSwitch.setAttribute(
-            "aria-label",
-            lang === "ar" ? "English" : "العربية"
-          );
+          langSwitch.setAttribute("aria-label", lang === "ar" ? "English" : "العربية");
         }
       }
 
@@ -752,31 +769,15 @@
         e.preventDefault();
 
         // Get all required elements with retry mechanism
-        const [
-          projectUrlEl,
-          projectIdEl,
-          loginBtn,
-          loginBtnText,
-          loginSpinner,
-          loginAlert,
-        ] = await Promise.all([
-          $("projectUrl"),
-          $("projectId"),
-          $("loginBtn"),
-          $("loginBtnText"),
-          $("loginSpinner"),
-          $("loginAlert"),
-        ]);
-
+        const projectUrlEl = await waitForElement('projectUrl', 3000);
+        const projectIdEl = await waitForElement('projectId', 3000);
+        const loginBtn = await waitForElement('loginBtn', 3000);
+        const loginBtnText = await waitForElement('loginBtnText', 3000);
+        const loginSpinner = await waitForElement('loginSpinner', 3000);
+        const loginAlert = await waitForElement('loginAlert', 3000);
+        
         // Validate all elements exist
-        if (
-          !projectUrlEl ||
-          !projectIdEl ||
-          !loginBtn ||
-          !loginBtnText ||
-          !loginSpinner ||
-          !loginAlert
-        ) {
+        if (!projectUrlEl || !projectIdEl || !loginBtn || !loginBtnText || !loginSpinner || !loginAlert) {
           console.error("Required elements missing for login functionality");
           if (loginAlert) {
             loginAlert.textContent = translations[currentLang].systemError;
@@ -869,8 +870,7 @@
           }, 1000);
         } catch (error) {
           console.error("Login error:", error);
-          const errorMessage =
-            error.message || translations[currentLang].loginError;
+          const errorMessage = error.message || translations[currentLang].loginError;
           loginAlert.textContent = errorMessage;
           loginAlert.className = "alert alert-error";
           loginAlert.classList.remove("hidden");
@@ -883,14 +883,11 @@
 
       async function handleLogout() {
         localStorage.removeItem("portalSession");
-
-        const [loginPage, portalPage, loginForm, loginAlert] =
-          await Promise.all([
-            $("loginPage"),
-            $("portalPage"),
-            $("loginForm"),
-            $("loginAlert"),
-          ]);
+        
+        const loginPage = await waitForElement("loginPage", 2000);
+        const portalPage = await waitForElement("portalPage", 2000);
+        const loginForm = await waitForElement("loginForm", 2000);
+        const loginAlert = await waitForElement("loginAlert", 2000);
 
         if (loginForm) loginForm.reset();
         if (portalPage) portalPage.classList.add("hidden");
@@ -912,67 +909,52 @@
       // UI functions
       async function showPortal(data) {
         // Get all required elements with retry
-        const [
-          customerNameDisplay,
-          customerNameEl,
-          projectIdDisplay,
-          projectNameEl,
-          deploymentDateEl,
-          supportEndDateEl,
-          supportStatusEl,
-          projectStatusEl,
-          projectUrlLink,
-          loginPage,
-          portalPage,
-        ] = await Promise.all([
-          $("customerNameDisplay"),
-          $("customerName"),
-          $("projectIdDisplay"),
-          $("projectName"),
-          $("deploymentDate"),
-          $("supportEndDate"),
-          $("supportStatus"),
-          $("projectStatus"),
-          $("projectUrlLink"),
-          $("loginPage"),
-          $("portalPage"),
-        ]);
-
+        const customerNameDisplay = await waitForElement("customerNameDisplay", 2000);
+        const customerNameEl = await waitForElement("customerName", 2000);
+        const projectIdDisplay = await waitForElement("projectIdDisplay", 2000);
+        const projectNameEl = await waitForElement("projectName", 2000);
+        const deploymentDateEl = await waitForElement("deploymentDate", 2000);
+        const supportEndDateEl = await waitForElement("supportEndDate", 2000);
+        const supportStatusEl = await waitForElement("supportStatus", 2000);
+        const projectStatusEl = await waitForElement("projectStatus", 2000);
+        const projectUrlLink = await waitForElement("projectUrlLink", 2000);
+        const loginPage = await waitForElement("loginPage", 2000);
+        const portalPage = await waitForElement("portalPage", 2000);
+        
         // Customer name display
         if (customerNameDisplay) {
-          customerNameDisplay.textContent =
-            data.customerName || "Unknown Customer";
+          customerNameDisplay.textContent = data.customerName || "Unknown Customer";
         }
-
+        
         // Customer name field
         if (customerNameEl) {
           customerNameEl.textContent = data.customerName || "N/A";
         }
-
+        
         // Project ID field
         if (projectIdDisplay) {
           projectIdDisplay.textContent = data.projectId || "N/A";
         }
-
+        
         // Project name field
         if (projectNameEl) {
           projectNameEl.textContent = data.projectName || "N/A";
         }
-
+        
         // Dates
         if (deploymentDateEl) {
           deploymentDateEl.textContent = data.deploymentDate || "N/A";
         }
-
+        
         if (supportEndDateEl) {
           supportEndDateEl.textContent = data.supportEndDate || "N/A";
         }
-
+        
         // Support status
         if (supportStatusEl) {
           supportStatusEl.textContent = data.supportStatus || "Unknown";
           supportStatusEl.className = "status-badge";
-
+          
           if (["Active", "نشط"].includes(data.supportStatus)) {
             supportStatusEl.classList.add("status-active");
           } else if (["Expired", "منتهي"].includes(data.supportStatus)) {
@@ -981,12 +963,12 @@
             supportStatusEl.classList.add("status-maintenance");
           }
         }
-
+        
         // Project status
         if (projectStatusEl) {
           projectStatusEl.textContent = data.projectStatus || "Unknown";
           projectStatusEl.className = "status-badge";
-
+          
           if (["Live", "نشط"].includes(data.projectStatus)) {
             projectStatusEl.classList.add("status-active");
           } else if (["Maintenance", "صيانة"].includes(data.projectStatus)) {
@@ -995,7 +977,7 @@
             projectStatusEl.classList.add("status-expired");
           }
         }
-
+        
         // Project URL
         const projectUrl = data.projectUrl || data.url || "#";
         if (projectUrlLink) {
@@ -1038,7 +1020,7 @@
       // Check for existing session
       async function checkExistingSession() {
         const savedSession = localStorage.getItem("portalSession");
-        if (savedSession) {
+        if (savedSession && db) {
           try {
             showPortal(JSON.parse(savedSession));
           } catch (e) {
@@ -1051,52 +1033,47 @@
       // Main initialization function
       async function initApp() {
         try {
-          // Wait for DOM to be fully loaded
-          if (document.readyState !== "loading") {
-            await runApp();
-          } else {
-            document.addEventListener("DOMContentLoaded", runApp);
+          // Initialize Firebase
+          await initFirebase();
+          
+          // Initialize language
+          const savedLang = localStorage.getItem("portalLang") || "en";
+          await setLanguage(savedLang);
+          
+          // Auto-fill from URL parameters
+          await autoFillFromUrlParams();
+          
+          // Setup event listeners
+          const langSwitch = await waitForElement("langSwitch", 2000);
+          const loginForm = await waitForElement("loginForm", 2000);
+          const logoutBtn = await waitForElement("logoutBtn", 2000);
+          
+          if (langSwitch) {
+            langSwitch.addEventListener("click", toggleLanguage);
           }
+          
+          if (loginForm) {
+            loginForm.addEventListener("submit", handleLogin);
+          }
+          
+          if (logoutBtn) {
+            logoutBtn.addEventListener("click", handleLogout);
+          }
+          
+          // Check for existing session
+          await checkExistingSession();
+          
         } catch (error) {
           console.error("Application initialization error:", error);
         }
       }
 
-      async function runApp() {
-        // Initialize Firebase
-        const firebaseInitialized = await initFirebase();
-
-        // Initialize language
-        const savedLang = localStorage.getItem("portalLang") || "en";
-        await setLanguage(savedLang);
-
-        // Setup event listeners
-        const [langSwitch, loginForm, logoutBtn] = await Promise.all([
-          $("langSwitch"),
-          $("loginForm"),
-          $("logoutBtn"),
-        ]);
-
-        if (langSwitch) {
-          langSwitch.addEventListener("click", toggleLanguage);
-        }
-
-        if (loginForm) {
-          loginForm.addEventListener("submit", handleLogin);
-        }
-
-        if (logoutBtn) {
-          logoutBtn.addEventListener("click", handleLogout);
-        }
-
-        // Check for existing session
-        if (firebaseInitialized) {
-          await checkExistingSession();
-        }
+      // Start the application after DOM is fully loaded
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initApp);
+      } else {
+        initApp();
       }
-
-      // Start the application
-      initApp();
     </script>
   </body>
 </html>
