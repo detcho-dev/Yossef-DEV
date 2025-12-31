@@ -86,6 +86,8 @@ async function loadProjects() {
         <td>${data.supportStatus || "-"}</td>
         <td>${data.deploymentDate || "-"}</td>
         <td>${data.supportEndDate || "-"}</td>
+        
+
         <td>
           ${
             data.url
@@ -97,6 +99,8 @@ async function loadProjects() {
           <button class="edit-btn" data-id="${doc.id}">Edit</button>
           <button class="delete-btn" data-id="${doc.id}">Delete</button>
         </td>
+        <td>${supportStatusBadge}</td>
+        <td>${statusWithDot}</td>
       `;
 
       // داخل loadProjects()، استبدل سطر supportStatus بـ:
@@ -112,7 +116,6 @@ async function loadProjects() {
       }
 
       // في الـ row.innerHTML:
-      <td>${supportStatusBadge}</td>;
 
       // بعد استخراج projectStatus
       const projectStatusEl = data.projectStatus || "Unknown";
@@ -129,7 +132,6 @@ async function loadProjects() {
       }
 
       // في الـ row.innerHTML:
-      <td>${statusWithDot}</td>;
 
       tableBody.appendChild(row);
     });
