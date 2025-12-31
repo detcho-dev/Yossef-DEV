@@ -6,7 +6,7 @@
     <title>Project Portal</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet" />
-    <!-- Firebase SDKs loaded first in head section -->
+    <!-- Firebase SDKs loaded FIRST in head section -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <style>
@@ -390,7 +390,6 @@
         font-size: 0.95rem;
       }
 
-      /* إضافة نمط لحالة عدم الاتصال بـ Firebase */
       .no-firebase-warning {
         background-color: #ffebee;
         border-left: 4px solid #f44336;
@@ -400,7 +399,6 @@
         font-size: 0.95rem;
       }
       
-      /* نمط لوضع العرض التجريبي */
       .demo-mode-warning {
         background-color: #e3f2fd;
         border-left: 4px solid #2196f3;
@@ -408,6 +406,17 @@
         margin: 20px 0;
         border-radius: 4px;
         font-size: 0.95rem;
+      }
+      
+      /* نمط جديد للتنبيهات المهمة */
+      .critical-warning {
+        background-color: #ffecb3;
+        border: 1px solid #ffc107;
+        border-radius: 8px;
+        padding: 12px;
+        margin: 15px 0;
+        font-weight: 500;
+        text-align: center;
       }
     </style>
   </head>
@@ -599,31 +608,10 @@
       let db = null;
       let isFirebaseReady = false;
       let isDemoMode = false;
+      let appInitialized = false;
+      let currentLang = "en";
 
-      // دالة للحصول على عنصر مع التحقق من وجوده
-      function getElement(id) {
-        const element = document.getElementById(id);
-        if (!element) {
-          console.warn(`Element not found: ${id}`);
-        }
-        return element;
-      }
-
-      // Parse URL parameters
-      function getUrlParams() {
-        try {
-          const params = new URLSearchParams(window.location.search);
-          return {
-            url: params.get('url'),
-            id: params.get('id')
-          };
-        } catch (error) {
-          console.warn("Error parsing URL parameters:", error);
-          return { url: null, id: null };
-        }
-      }
-
-      // Translation system
+      // الترجمات
       const translations = {
         en: {
           loginTitle: "Project Portal Login",
@@ -650,7 +638,8 @@
           systemError: "System error: Please contact administrator.",
           firebaseError: "Firebase initialization failed. Please check configuration.",
           demoModeLoginMessage: "Demo mode: Use URL: https://example.com and Project ID: DEMO123",
-          demoModeNotice: "Running in demo mode. Real Firebase functionality requires proper deployment."
+          demoModeNotice: "Running in demo mode. Real Firebase functionality requires proper deployment.",
+          environmentWarning: "This page is running in a limited environment. For full functionality, deploy to a web server."
         },
         ar: {
           loginTitle: "تسجيل دخول بوابة المشروع",
@@ -677,39 +666,72 @@
           systemError: "خطأ في النظام: يرجى الاتصال بالمسؤول.",
           firebaseError: "فشل تهيئة Firebase. يرجى التحقق من التهيئة.",
           demoModeLoginMessage: "وضع العرض التوضيحي: استخدم الرابط: https://example.com ومعرف المشروع: DEMO123",
-          demoModeNotice: "يعمل في وضع العرض التوضيحي. وظائف Firebase الحقيقية تتطلب نشرًا صحيحًا."
+          demoModeNotice: "يعمل في وضع العرض التوضيحي. وظائف Firebase الحقيقية تتطلب نشرًا صحيحًا.",
+          environmentWarning: "هذه الصفحة تعمل في بيئة محدودة. للوظائف الكاملة، انشرها على خادم ويب."
         },
       };
 
-      let currentLang = "en";
+      // دالة آمنة للحصول على العناصر
+      function byId(id) {
+        return document.getElementById(id);
+      }
 
-      // Detect environment and setup demo mode if needed
+      // انتظار تحميل عنصر معين
+      function waitForElement(id, timeout = 3000) {
+        return new Promise((resolve) => {
+          const element = byId(id);
+          if (element) {
+            resolve(element);
+            return;
+          }
+          
+          const startTime = Date.now();
+          const checkInterval = setInterval(() => {
+            const element = byId(id);
+            if (element) {
+              clearInterval(checkInterval);
+              resolve(element);
+            } else if (Date.now() - startTime > timeout) {
+              clearInterval(checkInterval);
+              resolve(null);
+            }
+          }, 100);
+        });
+      }
+
+      // كشف البيئة
       function detectEnvironment() {
         const isFileProtocol = window.location.protocol === 'file:';
         const isVSCodeWebView = window.location.href.includes('vscode-webview') || 
                                window.location.href.includes('vscode-extension');
+        const isLocalhost = window.location.hostname === 'localhost' || 
+                           window.location.hostname === '127.0.0.1';
         
         if (isFileProtocol || isVSCodeWebView) {
           isDemoMode = true;
-          console.log("✅ Running in demo mode due to environment limitations");
+          console.log("✅ Running in DEMO MODE (environment limitation)");
           return;
         }
         
         try {
-          if (firebaseConfig.apiKey && 
-              firebaseConfig.apiKey !== "AIzaSyAemoGMX1PHF55qUTh_5SZIrN3Y-QaqrWA") {
-            isDemoMode = false;
-          } else {
+          // التحقق من تكوين Firebase
+          if (!firebaseConfig.apiKey || 
+              firebaseConfig.apiKey.trim() === "" || 
+              firebaseConfig.apiKey === "AIzaSyAemoGMX1PHF55qUTh_5SZIrN3Y-QaqrWA") {
             isDemoMode = true;
-            console.log("✅ Running in demo mode due to default Firebase config");
+            console.log("✅ Running in DEMO MODE (default Firebase config)");
+            return;
           }
+          
+          isDemoMode = false;
+          console.log("✅ Running in REAL MODE (Firebase enabled)");
         } catch (e) {
           isDemoMode = true;
-          console.log("✅ Running in demo mode due to Firebase initialization error");
+          console.log("✅ Running in DEMO MODE (Firebase error)");
         }
       }
 
-      // Initialize Firebase with error handling
+      // تهيئة Firebase
       function initFirebase() {
         if (isDemoMode) {
           console.log("ℹ️ Skipping Firebase initialization in demo mode");
@@ -717,98 +739,98 @@
         }
         
         try {
-          // Initialize Firebase
-          if (typeof firebase !== 'undefined') {
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.firestore();
-            isFirebaseReady = true;
-            console.log("✅ Firebase initialized successfully");
-            return true;
-          } else {
-            throw new Error("Firebase SDK not loaded properly.");
+          if (typeof firebase === 'undefined') {
+            throw new Error("Firebase SDK not loaded");
           }
+          
+          firebase.initializeApp(firebaseConfig);
+          db = firebase.firestore();
+          isFirebaseReady = true;
+          console.log("✅ Firebase initialized successfully");
+          return true;
         } catch (error) {
           console.error("❌ Firebase initialization failed:", error);
           
-          // Show appropriate warning
-          const configWarning = getElement("configWarning");
-          const noFirebaseWarning = getElement("noFirebaseWarning");
+          // إظهار تحذيرات مناسبة
+          const configWarning = byId("configWarning");
+          const noFirebaseWarning = byId("noFirebaseWarning");
           
-          if (configWarning) {
-            configWarning.classList.remove("hidden");
-          }
+          if (configWarning) configWarning.classList.remove("hidden");
+          if (noFirebaseWarning) noFirebaseWarning.classList.remove("hidden");
           
-          if (noFirebaseWarning) {
-            noFirebaseWarning.classList.remove("hidden");
-          }
-          
+          isDemoMode = true;
           return false;
         }
       }
 
-      // Set language function
-      function setLanguage(lang) {
-        currentLang = lang;
-        localStorage.setItem("portalLang", lang);
-
-        // Update all translatable elements
-        document.querySelectorAll("[data-i18n]").forEach((element) => {
+      // تهيئة اللغة
+      async function initLanguage() {
+        currentLang = localStorage.getItem("portalLang") || "en";
+        
+        // تحديث جميع العناصر القابلة للترجمة
+        document.querySelectorAll("[data-i18n]").forEach(element => {
           const key = element.getAttribute("data-i18n");
-          if (translations[lang][key]) {
-            element.textContent = translations[lang][key];
+          if (translations[currentLang][key]) {
+            element.textContent = translations[currentLang][key];
           }
         });
-
-        // Update login button text
-        const loginBtnText = getElement("loginBtnText");
-        if (loginBtnText && translations[lang].loginBtn) {
-          loginBtnText.textContent = translations[lang].loginBtn;
-        }
-
-        // Update logout button if exists
-        const logoutBtn = getElement("logoutBtn");
-        if (logoutBtn && translations[lang].logoutBtn) {
-          logoutBtn.innerHTML = `<i class="fas fa-sign-out-alt"></i> <span>${translations[lang].logoutBtn}</span>`;
-        }
-
-        // Update config warning if visible
-        const configWarning = getElement("configWarning");
-        if (configWarning && !configWarning.classList.contains("hidden")) {
-          configWarning.innerHTML = `<strong>${translations[lang].configNotice}</strong> ${translations[lang].configMessage}`;
-        }
-
-        // Update no-firebase warning if visible
-        const noFirebaseWarning = getElement("noFirebaseWarning");
-        if (noFirebaseWarning && !noFirebaseWarning.classList.contains("hidden")) {
-          noFirebaseWarning.innerHTML = `<strong>${translations[lang].configNotice}</strong> ${translations[lang].systemError}`;
+        
+        // تحديث أزرار اللغة
+        const loginBtnText = await waitForElement("loginBtnText", 1000);
+        if (loginBtnText) {
+          loginBtnText.textContent = translations[currentLang].loginBtn;
         }
         
-        // Update demo mode warning
-        const demoModeWarning = getElement("demoModeWarning");
-        if (demoModeWarning && isDemoMode) {
-          demoModeWarning.innerHTML = `<strong>${translations[lang].configNotice}</strong> ${translations[lang].demoModeNotice}`;
-          demoModeWarning.classList.remove("hidden");
+        const logoutBtn = await waitForElement("logoutBtn", 1000);
+        if (logoutBtn) {
+          logoutBtn.innerHTML = `<i class="fas fa-sign-out-alt"></i> <span>${translations[currentLang].logoutBtn}</span>`;
         }
-
-        // Set text direction
-        document.documentElement.setAttribute("lang", lang);
-        document.body.setAttribute("dir", lang === "ar" ? "rtl" : "ltr");
-
-        // Update language switcher
-        const langSwitch = getElement("langSwitch");
+        
+        // تحديث اتجاه النص
+        document.documentElement.setAttribute("lang", currentLang);
+        document.body.setAttribute("dir", currentLang === "ar" ? "rtl" : "ltr");
+        
+        // تحديث مفتاح تغيير اللغة
+        const langSwitch = await waitForElement("langSwitch", 1000);
         if (langSwitch) {
-          langSwitch.innerHTML = `<i class="fas fa-language"></i> ${lang.toUpperCase()}`;
-          langSwitch.setAttribute("aria-label", lang === "ar" ? "English" : "العربية");
+          langSwitch.innerHTML = `<i class="fas fa-language"></i> ${currentLang.toUpperCase()}`;
         }
       }
 
-      // Toggle language
+      // تبديل اللغة
       function toggleLanguage() {
-        const newLang = currentLang === "en" ? "ar" : "en";
-        setLanguage(newLang);
+        currentLang = currentLang === "en" ? "ar" : "en";
+        localStorage.setItem("portalLang", currentLang);
+        initLanguage();
+        
+        // تحديث التحذيرات إذا كانت ظاهرة
+        updateWarnings();
       }
 
-      // Demo mode data
+      // تحديث التحذيرات بناءً على اللغة
+      function updateWarnings() {
+        if (isDemoMode) {
+          const demoModeWarning = byId("demoModeWarning");
+          if (demoModeWarning) {
+            demoModeWarning.innerHTML = `<strong>${translations[currentLang].configNotice}</strong> ${translations[currentLang].demoModeNotice}`;
+            demoModeWarning.classList.remove("hidden");
+          }
+          
+          // إظهار رسالة التعليمات
+          const loginAlert = byId("loginAlert");
+          if (loginAlert) {
+            loginAlert.textContent = translations[currentLang].demoModeLoginMessage;
+            loginAlert.className = "alert alert-success";
+            loginAlert.classList.remove("hidden");
+            
+            setTimeout(() => {
+              if (loginAlert) loginAlert.classList.add("hidden");
+            }, 5000);
+          }
+        }
+      }
+
+      // بيانات العرض التجريبي
       const demoProjectData = {
         customerName: "Demo Customer",
         projectId: "DEMO123",
@@ -820,30 +842,34 @@
         url: "https://example.com"
       };
 
-      // Authentication functions
+      // معالجة تسجيل الدخول
       async function handleLogin(e) {
         e.preventDefault();
-
-        // Get all required elements
-        const projectUrlEl = getElement('projectUrl');
-        const projectIdEl = getElement('projectId');
-        const loginBtn = getElement('loginBtn');
-        const loginBtnText = getElement('loginBtnText');
-        const loginSpinner = getElement('loginSpinner');
-        const loginAlert = getElement('loginAlert');
         
-        // Validate all elements exist
+        // انتظار تحميل جميع العناصر المطلوبة
+        const [projectUrlEl, projectIdEl, loginBtn, loginBtnText, loginSpinner, loginAlert] = await Promise.all([
+          waitForElement('projectUrl', 2000),
+          waitForElement('projectId', 2000),
+          waitForElement('loginBtn', 2000),
+          waitForElement('loginBtnText', 2000),
+          waitForElement('loginSpinner', 2000),
+          waitForElement('loginAlert', 2000)
+        ]);
+        
+        // التحقق من وجود جميع العناصر
         if (!projectUrlEl || !projectIdEl || !loginBtn || !loginBtnText || !loginSpinner || !loginAlert) {
-          console.error("Required elements missing for login functionality");
+          console.error("❌ Critical elements missing for login");
           
-          // Show error in UI
           if (loginAlert) {
             loginAlert.textContent = translations[currentLang].systemError;
             loginAlert.className = "alert alert-error";
             loginAlert.classList.remove("hidden");
-          } else {
-            alert(translations[currentLang].systemError);
           }
+          
+          // إعادة تمكين الزر وإخفاء المؤشر الدوار
+          if (loginBtn) loginBtn.disabled = false;
+          if (loginBtnText) loginBtnText.classList.remove("hidden");
+          if (loginSpinner) loginSpinner.classList.add("hidden");
           
           return;
         }
@@ -851,7 +877,7 @@
         const projectUrl = projectUrlEl.value.trim();
         const projectId = projectIdEl.value.trim().toUpperCase();
 
-        // Validate inputs
+        // التحقق من المدخلات
         if (!projectUrl || !projectId) {
           loginAlert.textContent = translations[currentLang].loginError;
           loginAlert.className = "alert alert-error";
@@ -859,18 +885,17 @@
           return;
         }
 
-        // Reset UI
+        // إعادة تعيين واجهة المستخدم
         loginAlert.classList.add("hidden");
         loginBtn.disabled = true;
         loginBtnText.classList.add("hidden");
         loginSpinner.classList.remove("hidden");
 
         try {
-          // Demo mode handling
           if (isDemoMode) {
-            console.log("🔄 Running in demo mode");
+            console.log("🔄 Processing demo login");
             
-            // Handle demo credentials
+            // التحقق من بيانات العرض التجريبي
             if (projectUrl === "https://example.com" && projectId === "DEMO123") {
               setTimeout(() => {
                 loginAlert.textContent = translations[currentLang].loginSuccess;
@@ -888,7 +913,7 @@
             return;
           }
 
-          // Real Firebase mode
+          // وضع Firebase الحقيقي
           if (!isFirebaseReady) {
             const initSuccess = initFirebase();
             if (!initSuccess) {
@@ -900,7 +925,7 @@
             throw new Error(translations[currentLang].firebaseError);
           }
 
-          // Normalize URLs for comparison
+          // توحيد الروابط للمقارنة
           const normalizeUrl = (url) => {
             return url
               .replace(/^(https?:\/\/)?(www\.)?/, "")
@@ -910,7 +935,7 @@
 
           const normalizedInputUrl = normalizeUrl(projectUrl);
 
-          // Query Firestore securely
+          // استعلام Firestore
           const projectsRef = db.collection("projects");
           const snapshot = await projectsRef
             .where(firebase.firestore.FieldPath.documentId(), "==", projectId)
@@ -924,9 +949,9 @@
 
           const doc = snapshot.docs[0];
           const data = doc.data();
-          data.projectId = projectId; // Add projectId to data
+          data.projectId = projectId;
 
-          // Format dates if they're Firestore timestamps
+          // تنسيق التواريخ
           if (data.deploymentDate && data.deploymentDate.toDate) {
             data.deploymentDate = formatDate(data.deploymentDate.toDate());
           } else if (typeof data.deploymentDate === "string") {
@@ -945,12 +970,12 @@
             }
           }
 
-          // Show success message
+          // عرض رسالة النجاح
           loginAlert.textContent = translations[currentLang].loginSuccess;
           loginAlert.className = "alert alert-success";
           loginAlert.classList.remove("hidden");
 
-          // Redirect to portal after delay
+          // التحويل إلى لوحة التحكم
           setTimeout(() => {
             saveSession(data);
             showPortal(data);
@@ -968,76 +993,63 @@
         }
       }
 
-      function handleLogout() {
+      // معالجة تسجيل الخروج
+      async function handleLogout() {
         localStorage.removeItem("portalSession");
         
-        const loginPage = getElement("loginPage");
-        const portalPage = getElement("portalPage");
-        const loginForm = getElement("loginForm");
-        const loginAlert = getElement("loginAlert");
+        const [loginPage, portalPage, loginForm, loginAlert] = await Promise.all([
+          waitForElement("loginPage", 1000),
+          waitForElement("portalPage", 1000),
+          waitForElement("loginForm", 1000),
+          waitForElement("loginAlert", 1000)
+        ]);
 
         if (loginForm) loginForm.reset();
         if (portalPage) portalPage.classList.add("hidden");
         if (loginPage) loginPage.classList.remove("hidden");
 
-        // Show success message
+        // عرض رسالة النجاح
         if (loginAlert) {
           loginAlert.textContent = translations[currentLang].logoutSuccess;
           loginAlert.className = "alert alert-success";
           loginAlert.classList.remove("hidden");
 
-          // Auto-hide after 3 seconds
           setTimeout(() => {
             if (loginAlert) loginAlert.classList.add("hidden");
           }, 3000);
         }
       }
 
-      // UI functions
-      function showPortal(data) {
-        // Customer name display
-        const customerNameDisplay = getElement("customerNameDisplay");
-        const customerNameEl = getElement("customerName");
-        const projectIdDisplay = getElement("projectIdDisplay");
-        const projectNameEl = getElement("projectName");
-        const deploymentDateEl = getElement("deploymentDate");
-        const supportEndDateEl = getElement("supportEndDate");
-        const supportStatusEl = getElement("supportStatus");
-        const projectStatusEl = getElement("projectStatus");
-        const projectUrlLink = getElement("projectUrlLink");
-        const loginPage = getElement("loginPage");
-        const portalPage = getElement("portalPage");
+      // عرض لوحة التحكم
+      async function showPortal(data) {
+        // انتظار تحميل جميع العناصر المطلوبة
+        const [
+          customerNameDisplay, customerNameEl, projectIdDisplay, projectNameEl,
+          deploymentDateEl, supportEndDateEl, supportStatusEl, projectStatusEl,
+          projectUrlLink, loginPage, portalPage
+        ] = await Promise.all([
+          waitForElement("customerNameDisplay", 1500),
+          waitForElement("customerName", 1500),
+          waitForElement("projectIdDisplay", 1500),
+          waitForElement("projectName", 1500),
+          waitForElement("deploymentDate", 1500),
+          waitForElement("supportEndDate", 1500),
+          waitForElement("supportStatus", 1500),
+          waitForElement("projectStatus", 1500),
+          waitForElement("projectUrlLink", 1500),
+          waitForElement("loginPage", 1500),
+          waitForElement("portalPage", 1500)
+        ]);
         
-        // Customer name display
-        if (customerNameDisplay) {
-          customerNameDisplay.textContent = data.customerName || "Unknown Customer";
-        }
+        // ملء البيانات
+        if (customerNameDisplay) customerNameDisplay.textContent = data.customerName || "Unknown Customer";
+        if (customerNameEl) customerNameEl.textContent = data.customerName || "N/A";
+        if (projectIdDisplay) projectIdDisplay.textContent = data.projectId || "N/A";
+        if (projectNameEl) projectNameEl.textContent = data.projectName || "N/A";
+        if (deploymentDateEl) deploymentDateEl.textContent = data.deploymentDate || "N/A";
+        if (supportEndDateEl) supportEndDateEl.textContent = data.supportEndDate || "N/A";
         
-        // Customer name field
-        if (customerNameEl) {
-          customerNameEl.textContent = data.customerName || "N/A";
-        }
-        
-        // Project ID field
-        if (projectIdDisplay) {
-          projectIdDisplay.textContent = data.projectId || "N/A";
-        }
-        
-        // Project name field
-        if (projectNameEl) {
-          projectNameEl.textContent = data.projectName || "N/A";
-        }
-        
-        // Dates
-        if (deploymentDateEl) {
-          deploymentDateEl.textContent = data.deploymentDate || "N/A";
-        }
-        
-        if (supportEndDateEl) {
-          supportEndDateEl.textContent = data.supportEndDate || "N/A";
-        }
-        
-        // Support status
+        // حالة الدعم
         if (supportStatusEl) {
           supportStatusEl.textContent = data.supportStatus || "Unknown";
           supportStatusEl.className = "status-badge";
@@ -1051,7 +1063,7 @@
           }
         }
         
-        // Project status
+        // حالة المشروع
         if (projectStatusEl) {
           projectStatusEl.textContent = data.projectStatus || "Unknown";
           projectStatusEl.className = "status-badge";
@@ -1065,18 +1077,19 @@
           }
         }
         
-        // Project URL
+        // رابط المشروع
         const projectUrl = data.projectUrl || data.url || "#";
         if (projectUrlLink) {
           projectUrlLink.textContent = projectUrl !== "#" ? projectUrl : "N/A";
           projectUrlLink.href = projectUrl !== "#" ? projectUrl : "#";
         }
 
-        // Show portal and hide login
+        // عرض لوحة التحكم وإخفاء صفحة تسجيل الدخول
         if (loginPage) loginPage.classList.add("hidden");
         if (portalPage) portalPage.classList.remove("hidden");
       }
 
+      // حفظ الجلسة
       function saveSession(data) {
         const sessionData = {
           customerName: data.customerName || "Unknown Customer",
@@ -1092,7 +1105,7 @@
         localStorage.setItem("portalSession", JSON.stringify(sessionData));
       }
 
-      // Utility functions
+      // تنسيق التاريخ
       function formatDate(date) {
         return new Date(date).toLocaleDateString(
           currentLang === "ar" ? "ar-EG" : "en-US",
@@ -1104,8 +1117,8 @@
         );
       }
 
-      // Check for existing session
-      function checkExistingSession() {
+      // فحص الجلسة المحفوظة
+      async function checkExistingSession() {
         const savedSession = localStorage.getItem("portalSession");
         if (savedSession) {
           try {
@@ -1117,95 +1130,114 @@
         }
       }
 
-      // Auto-fill form from URL parameters
-      function autoFillFromUrlParams() {
+      // استخراج معلمات URL
+      function getUrlParams() {
+        try {
+          const params = new URLSearchParams(window.location.search);
+          return {
+            url: params.get('url'),
+            id: params.get('id')
+          };
+        } catch (error) {
+          console.warn("Error parsing URL parameters:", error);
+          return { url: null, id: null };
+        }
+      }
+
+      // ملء الحقول من معلمات URL
+      async function autoFillFromUrlParams() {
         const params = getUrlParams();
-        const projectUrlEl = getElement('projectUrl');
-        const projectIdEl = getElement('projectId');
+        if (!params.url && !params.id) return;
         
-        let autoSubmit = false;
+        const [projectUrlEl, projectIdEl] = await Promise.all([
+          waitForElement('projectUrl', 1500),
+          waitForElement('projectId', 1500)
+        ]);
         
         if (projectUrlEl && params.url) {
           projectUrlEl.value = params.url;
-          autoSubmit = true;
         }
         
         if (projectIdEl && params.id) {
           projectIdEl.value = params.id;
-          autoSubmit = true;
         }
         
-        // Auto-submit if both parameters are present and in demo mode
-        if (autoSubmit && isDemoMode && params.url && params.id) {
+        // تسجيل الدخول التلقائي في وضع العرض التجريبي
+        if (isDemoMode && params.url && params.id) {
           setTimeout(() => {
-            const loginForm = getElement('loginForm');
-            if (loginForm && projectUrlEl && projectIdEl) {
-              if (projectUrlEl.value && projectIdEl.value) {
-                loginForm.requestSubmit();
-              }
+            const loginForm = byId('loginForm');
+            if (loginForm && projectUrlEl.value && projectIdEl.value) {
+              loginForm.requestSubmit();
             }
-          }, 500);
+          }, 600);
         }
       }
 
-      // Display demo mode instructions
-      function showDemoModeInstructions() {
-        if (!isDemoMode) return;
+      // تهيئة التطبيق
+      async function initApp() {
+        if (appInitialized) return;
+        appInitialized = true;
         
-        const loginAlert = getElement("loginAlert");
-        if (loginAlert) {
-          loginAlert.textContent = translations[currentLang].demoModeLoginMessage;
-          loginAlert.className = "alert alert-success";
-          loginAlert.classList.remove("hidden");
-          
-          setTimeout(() => {
-            if (loginAlert) loginAlert.classList.add("hidden");
-          }, 5000);
-        }
-      }
-
-      // Initialize the app when DOM is fully loaded
-      function initApp() {
-        // Detect environment first
+        console.log("🚀 Initializing Project Portal...");
+        
+        // كشف البيئة
         detectEnvironment();
         
-        // Initialize Firebase if not in demo mode
+        // تهيئة Firebase إذا لزم الأمر
         if (!isDemoMode) {
           initFirebase();
         }
         
-        // Initialize language
-        const savedLang = localStorage.getItem("portalLang") || "en";
-        setLanguage(savedLang);
+        // تهيئة اللغة
+        await initLanguage();
         
-        // Setup event listeners
-        const langSwitch = getElement("langSwitch");
+        // تحديث التحذيرات
+        updateWarnings();
+        
+        // إعداد مستمعي الأحداث
+        const [langSwitch, loginForm, logoutBtn] = await Promise.all([
+          waitForElement("langSwitch", 1500),
+          waitForElement("loginForm", 1500),
+          waitForElement("logoutBtn", 1500)
+        ]);
+        
         if (langSwitch) {
           langSwitch.addEventListener("click", toggleLanguage);
         }
         
-        const loginForm = getElement("loginForm");
         if (loginForm) {
           loginForm.addEventListener("submit", handleLogin);
         }
         
-        const logoutBtn = getElement("logoutBtn");
         if (logoutBtn) {
           logoutBtn.addEventListener("click", handleLogout);
         }
         
-        // Show demo mode instructions after UI is ready
-        setTimeout(showDemoModeInstructions, 500);
+        // ملء الحقول من معلمات URL
+        await autoFillFromUrlParams();
         
-        // Auto-fill from URL parameters
-        autoFillFromUrlParams();
+        // فحص الجلسة المحفوظة
+        await checkExistingSession();
         
-        // Check for existing session
-        checkExistingSession();
+        console.log(isDemoMode ? "✅ Application initialized in DEMO MODE" : "✅ Application initialized in REAL MODE");
       }
 
-      // Start the application after DOM is fully loaded
-      document.addEventListener('DOMContentLoaded', initApp);
+      // بدء التطبيق عند تحميل DOM
+      document.addEventListener('DOMContentLoaded', () => {
+        console.log("📄 DOM fully loaded. Starting application...");
+        initApp();
+      });
+
+      // معالجة الأخطاء العالمية
+      window.onerror = function(message, source, lineno, colno, error) {
+        console.error("❌ Global error caught:", { message, source, lineno, colno, error });
+        return true;
+      };
+
+      window.addEventListener('unhandledrejection', function(event) {
+        console.error("❌ Unhandled promise rejection:", event.reason);
+        event.preventDefault();
+      });
     </script>
   </body>
 </html>
