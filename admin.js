@@ -137,36 +137,34 @@ async function loadProjects() {
 
 let lastSearchTerm = "";
 
-// 🔍 Search Functionality مع إضافة زر الإنشاء
+// 🔍 Search with "Create with ID" button
 function searchTable() {
-  const input = document.getElementById("search");
-  const searchTerm = input.value.trim().toLowerCase();
+  const searchTerm = document
+    .getElementById("search")
+    .value.trim()
+    .toLowerCase();
   const tableBody = document.getElementById("table-body");
   const noResultsDiv = document.getElementById("no-results");
   const createBtn = document.getElementById("create-with-id-btn");
 
-  // تخزين آخر عملية بحث
-  lastSearchTerm = searchTerm;
+  // إخفاء رسالة "لا نتائج" افتراضيًا
+  noResultsDiv.style.display = "none";
 
-  // إذا كان البحث فارغًا، أظهر كل الصفوف وأخفِ رسالة "لا نتائج"
   if (searchTerm === "") {
-    tableBody.querySelectorAll("tr").forEach((row) => (row.style.display = ""));
-    noResultsDiv.style.display = "none";
+    // إظهار كل الصفوف إذا كان البحث فارغًا
+    document.querySelectorAll("#table-body tr").forEach((row) => {
+      row.style.display = "";
+    });
     return;
   }
 
   // البحث في الصفوف
-  const rows = tableBody.querySelectorAll("tr");
-  let matchFound = false;
-
-  rows.forEach((row) => {
-    const cells = row.querySelectorAll("td");
+  let hasMatch = false;
+  document.querySelectorAll("#table-body tr").forEach((row) => {
+    const cells = row.querySelectorAll("td:not(.actions)");
     let match = false;
 
     cells.forEach((cell) => {
-      // تجنب البحث في أعمدة الإجراءات (الأزرار)
-      if (cell.classList.contains("actions")) return;
-
       if (cell.textContent.toLowerCase().includes(searchTerm)) {
         match = true;
       }
@@ -174,28 +172,24 @@ function searchTable() {
 
     if (match) {
       row.style.display = "";
-      matchFound = true;
+      hasMatch = true;
     } else {
       row.style.display = "none";
     }
   });
 
-  // إذا لم يُعثر على نتائج
-  if (!matchFound) {
+  // إذا لم يُوجد تطابق
+  if (!hasMatch) {
     noResultsDiv.style.display = "block";
 
-    // ✅ تحقق إذا كان مصطلح البحث يبدو كـ ID (يحتوي على أحرف وأرقام فقط بدون مسافات)
+    // تحقق إذا كان البحث "ID محتمل" (لا يحتوي على مسافات)
     if (searchTerm && !searchTerm.includes(" ")) {
       createBtn.textContent = `Create project with ID: "${searchTerm}"`;
       createBtn.style.display = "inline-block";
-
-      // ربط الحدث (سنستخدمه لاحقًا)
-      createBtn.dataset.id = searchTerm;
+      createBtn.dataset.searchId = searchTerm; // حفظ الـ ID
     } else {
       createBtn.style.display = "none";
     }
-  } else {
-    noResultsDiv.style.display = "none";
   }
 }
 
@@ -370,15 +364,16 @@ function attachActionButtons() {
 
 // 🎯 ربط جميع الأحداث بعد تحميل الصفحة
 document.addEventListener("DOMContentLoaded", () => {
-  // عند النقر على زر "Create with ID"
-document.getElementById("create-with-id-btn")?.addEventListener("click", () => {
-  const id = document.getElementById("create-with-id-btn").dataset.id;
-  if (id) {
-    // افتح نموذج المشروع الجديد مع ملء الـ ID تلقائيًا
-    document.getElementById("new-id").value = id;
-    document.getElementById("new-project-modal").style.display = "block";
-  }
-});
+  document
+    .getElementById("create-with-id-btn")
+    ?.addEventListener("click", (e) => {
+      const searchId = e.target.dataset.searchId;
+      if (searchId) {
+        // ملء حقل الـ ID في نموذج الإنشاء
+        document.getElementById("new-id").value = searchId;
+        document.getElementById("new-project-modal").style.display = "block";
+      }
+    });
   // أزرار الشاشة الرئيسية
   document.getElementById("login-btn")?.addEventListener("click", login);
   document.getElementById("logout-btn")?.addEventListener("click", logout);
