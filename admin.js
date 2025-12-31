@@ -74,14 +74,16 @@ async function logout() {
 }
 
 function getSupportStatusText(endDateString) {
-  if (!endDateString) return "-";
+  // إذا كان التاريخ فارغ أو "---"
+  if (!endDateString || endDateString.trim() === "---") {
+    return "Unlimited Support";
+  }
 
   // دعم تنسيق DD-MM-YYYY (مثل "28-01-2026")
   let endDate;
-  if (endDateString.includes("-")) {
+  if (endDateString.includes("-") && endDateString.length > 10) {
     const parts = endDateString.split("-");
     if (parts.length === 3) {
-      // تحويل من DD-MM-YYYY إلى YYYY-MM-DD ليعمل مع new Date()
       const [day, month, year] = parts;
       endDate = new Date(`${year}-${month}-${day}`);
     } else {
@@ -101,14 +103,17 @@ function getSupportStatusText(endDateString) {
   const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 
   if (diffDays > 7) {
-    return endDate.toLocaleDateString("en-GB"); // شكل: 28/01/2026
-  } else if (diffDays > 0) {
-    return `Ends in ${diffDays} day${diffDays !== 1 ? "s" : ""}`;
-  } else if (diffDays === 0) {
+    return endDate.toLocaleDateString('en-GB');
+  } 
+  else if (diffDays > 0) {
+    return `Ends in ${diffDays} day${diffDays !== 1 ? 's' : ''}`;
+  } 
+  else if (diffDays === 0) {
     return "Ends today";
-  } else {
+  } 
+  else {
     const daysAgo = Math.abs(diffDays);
-    return `Ended ${daysAgo} day${daysAgo !== 1 ? "s" : ""} ago`;
+    return `Ended ${daysAgo} day${daysAgo !== 1 ? 's' : ''} ago`;
   }
 }
 // Load Projects
