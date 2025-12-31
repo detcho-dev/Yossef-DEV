@@ -1223,8 +1223,12 @@
       }
 
       // بدء التطبيق عند تحميل DOM
-      document.addEventListener('DOMContentLoaded', () => {
-        console.log("📄 DOM fully loaded. Starting application...");
+      window.addEventListener('load', () => {
+        // تأكد أن Firebase محمل
+        if (typeof firebase === 'undefined') {
+          console.error("❌ Firebase failed to load");
+          isDemoMode = true;
+        }
         initApp();
       });
 
