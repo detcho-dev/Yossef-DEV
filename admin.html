@@ -5,54 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Dashboard - Projects</title>
     <link rel="stylesheet" href="admin.css" />
-    <!-- Firebase SDKs -->
-    <script type="module">
-      // استيراد الدوال المطلوبة
-      import * as admin from "./admin.js";
-
-      // ربط الأحداث بعد تحميل الصفحة
-      document.addEventListener("DOMContentLoaded", () => {
-        // ربط أزرار لوحة التحكم
-        document
-          .getElementById("login-btn")
-          ?.addEventListener("click", admin.login);
-        document
-          .getElementById("logout-btn")
-          ?.addEventListener("click", admin.logout);
-        document
-          .getElementById("new-project-btn")
-          ?.addEventListener("click", admin.openNewProjectModal);
-        document
-          .getElementById("search")
-          ?.addEventListener("input", admin.searchTable);
-        document
-          .getElementById("add-project-btn")
-          ?.addEventListener("click", admin.addNewProject);
-        document
-          .getElementById("update-project-btn")
-          ?.addEventListener("click", admin.updateProject);
-
-        // ربط أزرار الإغلاق
-        document
-          .getElementById("close-new-modal")
-          ?.addEventListener("click", () =>
-            admin.closeModal("new-project-modal")
-          );
-        document
-          .getElementById("close-edit-modal")
-          ?.addEventListener("click", () =>
-            admin.closeModal("edit-project-modal")
-          );
-
-        // إغلاق النوافذ عند الضغط بالخارج
-        window.addEventListener("click", (e) => {
-          if (e.target.classList.contains("modal")) {
-            admin.closeModal("new-project-modal");
-            admin.closeModal("edit-project-modal");
-          }
-        });
-      });
-    </script>
+    <script type="module" src="admin.js"></script>
   </head>
   <body>
     <!-- Login Screen -->
@@ -62,10 +15,7 @@
         <input type="email" id="email" placeholder="Email" />
         <input type="password" id="password" placeholder="Password" />
         <button id="login-btn">Login</button>
-        <p
-          id="login-error"
-          style="color: #ff4444; margin-top: 15px; display: none"
-        ></p>
+        <p id="login-error" style="color: #ff4444; margin-top: 15px; display: none"></p>
       </div>
     </div>
 
@@ -79,6 +29,7 @@
       <div class="controls">
         <input type="text" id="search" placeholder="Search all fields..." />
         <button id="new-project-btn">New Project</button>
+        <button id="refresh-btn">🔄 Refresh</button>
       </div>
 
       <table id="projects-table">
@@ -92,6 +43,7 @@
             <th>Deployed</th>
             <th>Support Ends</th>
             <th>Website</th>
+            <th>Link</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -100,52 +52,35 @@
         </tbody>
       </table>
 
-      <div
-        id="no-results"
-        style="display: none; text-align: center; padding: 20px; color: #e0e0e0"
-      >
+      <div id="no-results" style="display: none; text-align: center; padding: 20px; color: #e0e0e0">
         <p>No projects found.</p>
-        <button
-          id="create-with-id-btn"
-          style="
-            display: none;
-            margin-top: 15px;
-            padding: 8px 16px;
-            background: #4caf50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-          "
-        >
-          Create project with this ID
-        </button>
+        <button id="create-with-id-btn" style="display: none; margin-top: 15px; padding: 8px 16px; background: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer;">Create project with this ID</button>
       </div>
     </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" style="
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #333;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      z-index: 10000;
+      transform: translateX(200%);
+      transition: transform 0.3s ease;
+    "></div>
 
     <!-- New Project Modal -->
     <div id="new-project-modal" class="modal">
       <div class="modal-content">
         <span class="close" id="close-new-modal">&times;</span>
         <h2>New Project</h2>
-        <input
-          type="text"
-          id="new-id"
-          placeholder="Document ID (Custom)"
-          required
-        />
-        <input
-          type="text"
-          id="new-customer"
-          placeholder="Customer Name"
-          required
-        />
-        <input
-          type="text"
-          id="new-project-name"
-          placeholder="Project Name"
-          required
-        />
+        <input type="text" id="new-id" placeholder="Document ID (Custom)" required />
+        <input type="text" id="new-customer" placeholder="Customer Name" required />
+        <input type="text" id="new-project-name" placeholder="Project Name" required />
         <select id="new-status" required>
           <option value="Live">Live</option>
           <option value="Under Development">Under Development</option>
@@ -157,18 +92,8 @@
           <option value="Expire Soon">Expire Soon</option>
           <option value="Expired">Expired</option>
         </select>
-        <input
-          type="text"
-          id="new-deployment"
-          placeholder="Deployment Date (e.g: 29 December 2025)"
-          required
-        />
-        <input
-          type="text"
-          id="new-support-end"
-          placeholder="Support End Date (e.g: 28 January 2026)"
-          required
-        />
+        <input type="text" id="new-deployment" placeholder="Deployment Date (e.g: 29 December 2025)" required />
+        <input type="text" id="new-support-end" placeholder="Support End Date (e.g: 28 January 2026)" required />
         <input type="url" id="new-url" placeholder="Website URL" required />
         <button id="add-project-btn">Add Project</button>
       </div>
@@ -180,18 +105,8 @@
         <span class="close" id="close-edit-modal">&times;</span>
         <h2>Edit Project</h2>
         <input type="text" id="edit-id" readonly />
-        <input
-          type="text"
-          id="edit-customer"
-          placeholder="Customer Name"
-          required
-        />
-        <input
-          type="text"
-          id="edit-project-name"
-          placeholder="Project Name"
-          required
-        />
+        <input type="text" id="edit-customer" placeholder="Customer Name" required />
+        <input type="text" id="edit-project-name" placeholder="Project Name" required />
         <select id="edit-status" required>
           <option value="Live">Live</option>
           <option value="Under Development">Under Development</option>
@@ -203,18 +118,8 @@
           <option value="Expire Soon">Expire Soon</option>
           <option value="Expired">Expired</option>
         </select>
-        <input
-          type="text"
-          id="edit-deployment"
-          placeholder="Deployment Date"
-          required
-        />
-        <input
-          type="text"
-          id="edit-support-end"
-          placeholder="Support End Date"
-          required
-        />
+        <input type="text" id="edit-deployment" placeholder="Deployment Date" required />
+        <input type="text" id="edit-support-end" placeholder="Support End Date" required />
         <input type="url" id="edit-url" placeholder="Website URL" required />
         <button id="update-project-btn">Save Changes</button>
       </div>
