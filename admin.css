@@ -92,6 +92,17 @@ button#logout-btn:hover {
   background: #b74b6c;
 }
 
+/* زر "Create with ID" */
+#create-with-id-btn {
+  background: #4caf50 !important;
+  padding: 8px 16px !important;
+  font-size: 14px !important;
+}
+
+#create-with-id-btn:hover {
+  background: #3d8b40 !important;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -185,7 +196,9 @@ tr:hover {
   color: var(--text);
 }
 
-.modal-content input, select {
+/* تنسيق الحقول داخل النوافذ */
+.modal-content input,
+.modal-content select {
   width: 100%;
   padding: 12px;
   margin: 10px 0;
@@ -193,6 +206,28 @@ tr:hover {
   border-radius: 4px;
   background: #2d2d2d;
   color: var(--text);
+  height: 44px; /* ارتفاع موحد */
+  font-size: 16px; /* لتجنب التكبير التلقائي في الموبايل */
+}
+
+/* Custom Select Styling */
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e0e0e0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px;
+  cursor: pointer;
+}
+
+select:hover {
+  background-color: #333;
+}
+
+select:focus {
+  outline: 2px solid var(--accent);
+  background-color: #333;
 }
 
 /* Support Status Colors */
@@ -262,4 +297,12 @@ tr:hover {
 /* Fixing Bugs: Red (no pulse) */
 .status-fixing .status-dot {
   background-color: #f44336;
+}
+
+/* رسالة "No results" */
+#no-results {
+  margin-top: 20px;
+  padding: 20px;
+  background: var(--bg-card);
+  border-radius: 8px;
 }
