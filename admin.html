@@ -99,6 +99,16 @@
           <!-- Data will be loaded dynamically -->
         </tbody>
       </table>
+
+      <div
+        id="no-results"
+        style="display: none; text-align: center; padding: 20px"
+      >
+        <p>No projects found.</p>
+        <button id="create-with-id-btn" style="display: none; margin-top: 10px">
+          Create project with this ID
+        </button>
+      </div>
     </div>
 
     <!-- New Project Modal -->
@@ -125,16 +135,16 @@
           required
         />
         <select id="new-status" required>
-            <option value="Live">Live</option>
-            <option value="Under Development">Under Development</option>
-            <option value="Closed">Closed</option>
-            <option value="Fixing Bugs">Fixing Bugs</option>
-          </select>
-          <select id="new-support-status" required>
-            <option value="Active">Active</option>
-            <option value="Expire Soon">Expire Soon</option>
-            <option value="Expired">Expired</option>
-          </select>
+          <option value="Live">Live</option>
+          <option value="Under Development">Under Development</option>
+          <option value="Closed">Closed</option>
+          <option value="Fixing Bugs">Fixing Bugs</option>
+        </select>
+        <select id="new-support-status" required>
+          <option value="Active">Active</option>
+          <option value="Expire Soon">Expire Soon</option>
+          <option value="Expired">Expired</option>
+        </select>
         <input
           type="text"
           id="new-deployment"
@@ -170,17 +180,17 @@
           placeholder="Project Name"
           required
         />
-         <select id="edit-status" required>
-            <option value="Live">Live</option>
-            <option value="Under Development">Under Development</option>
-            <option value="Closed">Closed</option>
-            <option value="Fixing Bugs">Fixing Bugs</option>
-          </select>
-          <select id="edit-support-status" required>
-            <option value="Active">Active</option>
-            <option value="Expire Soon">Expire Soon</option>
-            <option value="Expired">Expired</option>
-          </select>
+        <select id="edit-status" required>
+          <option value="Live">Live</option>
+          <option value="Under Development">Under Development</option>
+          <option value="Closed">Closed</option>
+          <option value="Fixing Bugs">Fixing Bugs</option>
+        </select>
+        <select id="edit-support-status" required>
+          <option value="Active">Active</option>
+          <option value="Expire Soon">Expire Soon</option>
+          <option value="Expired">Expired</option>
+        </select>
         <input
           type="text"
           id="edit-deployment"
