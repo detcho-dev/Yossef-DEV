@@ -677,7 +677,7 @@
       }
 
       // انتظار تحميل عنصر معين
-      function waitForElement(id, timeout = 3000) {
+      function waitForElement(id, timeout = 5000) {
         return new Promise((resolve) => {
           const element = byId(id);
           if (element) {
@@ -845,6 +845,12 @@
       // معالجة تسجيل الدخول
       async function handleLogin(e) {
         e.preventDefault();
+
+        if (!document.getElementById('projectUrl') || !document.getElementById('projectId')) {
+          console.error("❌ Login elements not ready yet");
+          alert("Page not fully loaded. Please wait and try again.");
+          return;
+        }
         
         // انتظار تحميل جميع العناصر المطلوبة
         const [projectUrlEl, projectIdEl, loginBtn, loginBtnText, loginSpinner, loginAlert] = await Promise.all([
@@ -1223,14 +1229,7 @@
       }
 
       // بدء التطبيق عند تحميل DOM
-      window.addEventListener('load', () => {
-        // تأكد أن Firebase محمل
-        if (typeof firebase === 'undefined') {
-          console.error("❌ Firebase failed to load");
-          isDemoMode = true;
-        }
-        initApp();
-      });
+      window.addEventListener('load', initApp);
 
       // معالجة الأخطاء العالمية
       window.onerror = function(message, source, lineno, colno, error) {
