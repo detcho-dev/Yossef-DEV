@@ -74,24 +74,26 @@ async function logout() {
 }
 
 function getSupportStatusText(endDateString) {
-  // إذا كان التاريخ فارغ أو "---"
-  if (!endDateString || endDateString.trim() === "---") {
+  // إذا كان التاريخ فارغًا أو "---"
+  if (!endDateString || endDateString.trim() === "un") {
     return "Unlimited Support";
   }
 
-  // دعم تنسيق DD-MM-YYYY (مثل "28-01-2026")
-  let endDate;
-  if (endDateString.includes("-") && endDateString.length > 10) {
+  // تحويل تنسيق DD-MM-YYYY إلى YYYY-MM-DD
+  let formattedDate = endDateString;
+  if (endDateString.includes("-")) {
     const parts = endDateString.split("-");
     if (parts.length === 3) {
       const [day, month, year] = parts;
-      endDate = new Date(`${year}-${month}-${day}`);
-    } else {
-      endDate = new Date(endDateString);
+      // تأكد أن اليوم والشهر يتكونان من رقمين
+      const paddedDay = day.padStart(2, '0');
+      const paddedMonth = month.padStart(2, '0');
+      formattedDate = `${year}-${paddedMonth}-${paddedDay}`;
     }
-  } else {
-    endDate = new Date(endDateString);
   }
+
+  // إنشاء تاريخ
+  const endDate = new Date(formattedDate);
 
   // التحقق من صحة التاريخ
   if (isNaN(endDate.getTime())) {
@@ -103,7 +105,7 @@ function getSupportStatusText(endDateString) {
   const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 
   if (diffDays > 7) {
-    return endDate.toLocaleDateString('en-GB');
+    return endDate.toLocaleDateString('en-GB'); // شكل: 28/01/2026
   } 
   else if (diffDays > 0) {
     return `Ends in ${diffDays} day${diffDays !== 1 ? 's' : ''}`;
