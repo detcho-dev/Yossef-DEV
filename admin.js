@@ -76,18 +76,41 @@ async function loadProjects() {
 
     querySnapshot.forEach((doc) => {
       const data = doc.data();
-      const row = document.createElement("tr");
 
+      // ✅ 1. احسب supportStatusBadge أولًا
+      const supportStatusEl = data.supportStatus || "Unknown";
+      let supportStatusBadge = `<span class="support-status support-expired">Unknown</span>`;
+      if (supportStatusEl === "Active") {
+        supportStatusBadge = `<span class="support-status support-active">Active</span>`;
+      } else if (supportStatusEl === "Expire Soon") {
+        supportStatusBadge = `<span class="support-status support-expire-soon">Expire Soon</span>`;
+      } else if (supportStatusEl === "Expired") {
+        supportStatusBadge = `<span class="support-status support-expired">Expired</span>`;
+      }
+
+      // ✅ 2. احسب statusWithDot ثانيًا
+      const projectStatusEl = data.projectStatus || "Unknown";
+      let statusWithDot = projectStatusEl;
+      if (projectStatusEl === "Live") {
+        statusWithDot = `<span class="status-live">${projectStatusEl}<span class="status-dot"></span></span>`;
+      } else if (projectStatusEl === "Under Development") {
+        statusWithDot = `<span class="status-developing">${projectStatusEl}<span class="status-dot"></span></span>`;
+      } else if (projectStatusEl === "Closed") {
+        statusWithDot = `<span class="status-closed">${projectStatusEl}<span class="status-dot"></span></span>`;
+      } else if (projectStatusEl === "Fixing Bugs") {
+        statusWithDot = `<span class="status-fixing">${projectStatusEl}<span class="status-dot"></span></span>`;
+      }
+
+      // ✅ 3. الآن استخدم المتغيرات المعرفة
+      const row = document.createElement("tr");
       row.innerHTML = `
         <td>${doc.id}</td>
         <td>${data.customerName || "-"}</td>
         <td>${data.projectName || "-"}</td>
-        <td>${data.projectStatus || "-"}</td>
-        <td>${data.supportStatus || "-"}</td>
+        <td>${statusWithDot}</td> <!-- مشروع الحالة -->
+        <td>${supportStatusBadge}</td> <!-- دعم الحالة -->
         <td>${data.deploymentDate || "-"}</td>
         <td>${data.supportEndDate || "-"}</td>
-        
-
         <td>
           ${
             data.url
@@ -99,39 +122,7 @@ async function loadProjects() {
           <button class="edit-btn" data-id="${doc.id}">Edit</button>
           <button class="delete-btn" data-id="${doc.id}">Delete</button>
         </td>
-        <td>${supportStatusBadge}</td>
-        <td>${statusWithDot}</td>
       `;
-
-      // داخل loadProjects()، استبدل سطر supportStatus بـ:
-      const supportStatusEl = data.supportStatus || "-";
-      let supportStatusBadge = `<span class="support-status support-expired">Unknown</span>`;
-
-      if (supportStatusEl === "Active") {
-        supportStatusBadge = `<span class="support-status support-active">Active</span>`;
-      } else if (supportStatusEl === "Expire Soon") {
-        supportStatusBadge = `<span class="support-status support-expire-soon">Expire Soon</span>`;
-      } else if (supportStatusEl === "Expired") {
-        supportStatusBadge = `<span class="support-status support-expired">Expired</span>`;
-      }
-
-      // في الـ row.innerHTML:
-
-      // بعد استخراج projectStatus
-      const projectStatusEl = data.projectStatus || "Unknown";
-      let statusWithDot = projectStatusEl;
-
-      if (projectStatusEl === "Live") {
-        statusWithDot = `<span class="status-live">${projectStatusEl}<span class="status-dot"></span></span>`;
-      } else if (projectStatusEl === "Under Development") {
-        statusWithDot = `<span class="status-developing">${projectStatusEl}<span class="status-dot"></span></span>`;
-      } else if (projectStatusEl === "Closed") {
-        statusWithDot = `<span class="status-closed">${projectStatusEl}<span class="status-dot"></span></span>`;
-      } else if (projectStatusEl === "Fixing Bugs") {
-        statusWithDot = `<span class="status-fixing">${projectStatusEl}<span class="status-dot"></span></span>`;
-      }
-
-      // في الـ row.innerHTML:
 
       tableBody.appendChild(row);
     });
