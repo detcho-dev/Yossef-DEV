@@ -15,7 +15,6 @@ import {
   getDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// 🔑 استبدل هذه البيانات ببيانات مشروعك من Firebase Console
 const firebaseConfig = {
   apiKey: "AIzaSyAemoGMX1PHF55qUTh_5SZIrN3Y-QaqrWA",
   authDomain: "yossef-dev-216b0.firebaseapp.com",
@@ -24,12 +23,27 @@ const firebaseConfig = {
   messagingSenderId: "509948939620",
   appId: "1:509948939620:web:017b806e995bb114d8be71",
 };
-// Initialize Firebase
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// 🚪 Login Function
+// Toast Notification
+function showToast(message, type = "info") {
+  const toast = document.getElementById("toast");
+  toast.textContent = message;
+  toast.style.transform = "translateX(0)";
+
+  if (type === "success") toast.style.background = "#2e7d32";
+  else if (type === "error") toast.style.background = "#d32f2f";
+  else toast.style.background = "#333";
+
+  setTimeout(() => {
+    toast.style.transform = "translateX(200%)";
+  }, 3000);
+}
+
+// Login
 async function login() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
@@ -47,7 +61,7 @@ async function login() {
   }
 }
 
-// 🚪 Logout Function
+// Logout
 async function logout() {
   try {
     await signOut(auth);
@@ -58,11 +72,28 @@ async function logout() {
   }
 }
 
-// 📥 Load Projects from Firestore
+// Support Countdown
+function getSupportCountdown(endDateString) {
+  if (!endDateString) return "-";
+  const endDate = new Date(endDateString);
+  const today = new Date();
+  const diffTime = endDate - today;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  if (isNaN(diffDays)) return "-";
+  if (diffDays > 0)
+    return `Expires in ${diffDays} day${diffDays !== 1 ? "s" : ""}`;
+  if (diffDays < 0)
+    return `Expired ${Math.abs(diffDays)} day${
+      Math.abs(diffDays) !== 1 ? "s" : ""
+    } ago`;
+  return "Expires today";
+}
+
+// Load Projects
 async function loadProjects() {
   const tableBody = document.getElementById("table-body");
   tableBody.innerHTML =
-    '<tr><td colspan="9" style="text-align:center">Loading...</td></tr>';
+    '<tr><td colspan="10" style="text-align:center">Loading...</td></tr>';
 
   try {
     const querySnapshot = await getDocs(collection(db, "projects"));
@@ -70,74 +101,68 @@ async function loadProjects() {
 
     if (querySnapshot.empty) {
       tableBody.innerHTML =
-        '<tr><td colspan="9" style="text-align:center">No projects found</td></tr>';
+        '<tr><td colspan="10" style="text-align:center">No projects found</td></tr>';
       return;
     }
 
     querySnapshot.forEach((doc) => {
       const data = doc.data();
 
-      // ✅ 1. احسب supportStatusBadge أولًا
+      // Support Status Badge
       const supportStatusEl = data.supportStatus || "Unknown";
       let supportStatusBadge = `<span class="support-status support-expired">Unknown</span>`;
-      if (supportStatusEl === "Active") {
+      if (supportStatusEl === "Active")
         supportStatusBadge = `<span class="support-status support-active">Active</span>`;
-      } else if (supportStatusEl === "Expire Soon") {
+      else if (supportStatusEl === "Expire Soon")
         supportStatusBadge = `<span class="support-status support-expire-soon">Expire Soon</span>`;
-      } else if (supportStatusEl === "Expired") {
+      else if (supportStatusEl === "Expired")
         supportStatusBadge = `<span class="support-status support-expired">Expired</span>`;
-      }
 
-      // ✅ 2. احسب statusWithDot ثانيًا
+      // Project Status with Dot
       const projectStatusEl = data.projectStatus || "Unknown";
       let statusWithDot = projectStatusEl;
-      if (projectStatusEl === "Live") {
+      if (projectStatusEl === "Live")
         statusWithDot = `<span class="status-live">${projectStatusEl}<span class="status-dot"></span></span>`;
-      } else if (projectStatusEl === "Under Development") {
+      else if (projectStatusEl === "Under Development")
         statusWithDot = `<span class="status-developing">${projectStatusEl}<span class="status-dot"></span></span>`;
-      } else if (projectStatusEl === "Closed") {
+      else if (projectStatusEl === "Closed")
         statusWithDot = `<span class="status-closed">${projectStatusEl}<span class="status-dot"></span></span>`;
-      } else if (projectStatusEl === "Fixing Bugs") {
+      else if (projectStatusEl === "Fixing Bugs")
         statusWithDot = `<span class="status-fixing">${projectStatusEl}<span class="status-dot"></span></span>`;
-      }
 
-      // ✅ 3. الآن استخدم المتغيرات المعرفة
       const row = document.createElement("tr");
       row.innerHTML = `
         <td>${doc.id}</td>
         <td>${data.customerName || "-"}</td>
         <td>${data.projectName || "-"}</td>
-        <td>${statusWithDot}</td> <!-- مشروع الحالة -->
-        <td>${supportStatusBadge}</td> <!-- دعم الحالة -->
+        <td>${statusWithDot}</td>
+        <td>${supportStatusBadge}</td>
         <td>${data.deploymentDate || "-"}</td>
-        <td>${data.supportEndDate || "-"}</td>
-        <td>
-          ${
-            data.url
-              ? `<a href="${data.url}" target="_blank" class="view-btn">View Website</a>`
-              : "-"
-          }
-        </td>
+        <td>${getSupportCountdown(data.supportEndDate)}</td>
+        <td>${
+          data.url
+            ? `<a href="${data.url}" target="_blank" class="view-btn">View Website</a>`
+            : "-"
+        }</td>
+        <td><button class="copy-link-btn" data-url="${
+          data.url || ""
+        }" data-id="${doc.id}">Copy Link</button></td>
         <td class="actions">
           <button class="edit-btn" data-id="${doc.id}">Edit</button>
           <button class="delete-btn" data-id="${doc.id}">Delete</button>
         </td>
       `;
-
       tableBody.appendChild(row);
     });
 
-    // ✅ ربط أزرار الإجراءات بعد التحميل
     attachActionButtons();
   } catch (error) {
-    tableBody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:#ff4444">Error loading data: ${error.message}</td></tr>`;
+    tableBody.innerHTML = `<tr><td colspan="10" style="text-align:center;color:#ff4444">Error: ${error.message}</td></tr>`;
     console.error("Error loading projects:", error);
   }
 }
 
-let lastSearchTerm = "";
-
-// 🔍 Search with "Create with ID" button
+// Search
 function searchTable() {
   const searchTerm = document
     .getElementById("search")
@@ -147,29 +172,22 @@ function searchTable() {
   const noResultsDiv = document.getElementById("no-results");
   const createBtn = document.getElementById("create-with-id-btn");
 
-  // إخفاء رسالة "لا نتائج" افتراضيًا
   noResultsDiv.style.display = "none";
 
   if (searchTerm === "") {
-    // إظهار كل الصفوف إذا كان البحث فارغًا
-    document.querySelectorAll("#table-body tr").forEach((row) => {
-      row.style.display = "";
-    });
+    document
+      .querySelectorAll("#table-body tr")
+      .forEach((row) => (row.style.display = ""));
     return;
   }
 
-  // البحث في الصفوف
   let hasMatch = false;
   document.querySelectorAll("#table-body tr").forEach((row) => {
-    const cells = row.querySelectorAll("td:not(.actions)");
+    const cells = row.querySelectorAll("td:not(.actions):not(:nth-child(9))");
     let match = false;
-
     cells.forEach((cell) => {
-      if (cell.textContent.toLowerCase().includes(searchTerm)) {
-        match = true;
-      }
+      if (cell.textContent.toLowerCase().includes(searchTerm)) match = true;
     });
-
     if (match) {
       row.style.display = "";
       hasMatch = true;
@@ -178,49 +196,45 @@ function searchTable() {
     }
   });
 
-  // إذا لم يُوجد تطابق
   if (!hasMatch) {
     noResultsDiv.style.display = "block";
-
-    // تحقق إذا كان البحث "ID محتمل" (لا يحتوي على مسافات)
     if (searchTerm && !searchTerm.includes(" ")) {
-      createBtn.textContent = `Create project with ID: "${searchTerm}"`;
+      createBtn.textContent = `Create with ID: "${searchTerm}"`;
       createBtn.style.display = "inline-block";
-      createBtn.dataset.searchId = searchTerm; // حفظ الـ ID
+      createBtn.dataset.searchId = searchTerm;
     } else {
       createBtn.style.display = "none";
     }
   }
 }
 
-// ➕ Open New Project Modal
+// Open New Modal
 function openNewProjectModal() {
   document.getElementById("new-project-modal").style.display = "block";
 }
 
-// ➕ Add New Project
+// Add Project
 async function addNewProject() {
   const id = document.getElementById("new-id").value.trim();
   const customer = document.getElementById("new-customer").value.trim();
   const projectName = document.getElementById("new-project-name").value.trim();
-  const status = document.getElementById("new-status").value.trim() || "Live";
-  const supportStatus =
-    document.getElementById("new-support-status").value.trim() || "Active";
+  const status = document.getElementById("new-status").value.trim();
+  const supportStatus = document
+    .getElementById("new-support-status")
+    .value.trim();
   const deployment = document.getElementById("new-deployment").value.trim();
   const supportEnd = document.getElementById("new-support-end").value.trim();
   const url = document.getElementById("new-url").value.trim();
 
-  // التحقق من الحقول الإلزامية
   if (!id || !customer || !projectName || !url) {
-    alert("Please fill all required fields (ID, Customer, Project Name, URL)");
+    showToast("Please fill all required fields", "error");
     return;
   }
 
-  // التحقق من صحة الرابط
   try {
     new URL(url);
   } catch {
-    alert("Please enter a valid URL (e.g., https://example.com)");
+    showToast("Please enter a valid URL", "error");
     return;
   }
 
@@ -234,50 +248,44 @@ async function addNewProject() {
       supportEndDate: supportEnd,
       url: url,
     });
-
     closeModal("new-project-modal");
     loadProjects();
-    alert("✅ Project added successfully!");
+    showToast("Project added successfully!", "success");
   } catch (error) {
-    alert("❌ Error adding project: " + error.message);
+    showToast("Error: " + error.message, "error");
   }
 }
 
-// ✏️ Open Edit Modal
+// Open Edit Modal
 async function openEditModal(id) {
   try {
     const docRef = doc(db, "projects", id);
     const docSnap = await getDoc(docRef);
-
     if (docSnap.exists()) {
       const data = docSnap.data();
       document.getElementById("edit-id").value = id;
       document.getElementById("edit-customer").value = data.customerName || "";
       document.getElementById("edit-project-name").value =
         data.projectName || "";
-      document.getElementById("edit-status").value = data.projectStatus || "";
+      document.getElementById("edit-status").value =
+        data.projectStatus || "Live";
       document.getElementById("edit-support-status").value =
-        data.supportStatus || "";
+        data.supportStatus || "Active";
       document.getElementById("edit-deployment").value =
         data.deploymentDate || "";
       document.getElementById("edit-support-end").value =
         data.supportEndDate || "";
       document.getElementById("edit-url").value = data.url || "";
-      document.getElementById("edit-status").value =
-        data.projectStatus || "Live";
-      document.getElementById("edit-support-status").value =
-        data.supportStatus || "Active";
-
       document.getElementById("edit-project-modal").style.display = "block";
     } else {
-      alert("Document not found!");
+      showToast("Document not found!", "error");
     }
   } catch (error) {
-    alert("Error loading project: " + error.message);
+    showToast("Error: " + error.message, "error");
   }
 }
 
-// ✏️ Update Project
+// Update Project
 async function updateProject() {
   const id = document.getElementById("edit-id").value;
   const customer = document.getElementById("edit-customer").value.trim();
@@ -304,111 +312,105 @@ async function updateProject() {
       },
       { merge: true }
     );
-
     closeModal("edit-project-modal");
     loadProjects();
-    alert("✅ Project updated successfully!");
+    showToast("Project updated!", "success");
   } catch (error) {
-    alert("❌ Error updating project: " + error.message);
+    showToast("Error: " + error.message, "error");
   }
 }
 
-// 🗑️ Delete Project
+// Delete Project
 async function deleteProject(id) {
-  if (
-    !confirm(
-      "⚠️ Are you sure you want to delete this project? This action cannot be undone!"
-    )
-  )
-    return;
-
+  if (!confirm("⚠️ Delete this project?")) return;
   try {
     await deleteDoc(doc(db, "projects", id));
     loadProjects();
-    alert("✅ Project deleted successfully!");
+    showToast("Project deleted!", "success");
   } catch (error) {
-    alert("❌ Error deleting project: " + error.message);
+    showToast("Error: " + error.message, "error");
   }
 }
 
-// ❌ Close Modals
+// Close Modal
 function closeModal(modalId) {
   document.getElementById(modalId).style.display = "none";
 }
 
-// 🔗 Attach Action Buttons (للعناصر الديناميكية)
+// Attach Dynamic Buttons
 function attachActionButtons() {
-  // جميع أزرار التعديل
-  document.querySelectorAll(".edit-btn").forEach((button) => {
-    button.addEventListener("click", (e) => {
-      const projectId = e.target.dataset.id;
-      openEditModal(projectId);
+  // Copy Link
+  document.querySelectorAll(".copy-link-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const id = e.target.dataset.id;
+      const url = e.target.dataset.url || "https://example.com";
+      const encoded = encodeURIComponent(url);
+      const link = `https://detcho-dev.github.io/Yossef-DEV/port?url=${encoded}&id=${id}`;
+      navigator.clipboard
+        .writeText(link)
+        .then(() => {
+          showToast("Link copied!", "success");
+        })
+        .catch(() => {
+          prompt("Copy this link:", link);
+        });
     });
   });
 
-  // جميع أزرار الحذف
-  document.querySelectorAll(".delete-btn").forEach((button) => {
-    button.addEventListener("click", (e) => {
-      const projectId = e.target.dataset.id;
-      deleteProject(projectId);
-    });
+  // Edit/Delete
+  document.querySelectorAll(".edit-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => openEditModal(e.target.dataset.id));
   });
-
-  // جميع روابط المواقع
-  document.querySelectorAll(".view-btn").forEach((link) => {
-    link.addEventListener("click", (e) => {
-      e.stopPropagation(); // منع التعارض مع أحداث أخرى
-    });
+  document.querySelectorAll(".delete-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => deleteProject(e.target.dataset.id));
   });
 }
 
-// 🎯 ربط جميع الأحداث بعد تحميل الصفحة
+// DOM Ready
 document.addEventListener("DOMContentLoaded", () => {
-  document
-    .getElementById("create-with-id-btn")
-    ?.addEventListener("click", (e) => {
-      const searchId = e.target.dataset.searchId;
-      if (searchId) {
-        // ملء حقل الـ ID في نموذج الإنشاء
-        document.getElementById("new-id").value = searchId;
-        document.getElementById("new-project-modal").style.display = "block";
-      }
-    });
-  // أزرار الشاشة الرئيسية
   document.getElementById("login-btn")?.addEventListener("click", login);
   document.getElementById("logout-btn")?.addEventListener("click", logout);
   document
     .getElementById("new-project-btn")
     ?.addEventListener("click", openNewProjectModal);
-
-  // مربع البحث
   document.getElementById("search")?.addEventListener("input", searchTable);
-
-  // أزرار النماذج
   document
     .getElementById("add-project-btn")
     ?.addEventListener("click", addNewProject);
   document
     .getElementById("update-project-btn")
     ?.addEventListener("click", updateProject);
-
-  // أزرار إغلاق النوافذ المنبثقة
-  document.querySelectorAll(".close").forEach((closeBtn) => {
-    closeBtn.addEventListener("click", () => {
-      const modal = closeBtn.closest(".modal");
-      if (modal) modal.style.display = "none";
-    });
+  document.getElementById("refresh-btn")?.addEventListener("click", () => {
+    loadProjects();
+    showToast("Data refreshed", "info");
   });
+  document
+    .getElementById("create-with-id-btn")
+    ?.addEventListener("click", (e) => {
+      const id = e.target.dataset.searchId;
+      if (id) {
+        document.getElementById("new-id").value = id;
+        openNewProjectModal();
+      }
+    });
 
-  // إغلاق النماذج عند الضغط خارجها
+  // Close modals
+  document
+    .getElementById("close-new-modal")
+    ?.addEventListener("click", () => closeModal("new-project-modal"));
+  document
+    .getElementById("close-edit-modal")
+    ?.addEventListener("click", () => closeModal("edit-project-modal"));
+
   window.addEventListener("click", (e) => {
     if (e.target.classList.contains("modal")) {
-      e.target.style.display = "none";
+      closeModal("new-project-modal");
+      closeModal("edit-project-modal");
     }
   });
 });
 
-// 👤 مراقبة حالة تسجيل الدخول
+// Auth State
 auth.onAuthStateChanged((user) => {
   if (user) {
     document.getElementById("login-screen").style.display = "none";
@@ -420,14 +422,7 @@ auth.onAuthStateChanged((user) => {
   }
 });
 
-// 🚨 معالجة الأخطاء العامة
-window.onerror = function (message, source, lineno, colno, error) {
-  console.error("Global error:", { message, source, lineno, colno, error });
-  alert(`Critical error: ${message}\nCheck console for details`);
-  return true; // منع الرسالة الافتراضية في الكونسول
-};
-
-// ✅ ضروري لأن الملف type="module"
+// Export Functions (for module)
 export {
   login,
   logout,
