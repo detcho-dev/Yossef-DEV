@@ -170,18 +170,17 @@
           placeholder="Project Name"
           required
         />
-        <input
-          type="text"
-          id="edit-status"
-          placeholder="Project Status"
-          required
-        />
-        <input
-          type="text"
-          id="edit-support-status"
-          placeholder="Support Status"
-          required
-        />
+         <select id="edit-status" required>
+            <option value="Live">Live</option>
+            <option value="Under Development">Under Development</option>
+            <option value="Closed">Closed</option>
+            <option value="Fixing Bugs">Fixing Bugs</option>
+          </select>
+          <select id="edit-support-status" required>
+            <option value="Active">Active</option>
+            <option value="Expire Soon">Expire Soon</option>
+            <option value="Expired">Expired</option>
+          </select>
         <input
           type="text"
           id="edit-deployment"
