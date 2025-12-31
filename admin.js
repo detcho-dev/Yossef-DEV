@@ -74,18 +74,17 @@ async function logout() {
 }
 
 function getSupportStatusText(endDateString) {
-  // إذا كان التاريخ فارغًا أو "---"
-  if (!endDateString || endDateString.trim() === "un") {
+  // التعامل مع "un" كدعم غير محدود
+  if (!endDateString || endDateString.trim().toLowerCase() === "un") {
     return "Unlimited Support";
   }
 
   // تحويل تنسيق DD-MM-YYYY إلى YYYY-MM-DD
   let formattedDate = endDateString;
-  if (endDateString.includes("-")) {
+  if (typeof endDateString === 'string' && endDateString.includes("-")) {
     const parts = endDateString.split("-");
     if (parts.length === 3) {
       const [day, month, year] = parts;
-      // تأكد أن اليوم والشهر يتكونان من رقمين
       const paddedDay = day.padStart(2, '0');
       const paddedMonth = month.padStart(2, '0');
       formattedDate = `${year}-${paddedMonth}-${paddedDay}`;
@@ -97,7 +96,7 @@ function getSupportStatusText(endDateString) {
 
   // التحقق من صحة التاريخ
   if (isNaN(endDate.getTime())) {
-    return "Invalid date";
+    return endDateString; // عرض القيمة الأصلية إذا كانت غير صالحة
   }
 
   const now = new Date();
@@ -105,7 +104,7 @@ function getSupportStatusText(endDateString) {
   const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 
   if (diffDays > 7) {
-    return endDate.toLocaleDateString('en-GB'); // شكل: 28/01/2026
+    return endDate.toLocaleDateString('en-GB');
   } 
   else if (diffDays > 0) {
     return `Ends in ${diffDays} day${diffDays !== 1 ? 's' : ''}`;
