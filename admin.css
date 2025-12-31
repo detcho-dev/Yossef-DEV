@@ -185,7 +185,7 @@ tr:hover {
   color: var(--text);
 }
 
-.modal-content input {
+.modal-content input select {
   width: 100%;
   padding: 12px;
   margin: 10px 0;
