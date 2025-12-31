@@ -73,7 +73,6 @@ async function logout() {
   }
 }
 
-// دالة ذكية لعرض حالة انتهاء الدعم
 function getSupportStatusText(endDateString) {
   if (!endDateString) return "-";
 
