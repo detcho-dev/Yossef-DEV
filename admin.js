@@ -370,6 +370,15 @@ function attachActionButtons() {
 
 // 🎯 ربط جميع الأحداث بعد تحميل الصفحة
 document.addEventListener("DOMContentLoaded", () => {
+  // عند النقر على زر "Create with ID"
+document.getElementById("create-with-id-btn")?.addEventListener("click", () => {
+  const id = document.getElementById("create-with-id-btn").dataset.id;
+  if (id) {
+    // افتح نموذج المشروع الجديد مع ملء الـ ID تلقائيًا
+    document.getElementById("new-id").value = id;
+    document.getElementById("new-project-modal").style.display = "block";
+  }
+});
   // أزرار الشاشة الرئيسية
   document.getElementById("login-btn")?.addEventListener("click", login);
   document.getElementById("logout-btn")?.addEventListener("click", logout);
