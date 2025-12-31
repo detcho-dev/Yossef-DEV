@@ -135,23 +135,68 @@ async function loadProjects() {
   }
 }
 
-// 🔍 Search Functionality
+let lastSearchTerm = "";
+
+// 🔍 Search Functionality مع إضافة زر الإنشاء
 function searchTable() {
-  const searchTerm = document.getElementById("search").value.toLowerCase();
-  const rows = document.querySelectorAll("#table-body tr");
+  const input = document.getElementById("search");
+  const searchTerm = input.value.trim().toLowerCase();
+  const tableBody = document.getElementById("table-body");
+  const noResultsDiv = document.getElementById("no-results");
+  const createBtn = document.getElementById("create-with-id-btn");
+
+  // تخزين آخر عملية بحث
+  lastSearchTerm = searchTerm;
+
+  // إذا كان البحث فارغًا، أظهر كل الصفوف وأخفِ رسالة "لا نتائج"
+  if (searchTerm === "") {
+    tableBody.querySelectorAll("tr").forEach((row) => (row.style.display = ""));
+    noResultsDiv.style.display = "none";
+    return;
+  }
+
+  // البحث في الصفوف
+  const rows = tableBody.querySelectorAll("tr");
+  let matchFound = false;
 
   rows.forEach((row) => {
     const cells = row.querySelectorAll("td");
     let match = false;
 
     cells.forEach((cell) => {
+      // تجنب البحث في أعمدة الإجراءات (الأزرار)
+      if (cell.classList.contains("actions")) return;
+
       if (cell.textContent.toLowerCase().includes(searchTerm)) {
         match = true;
       }
     });
 
-    row.style.display = match ? "" : "none";
+    if (match) {
+      row.style.display = "";
+      matchFound = true;
+    } else {
+      row.style.display = "none";
+    }
   });
+
+  // إذا لم يُعثر على نتائج
+  if (!matchFound) {
+    noResultsDiv.style.display = "block";
+
+    // ✅ تحقق إذا كان مصطلح البحث يبدو كـ ID (يحتوي على أحرف وأرقام فقط بدون مسافات)
+    if (searchTerm && !searchTerm.includes(" ")) {
+      createBtn.textContent = `Create project with ID: "${searchTerm}"`;
+      createBtn.style.display = "inline-block";
+
+      // ربط الحدث (سنستخدمه لاحقًا)
+      createBtn.dataset.id = searchTerm;
+    } else {
+      createBtn.style.display = "none";
+    }
+  } else {
+    noResultsDiv.style.display = "none";
+  }
 }
 
 // ➕ Open New Project Modal
