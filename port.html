@@ -430,17 +430,7 @@
       }
     }
 
-    // 🛠️ تنسيق حالة المشروع
-    function formatProjectStatus(status) {
-      let dotClass = '';
-      let displayText = translations[currentLang].projectStatusLive || 'Unknown';
-      if (status === 'Live') dotClass = 'status-live';
-      else if (status === 'Under Development') { dotClass = 'status-developing'; text = 'Under Development'; }
-      else if (status === 'Closed') { dotClass = 'status-closed'; text = 'Closed'; }
-      else if (status === 'Fixing Bugs') { dotClass = 'status-fixing'; text = 'Fixing Bugs'; }
-
-      return `<span class="${dotClass}">${text}<span class="status-dot"></span></span>`;
-    }
+   
 
     // 🎨 تحديث العناصر الديناميكية
     function formatProjectStatus(status) {
@@ -464,6 +454,48 @@
       return `<span class="${dotClass}">${displayText}<span class="status-dot"></span></span>`;
     }
 
+    // 🎨 تحديث العناصر الديناميكية (لترجمة الحالات عند تغيير اللغة)
+function updateDynamicContent() {
+  const supportEl = document.getElementById('supportEndDate');
+  const statusEl = document.getElementById('projectStatus');
+  const supportStatusEl = document.getElementById('supportStatus');
+  
+  // تحديث تاريخ الدعم
+  if (supportEl && supportEl.dataset.raw) {
+    supportEl.innerHTML = formatSupportDate(supportEl.dataset.raw);
+  }
+  
+  // تحديث حالة المشروع
+  if (statusEl && statusEl.dataset.raw) {
+    statusEl.innerHTML = formatProjectStatus(statusEl.dataset.raw);
+  }
+  
+  // تحديث حالة الدعم
+  if (supportStatusEl && supportStatusEl.dataset.raw) {
+    const rawStatus = supportStatusEl.dataset.raw;
+    let displayText = rawStatus;
+    
+    if (rawStatus === 'Active') {
+      displayText = translations[currentLang].supportStatusActive;
+    } else if (rawStatus === 'Expire Soon') {
+      displayText = translations[currentLang].supportStatusExpireSoon;
+    } else if (rawStatus === 'Expired') {
+      displayText = translations[currentLang].supportStatusExpired;
+    } else if (rawStatus === 'Unlimited' || supportStatusEl.dataset.raw === 'un') {
+      displayText = translations[currentLang].supportStatusUnlimited;
+    }
+    
+    supportStatusEl.textContent = displayText;
+    
+    // تحديث لون الخلفية
+    let cls = 'support-expired';
+    if (rawStatus === 'Active') cls = 'support-active';
+    else if (rawStatus === 'Expire Soon') cls = 'support-expire-soon';
+    else if (rawStatus === 'Unlimited' || rawStatus === 'un') cls = 'support-unlimited';
+    supportStatusEl.className = `support-badge ${cls}`;
+  }
+}
+
     // 🚀 تهيئة Firebase
     function initFirebase() {
       try {
@@ -486,58 +518,23 @@
       document.getElementById('projectIdDisplay').textContent = data.projectId;
       document.getElementById('projectName').textContent = data.projectName;
       document.getElementById('deploymentDate').textContent = data.deploymentDate || '—';
-      
+  
       const supportEl = document.getElementById('supportEndDate');
       supportEl.dataset.raw = data.supportEndDate;
-      supportEl.innerHTML = formatSupportDate(data.supportEndDate);
-      
+  
       const statusEl = document.getElementById('projectStatus');
       statusEl.dataset.raw = data.projectStatus;
-      statusEl.innerHTML = formatProjectStatus(data.projectStatus);
-      
+  
       const supportStatusEl = document.getElementById('supportStatus');
       supportStatusEl.dataset.raw = data.supportStatus || 'Unknown';
-      const rawStatus = data.supportStatus || 'Unknown';
-      let cls = 'support-expired';
-      if (rawStatus === 'Active') cls = 'support-active';
-      else if (rawStatus === 'Expire Soon') cls = 'support-expire-soon';
-      supportStatusEl.className = `support-badge ${cls}`;
-      supportStatusEl.textContent = rawStatus;
-      
+  
+      // تحديث كل العناصر الديناميكية دفعة واحدة
+      updateDynamicContent();
+  
       document.getElementById('projectUrlBtn').href = data.url;
       document.getElementById('loginPage').classList.add('hidden');
       document.getElementById('portalPage').classList.remove('hidden');
-      // عند عرض الحالة (في showPortal أو مكان مماثل)
-      let displaySupportStatus = data.supportStatus;
-
-      if (data.supportStatus === 'Active') {
-        displaySupportStatus = translations[currentLang].supportStatusActive;
-      } else if (data.supportStatus === 'Expire Soon') {
-        displaySupportStatus = translations[currentLang].supportStatusExpireSoon;
-      } else if (data.supportStatus === 'Expired') {
-        displaySupportStatus = translations[currentLang].supportStatusExpired;
-      } else if (data.supportStatus === 'Unlimited' || data.supportEndDate === 'un') {
-        displaySupportStatus = translations[currentLang].supportStatusUnlimited;
-      }
-
-      supportStatusEl.textContent = displaySupportStatus;
     }
-
-    // ⚙️ بدء التشغيل
-    window.addEventListener('load', () => {
-      setLanguage(currentLang);
-      
-      // تهيئة Firebase
-      if (!initFirebase()) return;
-      
-      // ملء من الرابط (إذا وُجد)
-      const urlParams = new URLSearchParams(window.location.search);
-      const url = urlParams.get('url');
-      const id = urlParams.get('id');
-      if (url && id) {
-        document.getElementById('projectUrl').value = url;
-        document.getElementById('projectId').value = id;
-      }
 
       // أحداث
       document.getElementById('langSwitch').onclick = () => {
