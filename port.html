@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,223 +7,288 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
     :root {
-      --primary: #4361ee;
-      --secondary: #3f37c9;
-      --success: #4cc9f0;
-      --light: #f8f9fa;
-      --dark: #212529;
-      --gray: #6c757d;
+      --bg-dark: #121212;
+      --bg-card: #1e1e1e;
+      --text: #e0e0e0;
+      --primary: #bb86fc;
+      --danger: #cf6679;
+      --success: #03dac6;
       --border-radius: 12px;
-      --box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 20px;
+      padding: 15px;
     }
 
-    .container { width: 100%; max-width: 1000px; margin: 20px auto; }
+    .lang-switch {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      background: var(--bg-card);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 100;
+      font-weight: bold;
+      border: 1px solid #333;
+    }
+
+    .container { width: 100%; max-width: 900px; margin: 20px auto; }
     .card {
-      background: white;
+      background: var(--bg-card);
       border-radius: var(--border-radius);
-      box-shadow: var(--box-shadow);
       overflow: hidden;
+      margin-bottom: 20px;
     }
 
     .card-header {
-      background: linear-gradient(90deg, var(--primary), var(--secondary));
-      color: white;
-      padding: 20px 30px;
+      background: #2d2d2d;
+      padding: 20px;
       text-align: center;
+      border-bottom: 1px solid #333;
     }
 
-    .card-body { padding: 30px; }
+    .logo { font-size: 1.8rem; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .card-title { font-size: 1.5rem; font-weight: 600; }
 
-    .logo { font-size: 2rem; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 10px; }
-    .card-title { font-size: 1.8rem; font-weight: 600; }
+    .card-body { padding: 25px; }
 
     .form-group { margin-bottom: 20px; }
-    label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--dark); }
+    label { display: block; margin-bottom: 8px; font-weight: 500; }
     input {
       width: 100%;
-      padding: 14px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
+      padding: 12px;
+      border: 1px solid #333;
+      border-radius: 6px;
+      background: #2d2d2d;
+      color: var(--text);
       font-size: 1rem;
     }
 
     .btn {
       display: block;
       width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
       background: var(--primary);
       color: white;
-      border: none;
-      padding: 14px;
-      font-size: 1rem;
-      font-weight: 500;
-      border-radius: 8px;
+      font-weight: 600;
       cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .btn-website {
+      background: var(--success);
+      padding: 10px;
+      text-align: center;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      display: inline-block;
+      margin-top: 5px;
+    }
+
+    .btn-website:hover {
+      background: #02b8a5;
     }
 
     .alert {
-      padding: 15px;
-      border-radius: 8px;
+      padding: 12px;
+      border-radius: 6px;
       margin-bottom: 20px;
       text-align: center;
       font-weight: 500;
     }
 
-    .alert-error { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
-    .alert-success { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+    .alert-error { background: rgba(207, 102, 121, 0.2); color: #f44336; }
+    .alert-success { background: rgba(3, 218, 198, 0.2); color: #4caf50; }
 
+    /* Grid - Mobile Responsive */
     .project-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
       margin-top: 20px;
     }
 
     .project-item {
-      background: #f8fafc;
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      background: #252525;
+      padding: 16px;
+      border-radius: 8px;
     }
 
     .project-label {
-      font-weight: 500;
-      color: var(--gray);
-      font-size: 0.9rem;
-      margin-bottom: 5px;
+      font-size: 0.85rem;
+      color: #aaa;
+      margin-bottom: 6px;
     }
 
-    .project-value { font-weight: 600; font-size: 1.1rem; }
+    .project-value { font-weight: 600; font-size: 1rem; }
 
-    /* Status Dot */
+    /* Status Dot with Pulse */
     .status-dot {
       display: inline-block;
-      width: 12px;
-      height: 12px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
-      margin-left: 8px;
+      margin-left: 6px;
       vertical-align: middle;
     }
 
-    .status-live .status-dot { background-color: #4caf50; }
+    .status-live .status-dot {
+      background-color: #4caf50;
+      box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+      70% { box-shadow: 0 0 0 8px rgba(76, 175, 80, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+    }
+
     .status-developing .status-dot { background-color: #ff9800; }
     .status-closed .status-dot { background-color: #9e9e9e; }
     .status-fixing .status-dot { background-color: #f44336; }
 
+    /* Support Status Badges */
+    .support-badge {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-weight: bold;
+      display: inline-block;
+      min-width: 90px;
+      text-align: center;
+    }
+
+    .support-active { background-color: #2e7d32; color: white; }
+    .support-expire-soon { background-color: #ff9800; color: white; }
+    .support-expired { background-color: #d32f2f; color: white; }
+    .support-unlimited { background-color: #03dac6; color: white; }
+
     .hidden { display: none; }
 
-    /* Demo mode warning */
-    .demo-warning {
-      background: #fff8e1;
-      border-left: 4px solid #ffc107;
-      padding: 15px;
-      margin: 20px 0;
-      border-radius: 4px;
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #777;
+      font-size: 0.9rem;
+    }
+
+    /* RTL Support */
+    [dir="rtl"] .status-dot { margin-left: 0; margin-right: 6px; }
+    [dir="rtl"] .project-grid { direction: rtl; }
+
+    @media (max-width: 600px) {
+      .project-grid { grid-template-columns: 1fr; }
+      .card-body { padding: 20px 15px; }
+      .lang-switch { top: 10px; right: 10px; }
     }
   </style>
 </head>
 <body>
+  <div class="lang-switch" id="langSwitch">EN</div>
+
   <div class="container">
-    <!-- Login Form -->
+    <!-- Login -->
     <div id="loginPage" class="card">
       <div class="card-header">
-        <div class="logo">
-          <i class="fas fa-shield-alt"></i>
-          <div class="card-title">Project Portal Login</div>
-        </div>
+        <div class="logo"><i class="fas fa-lock"></i></div>
+        <div class="card-title" data-key="loginTitle">Project Portal Login</div>
       </div>
       <div class="card-body">
         <div id="loginAlert" class="alert hidden"></div>
         
-        <div class="demo-warning" id="demoWarning">
-          <strong>Demo Mode:</strong> Use URL: <code>https://example.com</code> and ID: <code>DEMO123</code>
-        </div>
-
         <form id="loginForm">
           <div class="form-group">
-            <label for="projectUrl">Project URL</label>
+            <label data-key="urlField">Project URL</label>
             <input type="url" id="projectUrl" placeholder="https://example.com" required />
           </div>
           <div class="form-group">
-            <label for="projectId">Project ID</label>
-            <input type="text" id="projectId" placeholder="DEMO123" required />
+            <label data-key="idField">Project ID</label>
+            <input type="text" id="projectId" placeholder="PROJ-123" required />
           </div>
-          <button type="submit" class="btn" id="loginBtn">Login to Portal</button>
+          <button type="submit" class="btn" data-key="loginBtn">Login</button>
         </form>
       </div>
     </div>
 
-    <!-- Portal Dashboard -->
+    <!-- Portal -->
     <div id="portalPage" class="card hidden">
       <div class="card-header">
-        <div class="logo">
-          <i class="fas fa-tachometer-alt"></i>
-          <div class="card-title">Project Dashboard</div>
-        </div>
+        <div class="logo"><i class="fas fa-tachometer-alt"></i></div>
+        <div class="card-title" data-key="portalTitle">Project Dashboard</div>
       </div>
       <div class="card-body">
         <div class="alert alert-success" id="welcomeMessage">
-          Welcome back, <strong id="customerNameDisplay"></strong>!
+          <span data-key="welcomeMsg">Welcome,</span> <strong id="customerNameDisplay"></strong>!
         </div>
 
         <div class="project-grid">
           <div class="project-item">
-            <span class="project-label">Customer Name</span>
-            <span class="project-value" id="customerName"></span>
+            <div class="project-label" data-key="customerName">Customer Name</div>
+            <div class="project-value" id="customerName"></div>
           </div>
           <div class="project-item">
-            <span class="project-label">Project ID</span>
-            <span class="project-value" id="projectIdDisplay"></span>
+            <div class="project-label" data-key="projectId">Project ID</div>
+            <div class="project-value" id="projectIdDisplay"></div>
           </div>
           <div class="project-item">
-            <span class="project-label">Project Name</span>
-            <span class="project-value" id="projectName"></span>
+            <div class="project-label" data-key="projectName">Project Name</div>
+            <div class="project-value" id="projectName"></div>
           </div>
           <div class="project-item">
-            <span class="project-label">Deployment Date</span>
-            <span class="project-value" id="deploymentDate"></span>
+            <div class="project-label" data-key="deploymentDate">Deployment Date</div>
+            <div class="project-value" id="deploymentDate"></div>
           </div>
           <div class="project-item">
-            <span class="project-label">Support End Date</span>
-            <span class="project-value" id="supportEndDate"></span>
+            <div class="project-label" data-key="supportEndDate">Support Ends</div>
+            <div class="project-value" id="supportEndDate"></div>
           </div>
           <div class="project-item">
-            <span class="project-label">Project Status</span>
-            <span class="project-value" id="projectStatus"></span>
+            <div class="project-label" data-key="projectStatus">Project Status</div>
+            <div class="project-value" id="projectStatus"></div>
           </div>
           <div class="project-item">
-            <span class="project-label">Project URL</span>
-            <a href="#" id="projectUrlLink" target="_blank" class="project-value"></a>
+            <div class="project-label" data-key="projectUrl">Project Website</div>
+            <div class="project-value">
+              <a href="#" id="projectUrlBtn" class="btn-website" target="_blank" data-key="visitSite">Visit Site</a>
+            </div>
           </div>
           <div class="project-item">
-            <span class="project-label">Support Status</span>
-            <span class="project-value" id="supportStatus"></span>
+            <div class="project-label" data-key="supportStatus">Support Status</div>
+            <div class="project-value">
+              <span id="supportStatus" class="support-badge"></span>
+            </div>
           </div>
         </div>
 
-        <button class="btn" style="background:#6c757d;margin-top:30px;" id="logoutBtn">
-          <i class="fas fa-sign-out-alt"></i> Logout
-        </button>
+        <button class="btn" style="background:#6c757d;" id="logoutBtn" data-key="logoutBtn">Logout</button>
       </div>
     </div>
   </div>
 
-  <!-- Firebase SDKs -->
+  <footer data-key="footerText">Project Portal &copy; 2026</footer>
+
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
   <script>
-    // 🔑 YOUR FIREBASE CONFIG (Replace with yours)
+    // 🔑 Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyAemoGMX1PHF55qUTh_5SZIrN3Y-QaqrWA",
       authDomain: "yossef-dev-216b0.firebaseapp.com",
@@ -233,16 +298,205 @@
       appId: "1:509948939620:web:017b806e995bb114d8be71"
     };
 
-    // DOM Elements (safe references)
-    const loginPage = document.getElementById('loginPage');
-    const portalPage = document.getElementById('portalPage');
-    const loginForm = document.getElementById('loginForm');
-    const loginAlert = document.getElementById('loginAlert');
-    const demoWarning = document.getElementById('demoWarning');
+    // 🌐 الترجمات
+    const translations = {
+      en: {
+        loginTitle: "Project Portal Login",
+        urlField: "Project URL",
+        idField: "Project ID",
+        loginBtn: "Login",
+        portalTitle: "Project Dashboard",
+        welcomeMsg: "Welcome,",
+        customerName: "Customer Name",
+        projectId: "Project ID",
+        projectName: "Project Name",
+        deploymentDate: "Deployment Date",
+        supportEndDate: "Support Ends",
+        projectStatus: "Project Status",
+        projectUrl: "Project Website",
+        visitSite: "Visit Site",
+        supportStatus: "Support Status",
+        logoutBtn: "Logout",
+        footerText: "Project Portal &copy; 2026",
+        loginError: "Invalid credentials",
+        unlimitedSupport: "Unlimited Support",
+        endsIn: (days) => `Ends in ${days} day${days !== 1 ? 's' : ''}`,
+        endsToday: "Ends today",
+        ended: (days) => `Ended ${days} day${days !== 1 ? 's' : ''} ago`
+      },
+      ar: {
+        loginTitle: "تسجيل دخول البوابة",
+        urlField: "رابط المشروع",
+        idField: "معرف المشروع",
+        loginBtn: "تسجيل الدخول",
+        portalTitle: "لوحة تحكم المشروع",
+        welcomeMsg: "مرحباً،",
+        customerName: "اسم العميل",
+        projectId: "معرف المشروع",
+        projectName: "اسم المشروع",
+        deploymentDate: "تاريخ النشر",
+        supportEndDate: "ينتهي الدعم",
+        projectStatus: "حالة المشروع",
+        projectUrl: "موقع المشروع",
+        visitSite: "زيارة الموقع",
+        supportStatus: "حالة الدعم",
+        logoutBtn: "تسجيل الخروج",
+        footerText: "بوابة المشروع &copy; 2026",
+        loginError: "بيانات غير صحيحة",
+        unlimitedSupport: "دعم غير محدود",
+        endsIn: (days) => `ينتهي خلال ${days} يوم${days !== 1 ? 'ين' : ''}`,
+        endsToday: "ينتهي اليوم",
+        ended: (days) => `انتهى منذ ${days} يوم${days !== 1 ? 'ين' : ''}`
+      }
+    };
 
-    // Initialize app when page is fully loaded
+    let currentLang = localStorage.getItem('lang') || 'en';
+    const rtlLangs = ['ar'];
+
+    // 🔄 تغيير اللغة
+    function setLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('lang', lang);
+      
+      // تحديث الاتجاه
+      document.documentElement.setAttribute('lang', lang);
+      document.documentElement.setAttribute('dir', rtlLangs.includes(lang) ? 'rtl' : 'ltr');
+      
+      // تحديث النصوص
+      document.querySelectorAll('[data-key]').forEach(el => {
+        const key = el.getAttribute('data-key');
+        if (translations[lang][key]) {
+          el.textContent = translations[lang][key];
+        }
+      });
+      
+      // تحديث زر اللغة
+      document.getElementById('langSwitch').textContent = lang.toUpperCase();
+      
+      // تحديث حالة الدعم والتواريخ (لو ظاهرة)
+      updateDynamicContent();
+    }
+
+    // 📅 تنسيق تاريخ الدعم
+    function formatSupportDate(endDateStr) {
+      if (!endDateStr || endDateStr.trim().toLowerCase() === 'un') {
+        return `<span class="support-badge support-unlimited">${translations[currentLang].unlimitedSupport}</span>`;
+      }
+
+      let date;
+      if (endDateStr.includes('-')) {
+        const [d, m, y] = endDateStr.split('-');
+        date = new Date(`${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`);
+      } else {
+        date = new Date(endDateStr);
+      }
+
+      if (isNaN(date.getTime())) return `<span class="support-badge support-expired">${endDateStr}</span>`;
+
+      const now = new Date();
+      const diffDays = Math.ceil((date - now) / (86400000));
+
+      if (diffDays > 7) {
+        return date.toLocaleDateString(rtlLangs.includes(currentLang) ? 'ar-EG' : 'en-GB');
+      } else if (diffDays > 0) {
+        return translations[currentLang].endsIn(diffDays);
+      } else if (diffDays === 0) {
+        return translations[currentLang].endsToday;
+      } else {
+        return translations[currentLang].ended(Math.abs(diffDays));
+      }
+    }
+
+    // 🛠️ تنسيق حالة المشروع مع الدوت
+    function formatProjectStatus(status) {
+      let dotClass = '';
+      let text = status || 'Unknown';
+
+      if (status === 'Live') {
+        dotClass = 'status-live';
+        text = 'Live';
+      } else if (status === 'Under Development') {
+        dotClass = 'status-developing';
+        text = 'Under Development';
+      } else if (status === 'Closed') {
+        dotClass = 'status-closed';
+        text = 'Closed';
+      } else if (status === 'Fixing Bugs') {
+        dotClass = 'status-fixing';
+        text = 'Fixing Bugs';
+      }
+
+      return `<span class="${dotClass}">${text}<span class="status-dot"></span></span>`;
+    }
+
+    // 🎨 تحديث المحتوى الديناميكي (للترجمة)
+    function updateDynamicContent() {
+      const supportEl = document.getElementById('supportEndDate');
+      const statusEl = document.getElementById('projectStatus');
+      const supportStatusEl = document.getElementById('supportStatus');
+      
+      if (supportEl && supportEl.dataset.raw) {
+        supportEl.innerHTML = formatSupportDate(supportEl.dataset.raw);
+      }
+      
+      if (statusEl && statusEl.dataset.raw) {
+        statusEl.innerHTML = formatProjectStatus(statusEl.dataset.raw);
+      }
+      
+      if (supportStatusEl && supportStatusEl.dataset.raw) {
+        const raw = supportStatusEl.dataset.raw;
+        let cls = 'support-expired';
+        if (raw === 'Active') cls = 'support-active';
+        else if (raw === 'Expire Soon') cls = 'support-expire-soon';
+        else if (raw === 'Expired') cls = 'support-expired';
+        supportStatusEl.className = `support-badge ${cls}`;
+        supportStatusEl.textContent = raw;
+      }
+    }
+
+    // 🚪 عرض البوابة
+    function showPortal(data) {
+      // ملء البيانات
+      document.getElementById('customerNameDisplay').textContent = data.customerName;
+      document.getElementById('customerName').textContent = data.customerName;
+      document.getElementById('projectIdDisplay').textContent = data.projectId;
+      document.getElementById('projectName').textContent = data.projectName;
+      document.getElementById('deploymentDate').textContent = data.deploymentDate || '—';
+      
+      // دعم + حالة المشروع
+      const supportEl = document.getElementById('supportEndDate');
+      supportEl.dataset.raw = data.supportEndDate;
+      supportEl.innerHTML = formatSupportDate(data.supportEndDate);
+      
+      const statusEl = document.getElementById('projectStatus');
+      statusEl.dataset.raw = data.projectStatus;
+      statusEl.innerHTML = formatProjectStatus(data.projectStatus);
+      
+      const supportStatusEl = document.getElementById('supportStatus');
+      supportStatusEl.dataset.raw = data.supportStatus || 'Unknown';
+      const rawStatus = data.supportStatus || 'Unknown';
+      let cls = 'support-expired';
+      if (rawStatus === 'Active') cls = 'support-active';
+      else if (rawStatus === 'Expire Soon') cls = 'support-expire-soon';
+      supportStatusEl.className = `support-badge ${cls}`;
+      supportStatusEl.textContent = rawStatus;
+      
+      // زر الموقع
+      const urlBtn = document.getElementById('projectUrlBtn');
+      urlBtn.href = data.url;
+      
+      // عرض البوابة
+      document.getElementById('loginPage').classList.add('hidden');
+      document.getElementById('portalPage').classList.remove('hidden');
+    }
+
+   
+    // ⚙️ بدء التشغيل
     window.addEventListener('load', () => {
-      // Auto-fill from URL parameters
+      // تعيين اللغة
+      setLanguage(currentLang);
+      
+      // ملء من الرابط
       const urlParams = new URLSearchParams(window.location.search);
       const url = urlParams.get('url');
       const id = urlParams.get('id');
@@ -250,154 +504,24 @@
       if (url && id) {
         document.getElementById('projectUrl').value = url;
         document.getElementById('projectId').value = id;
-        
-        // Auto-login in demo mode
-        if (url === 'https://example.com' && id === 'DEMO123') {
-          setTimeout(() => loginForm.requestSubmit(), 500);
-        }
+    
       }
-    });
-
-    // Smart support date formatter
-    function formatSupportDate(endDateStr) {
-      if (!endDateStr || endDateStr.trim().toLowerCase() === 'un') {
-        return 'Unlimited Support';
-      }
-
-      // Handle DD-MM-YYYY format
-      let date;
-      if (endDateStr.includes('-')) {
-        const [d, m, y] = endDateStr.split('-');
-        date = new Date(`${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`);
-      } else {
-        date = new Date(endDateStr);
-      }
-
-      if (isNaN(date.getTime())) return endDateStr;
-
-      const now = new Date();
-      const diffDays = Math.ceil((date - now) / (1000 * 60 * 60 * 24));
-
-      if (diffDays > 7) return date.toLocaleDateString('en-GB');
-      if (diffDays > 0) return `Ends in ${diffDays} day${diffDays !== 1 ? 's' : ''}`;
-      if (diffDays === 0) return 'Ends today';
-      return `Ended ${Math.abs(diffDays)} day${Math.abs(diffDays) !== 1 ? 's' : ''} ago`;
-    }
-
-    // Format project status with dot
-    function formatProjectStatus(status) {
-      let dotClass = '';
-      let displayText = status || 'Unknown';
-
-      if (status === 'Live') {
-        dotClass = 'status-live';
-      } else if (status === 'Under Development') {
-        dotClass = 'status-developing';
-        displayText = 'Under Development';
-      } else if (status === 'Closed') {
-        dotClass = 'status-closed';
-      } else if (status === 'Fixing Bugs') {
-        dotClass = 'status-fixing';
-        displayText = 'Fixing Bugs';
-      }
-
-      return `<span class="${dotClass}">${displayText}<span class="status-dot"></span></span>`;
-    }
-
-    // Login Handler
-    loginForm?.addEventListener('submit', async (e) => {
-      e.preventDefault();
       
-      const projectUrl = document.getElementById('projectUrl').value.trim();
-      const projectId = document.getElementById('projectId').value.trim();
-
-      // Demo mode check
-      if (projectUrl === 'https://example.com' && projectId === 'DEMO123') {
-        showDemoPortal();
-        return;
-      }
-
-      // Real mode - initialize Firebase
-      try {
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        
-        // Normalize URL for comparison
-        const normalizeUrl = (url) => url.replace(/^(https?:\/\/)?(www\.)?/, '').replace(/\/$/, '').toLowerCase();
-        const normalizedUrl = normalizeUrl(projectUrl);
-
-        // Query Firestore
-        const snapshot = await db
-          .collection('projects')
-          .where(firebase.firestore.FieldPath.documentId(), '==', projectId)
-          .get();
-
-        if (snapshot.empty) throw new Error('Invalid Project ID');
-        
-        const doc = snapshot.docs[0];
-        const data = doc.data();
-        
-        // Verify URL matches
-        if (normalizeUrl(data.url) !== normalizedUrl) {
-          throw new Error('URL does not match Project ID');
-        }
-
-        // Add projectId to data
-        data.projectId = projectId;
-        
-        // Show portal
-        showPortal(data);
-      } catch (error) {
-        loginAlert.textContent = error.message || 'Login failed. Please check your credentials.';
-        loginAlert.className = 'alert alert-error';
-        loginAlert.classList.remove('hidden');
-      }
-    });
-
-    // Show Demo Data
-    function showDemoPortal() {
-      const demoData = {
-        customerName: "Demo Customer",
-        projectId: "DEMO123",
-        projectName: "Example Project",
-        deploymentDate: "Jan 15, 2023",
-        supportEndDate: "un",
-        projectStatus: "Live",
-        supportStatus: "Active",
-        url: "https://example.com"
+      // أحداث
+      document.getElementById('langSwitch').onclick = () => {
+        setLanguage(currentLang === 'en' ? 'ar' : 'en');
       };
-      showPortal(demoData);
-    }
-
-    // Show Real Portal
-    function showPortal(data) {
-      // Fill customer name
-      document.getElementById('customerNameDisplay').textContent = data.customerName;
-      document.getElementById('customerName').textContent = data.customerName;
       
-      // Fill other fields
-      document.getElementById('projectIdDisplay').textContent = data.projectId;
-      document.getElementById('projectName').textContent = data.projectName;
-      document.getElementById('deploymentDate').textContent = data.deploymentDate || 'N/A';
-      document.getElementById('supportEndDate').textContent = formatSupportDate(data.supportEndDate);
-      document.getElementById('projectStatus').innerHTML = formatProjectStatus(data.projectStatus);
-      document.getElementById('supportStatus').textContent = data.supportStatus || 'N/A';
+      document.getElementById('loginForm')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+      });
       
-      // Fill URL
-      const urlEl = document.getElementById('projectUrlLink');
-      urlEl.textContent = data.url;
-      urlEl.href = data.url;
-      
-      // Switch views
-      loginPage.classList.add('hidden');
-      portalPage.classList.remove('hidden');
-    }
-
-    // Logout
-    document.getElementById('logoutBtn')?.addEventListener('click', () => {
-      portalPage.classList.add('hidden');
-      loginPage.classList.remove('hidden');
-      loginForm.reset();
+      document.getElementById('logoutBtn')?.addEventListener('click', () => {
+        document.getElementById('portalPage').classList.add('hidden');
+        document.getElementById('loginPage').classList.remove('hidden');
+        document.getElementById('loginForm').reset();
+      });
     });
   </script>
 </body>
