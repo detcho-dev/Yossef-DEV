@@ -212,10 +212,22 @@
       <div class="card-body">
         <div id="loginAlert" class="alert hidden"></div>
         
+        <!-- Firebase Configuration Warning -->
+        <div id="configWarning" class="alert alert-error hidden">
+          <strong>Configuration Required:</strong> Firebase is not configured.<br>
+          Replace the <code>firebaseConfig</code> object with your project details.
+        </div>
+
+        <!-- Connection Error -->
+        <div id="connectionError" class="alert alert-error hidden">
+          <strong>Connection Issue:</strong> Unable to connect to Firebase.<br>
+          Please run from a web server (e.g., GitHub Pages, Live Server).
+        </div>
+
         <form id="loginForm">
           <div class="form-group">
             <label data-key="urlField">Project URL</label>
-            <input type="url" id="projectUrl" placeholder="https://example.com" required />
+            <input type="url" id="projectUrl" placeholder="https://yourproject.com" required />
           </div>
           <div class="form-group">
             <label data-key="idField">Project ID</label>
@@ -283,19 +295,19 @@
 
   <footer data-key="footerText">Project Portal &copy; 2026</footer>
 
-  <!-- Firebase -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
   <script>
-    // 🔑 Firebase Config
+    // 🔑 استبدل هذه القيم ببيانات مشروعك في Firebase Console
     const firebaseConfig = {
       apiKey: "AIzaSyAemoGMX1PHF55qUTh_5SZIrN3Y-QaqrWA",
       authDomain: "yossef-dev-216b0.firebaseapp.com",
       projectId: "yossef-dev-216b0",
       storageBucket: "yossef-dev-216b0.firebasestorage.app",
       messagingSenderId: "509948939620",
-      appId: "1:509948939620:web:017b806e995bb114d8be71"
+      appId: "1:509948939620:web:017b806e995bb114d8be71",
     };
 
     // 🌐 الترجمات
@@ -318,7 +330,7 @@
         supportStatus: "Support Status",
         logoutBtn: "Logout",
         footerText: "Project Portal &copy; 2026",
-        loginError: "Invalid credentials",
+        loginError: "Invalid Project ID or URL",
         unlimitedSupport: "Unlimited Support",
         endsIn: (days) => `Ends in ${days} day${days !== 1 ? 's' : ''}`,
         endsToday: "Ends today",
@@ -342,7 +354,7 @@
         supportStatus: "حالة الدعم",
         logoutBtn: "تسجيل الخروج",
         footerText: "بوابة المشروع &copy; 2026",
-        loginError: "بيانات غير صحيحة",
+        loginError: "معرف المشروع أو الرابط غير صحيح",
         unlimitedSupport: "دعم غير محدود",
         endsIn: (days) => `ينتهي خلال ${days} يوم${days !== 1 ? 'ين' : ''}`,
         endsToday: "ينتهي اليوم",
@@ -352,28 +364,23 @@
 
     let currentLang = localStorage.getItem('lang') || 'en';
     const rtlLangs = ['ar'];
+    let db = null;
+    let firebaseReady = false;
 
     // 🔄 تغيير اللغة
     function setLanguage(lang) {
       currentLang = lang;
       localStorage.setItem('lang', lang);
-      
-      // تحديث الاتجاه
       document.documentElement.setAttribute('lang', lang);
       document.documentElement.setAttribute('dir', rtlLangs.includes(lang) ? 'rtl' : 'ltr');
       
-      // تحديث النصوص
       document.querySelectorAll('[data-key]').forEach(el => {
         const key = el.getAttribute('data-key');
         if (translations[lang][key]) {
           el.textContent = translations[lang][key];
         }
       });
-      
-      // تحديث زر اللغة
       document.getElementById('langSwitch').textContent = lang.toUpperCase();
-      
-      // تحديث حالة الدعم والتواريخ (لو ظاهرة)
       updateDynamicContent();
     }
 
@@ -394,7 +401,7 @@
       if (isNaN(date.getTime())) return `<span class="support-badge support-expired">${endDateStr}</span>`;
 
       const now = new Date();
-      const diffDays = Math.ceil((date - now) / (86400000));
+      const diffDays = Math.ceil((date - now) / 86400000);
 
       if (diffDays > 7) {
         return date.toLocaleDateString(rtlLangs.includes(currentLang) ? 'ar-EG' : 'en-GB');
@@ -407,63 +414,59 @@
       }
     }
 
-    // 🛠️ تنسيق حالة المشروع مع الدوت
+    // 🛠️ تنسيق حالة المشروع
     function formatProjectStatus(status) {
       let dotClass = '';
       let text = status || 'Unknown';
-
-      if (status === 'Live') {
-        dotClass = 'status-live';
-        text = 'Live';
-      } else if (status === 'Under Development') {
-        dotClass = 'status-developing';
-        text = 'Under Development';
-      } else if (status === 'Closed') {
-        dotClass = 'status-closed';
-        text = 'Closed';
-      } else if (status === 'Fixing Bugs') {
-        dotClass = 'status-fixing';
-        text = 'Fixing Bugs';
-      }
+      if (status === 'Live') dotClass = 'status-live';
+      else if (status === 'Under Development') { dotClass = 'status-developing'; text = 'Under Development'; }
+      else if (status === 'Closed') { dotClass = 'status-closed'; text = 'Closed'; }
+      else if (status === 'Fixing Bugs') { dotClass = 'status-fixing'; text = 'Fixing Bugs'; }
 
       return `<span class="${dotClass}">${text}<span class="status-dot"></span></span>`;
     }
 
-    // 🎨 تحديث المحتوى الديناميكي (للترجمة)
+    // 🎨 تحديث العناصر الديناميكية
     function updateDynamicContent() {
       const supportEl = document.getElementById('supportEndDate');
       const statusEl = document.getElementById('projectStatus');
       const supportStatusEl = document.getElementById('supportStatus');
       
-      if (supportEl && supportEl.dataset.raw) {
-        supportEl.innerHTML = formatSupportDate(supportEl.dataset.raw);
-      }
-      
-      if (statusEl && statusEl.dataset.raw) {
-        statusEl.innerHTML = formatProjectStatus(statusEl.dataset.raw);
-      }
-      
-      if (supportStatusEl && supportStatusEl.dataset.raw) {
+      if (supportEl?.dataset.raw) supportEl.innerHTML = formatSupportDate(supportEl.dataset.raw);
+      if (statusEl?.dataset.raw) statusEl.innerHTML = formatProjectStatus(statusEl.dataset.raw);
+      if (supportStatusEl?.dataset.raw) {
         const raw = supportStatusEl.dataset.raw;
         let cls = 'support-expired';
         if (raw === 'Active') cls = 'support-active';
         else if (raw === 'Expire Soon') cls = 'support-expire-soon';
-        else if (raw === 'Expired') cls = 'support-expired';
         supportStatusEl.className = `support-badge ${cls}`;
         supportStatusEl.textContent = raw;
       }
     }
 
+    // 🚀 تهيئة Firebase
+    function initFirebase() {
+      try {
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.firestore();
+        firebaseReady = true;
+        document.getElementById('configWarning').classList.add('hidden');
+        return true;
+      } catch (e) {
+        console.error("Firebase init failed:", e);
+        document.getElementById('configWarning').classList.remove('hidden');
+        return false;
+      }
+    }
+
     // 🚪 عرض البوابة
     function showPortal(data) {
-      // ملء البيانات
       document.getElementById('customerNameDisplay').textContent = data.customerName;
       document.getElementById('customerName').textContent = data.customerName;
       document.getElementById('projectIdDisplay').textContent = data.projectId;
       document.getElementById('projectName').textContent = data.projectName;
       document.getElementById('deploymentDate').textContent = data.deploymentDate || '—';
       
-      // دعم + حالة المشروع
       const supportEl = document.getElementById('supportEndDate');
       supportEl.dataset.raw = data.supportEndDate;
       supportEl.innerHTML = formatSupportDate(data.supportEndDate);
@@ -481,46 +484,68 @@
       supportStatusEl.className = `support-badge ${cls}`;
       supportStatusEl.textContent = rawStatus;
       
-      // زر الموقع
-      const urlBtn = document.getElementById('projectUrlBtn');
-      urlBtn.href = data.url;
-      
-      // عرض البوابة
+      document.getElementById('projectUrlBtn').href = data.url;
       document.getElementById('loginPage').classList.add('hidden');
       document.getElementById('portalPage').classList.remove('hidden');
     }
 
-   
     // ⚙️ بدء التشغيل
     window.addEventListener('load', () => {
-      // تعيين اللغة
       setLanguage(currentLang);
       
-      // ملء من الرابط
+      // تهيئة Firebase
+      if (!initFirebase()) return;
+      
+      // ملء من الرابط (إذا وُجد)
       const urlParams = new URLSearchParams(window.location.search);
       const url = urlParams.get('url');
       const id = urlParams.get('id');
-      
       if (url && id) {
         document.getElementById('projectUrl').value = url;
         document.getElementById('projectId').value = id;
-    
       }
-      
+
       // أحداث
       document.getElementById('langSwitch').onclick = () => {
         setLanguage(currentLang === 'en' ? 'ar' : 'en');
       };
       
-      document.getElementById('loginForm')?.addEventListener('submit', (e) => {
+      document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
+        const url = document.getElementById('projectUrl').value.trim();
+        const id = document.getElementById('projectId').value.trim();
         
+        if (!firebaseReady) {
+          document.getElementById('connectionError').classList.remove('hidden');
+          return;
+        }
+
+        try {
+          // توحيد الرابط للمقارنة
+          const normalize = (u) => u.replace(/^(https?:\/\/)?(www\.)?/, '').replace(/\/$/, '').toLowerCase();
+          const normInput = normalize(url);
+          
+          const snapshot = await db.collection('projects').doc(id).get();
+          if (!snapshot.exists) throw new Error(translations[currentLang].loginError);
+          
+          const data = snapshot.data();
+          if (normalize(data.url) !== normInput) throw new Error(translations[currentLang].loginError);
+          
+          data.projectId = id;
+          showPortal(data);
+        } catch (err) {
+          const alertEl = document.getElementById('loginAlert');
+          alertEl.textContent = err.message || translations[currentLang].loginError;
+          alertEl.className = 'alert alert-error';
+          alertEl.classList.remove('hidden');
+        }
       });
       
       document.getElementById('logoutBtn')?.addEventListener('click', () => {
         document.getElementById('portalPage').classList.add('hidden');
         document.getElementById('loginPage').classList.remove('hidden');
         document.getElementById('loginForm').reset();
+        document.getElementById('loginAlert').classList.add('hidden');
       });
     });
   </script>
