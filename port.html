@@ -334,7 +334,15 @@
         unlimitedSupport: "Unlimited Support",
         endsIn: (days) => `Ends in ${days} day${days !== 1 ? 's' : ''}`,
         endsToday: "Ends today",
-        ended: (days) => `Ended ${days} day${days !== 1 ? 's' : ''} ago`
+        ended: (days) => `Ended ${days} day${days !== 1 ? 's' : ''} ago`,
+        projectStatusLive: "Live",
+        projectStatusDev: "Under Development",
+        projectStatusClosed: "Closed",
+        projectStatusFixing: "Fixing Bugs",
+        supportStatusActive: "Active",
+        supportStatusExpireSoon: "Expire Soon",
+        supportStatusExpired: "Expired",
+        supportStatusUnlimited: "Unlimited Support"
       },
       ar: {
         loginTitle: "تسجيل دخول البوابة",
@@ -358,7 +366,15 @@
         unlimitedSupport: "دعم غير محدود",
         endsIn: (days) => `ينتهي خلال ${days} يوم${days !== 1 ? 'ين' : ''}`,
         endsToday: "ينتهي اليوم",
-        ended: (days) => `انتهى منذ ${days} يوم${days !== 1 ? 'ين' : ''}`
+        ended: (days) => `انتهى منذ ${days} يوم${days !== 1 ? 'ين' : ''}`,
+        projectStatusLive: "مباشر",
+        projectStatusDev: "قيد التطوير",
+        projectStatusClosed: "مغلق",
+        projectStatusFixing: "إصلاح أخطاء",
+        supportStatusActive: "نشط",
+        supportStatusExpireSoon: "ينتهي قريبًا",
+        supportStatusExpired: "منتهي",
+        supportStatusUnlimited: "دعم غير محدود"
       }
     };
 
@@ -387,7 +403,7 @@
     // 📅 تنسيق تاريخ الدعم
     function formatSupportDate(endDateStr) {
       if (!endDateStr || endDateStr.trim().toLowerCase() === 'un') {
-        return `<span class="support-badge support-unlimited">${translations[currentLang].unlimitedSupport}</span>`;
+        return `<span class="support-badge support-unlimited">${translations[currentLang].supportStatusUnlimited}</span>`;
       }
 
       let date;
@@ -417,7 +433,7 @@
     // 🛠️ تنسيق حالة المشروع
     function formatProjectStatus(status) {
       let dotClass = '';
-      let text = status || 'Unknown';
+      let displayText = translations[currentLang].projectStatusLive || 'Unknown';
       if (status === 'Live') dotClass = 'status-live';
       else if (status === 'Under Development') { dotClass = 'status-developing'; text = 'Under Development'; }
       else if (status === 'Closed') { dotClass = 'status-closed'; text = 'Closed'; }
@@ -427,21 +443,25 @@
     }
 
     // 🎨 تحديث العناصر الديناميكية
-    function updateDynamicContent() {
-      const supportEl = document.getElementById('supportEndDate');
-      const statusEl = document.getElementById('projectStatus');
-      const supportStatusEl = document.getElementById('supportStatus');
-      
-      if (supportEl?.dataset.raw) supportEl.innerHTML = formatSupportDate(supportEl.dataset.raw);
-      if (statusEl?.dataset.raw) statusEl.innerHTML = formatProjectStatus(statusEl.dataset.raw);
-      if (supportStatusEl?.dataset.raw) {
-        const raw = supportStatusEl.dataset.raw;
-        let cls = 'support-expired';
-        if (raw === 'Active') cls = 'support-active';
-        else if (raw === 'Expire Soon') cls = 'support-expire-soon';
-        supportStatusEl.className = `support-badge ${cls}`;
-        supportStatusEl.textContent = raw;
+    function formatProjectStatus(status) {
+      let dotClass = '';
+      let displayText = status || 'Unknown';
+
+      if (status === 'Live') {
+        dotClass = 'status-live';
+        displayText = translations[currentLang].projectStatusLive;
+      } else if (status === 'Under Development') {
+        dotClass = 'status-developing';
+        displayText = translations[currentLang].projectStatusDev;
+      } else if (status === 'Closed') {
+        dotClass = 'status-closed';
+        displayText = translations[currentLang].projectStatusClosed;
+      } else if (status === 'Fixing Bugs') {
+        dotClass = 'status-fixing';
+        displayText = translations[currentLang].projectStatusFixing;
       }
+
+      return `<span class="${dotClass}">${displayText}<span class="status-dot"></span></span>`;
     }
 
     // 🚀 تهيئة Firebase
@@ -487,6 +507,20 @@
       document.getElementById('projectUrlBtn').href = data.url;
       document.getElementById('loginPage').classList.add('hidden');
       document.getElementById('portalPage').classList.remove('hidden');
+      // عند عرض الحالة (في showPortal أو مكان مماثل)
+      let displaySupportStatus = data.supportStatus;
+
+      if (data.supportStatus === 'Active') {
+        displaySupportStatus = translations[currentLang].supportStatusActive;
+      } else if (data.supportStatus === 'Expire Soon') {
+        displaySupportStatus = translations[currentLang].supportStatusExpireSoon;
+      } else if (data.supportStatus === 'Expired') {
+        displaySupportStatus = translations[currentLang].supportStatusExpired;
+      } else if (data.supportStatus === 'Unlimited' || data.supportEndDate === 'un') {
+        displaySupportStatus = translations[currentLang].supportStatusUnlimited;
+      }
+
+      supportStatusEl.textContent = displaySupportStatus;
     }
 
     // ⚙️ بدء التشغيل
