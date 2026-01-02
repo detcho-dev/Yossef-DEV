@@ -498,6 +498,7 @@ function updateDynamicContent() {
 
     // 🚀 تهيئة Firebase
     function initFirebase() {
+      const auth = firebase.auth();
       try {
         firebase.initializeApp(firebaseConfig);
         db = firebase.firestore();
