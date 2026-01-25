@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Dashboard - Books</title>
+    <title>Admin Dashboard - Projects</title>
     <link rel="stylesheet" href="admin.css" />
     <script type="module" src="admin.js"></script>
   </head>
@@ -22,27 +22,28 @@
     <!-- Dashboard -->
     <div id="dashboard" class="screen" style="display: none">
       <header>
-        <h1>Books Management</h1>
+        <h1>Projects Management</h1>
         <button id="logout-btn">Logout</button>
       </header>
 
       <div class="controls">
         <input type="text" id="search" placeholder="Search all fields..." />
-        <button id="new-book-btn">New Book</button>
+        <button id="new-project-btn">New Project</button>
         <button id="refresh-btn">🔄 Refresh</button>
       </div>
 
-      <table id="books-table">
+      <table id="projects-table">
         <thead>
           <tr>
             <th>ID</th>
-            <th>Title</th>
-            <th>Author</th>
-            <th>Categories</th>
-            <th>Cover</th>
-            <th>Section</th>
-            <th>Reads</th>
-            <th>Purchase Text</th>
+            <th>Customer</th>
+            <th>Project</th>
+            <th>Status</th>
+            <th>Support</th>
+            <th>Deployed</th>
+            <th>Support Ends</th>
+            <th>Website</th>
+            <th>Link</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -52,8 +53,8 @@
       </table>
 
       <div id="no-results" style="display: none; text-align: center; padding: 20px; color: #e0e0e0">
-        <p>No books found.</p>
-        <button id="create-with-id-btn" style="display: none; margin-top: 15px; padding: 8px 16px; background: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer;">Create book with this ID</button>
+        <p>No projects found.</p>
+        <button id="create-with-id-btn" style="display: none; margin-top: 15px; padding: 8px 16px; background: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer;">Create project with this ID</button>
       </div>
     </div>
 
@@ -72,59 +73,55 @@
       transition: transform 0.3s ease;
     "></div>
 
-    <!-- New Book Modal -->
-    <div id="new-book-modal" class="modal">
+    <!-- New Project Modal -->
+    <div id="new-project-modal" class="modal">
       <div class="modal-content">
         <span class="close" id="close-new-modal">&times;</span>
-        <h2>New Book</h2>
+        <h2>New Project</h2>
         <input type="text" id="new-id" placeholder="Document ID (Custom)" required />
-        <input type="text" id="new-title" placeholder="Title" required />
-        <input type="text" id="new-author" placeholder="Author" required />
-        <input type="text" id="new-categories" placeholder="Categories (Comma Separated)" required />
-        <div class="upload-container">
-          <button type="button" id="cover-upload-btn" class="upload-btn">Upload Cover Image</button>
-          <input type="file" id="cover-upload" accept="image/*" style="display: none;" />
-          <div id="cover-preview" class="image-preview"></div>
-        </div>
-        <div class="upload-container">
-          <button type="button" id="purchase-upload-btn" class="upload-btn">Upload Purchase PDF</button>
-          <input type="file" id="purchase-upload" accept=".pdf" style="display: none;" />
-          <div id="purchase-preview" class="file-preview"></div>
-        </div>
-        <select id="new-section" required>
-          <option value="members">Members</option>
-          <option value="readers">Readers</option>
+        <input type="text" id="new-customer" placeholder="Customer Name" required />
+        <input type="text" id="new-project-name" placeholder="Project Name" required />
+        <select id="new-status" required>
+          <option value="Live">Live</option>
+          <option value="Under Development">Under Development</option>
+          <option value="Closed">Closed</option>
+          <option value="Fixing Bugs">Fixing Bugs</option>
         </select>
-        <input type="number" id="new-reads" placeholder="Reads" min="0" required />
-        <button id="add-book-btn">Add Book</button>
+        <select id="new-support-status" required>
+          <option value="Active">Active</option>
+          <option value="Expire Soon">Expire Soon</option>
+          <option value="Expired">Expired</option>
+        </select>
+        <input type="text" id="new-deployment" placeholder="Deployment Date (e.g: 29 December 2025)" required />
+        <input type="text" id="new-support-end" placeholder="Support End Date (e.g: 28 January 2026)" required />
+        <input type="url" id="new-url" placeholder="Website URL" required />
+        <button id="add-project-btn">Add Project</button>
       </div>
     </div>
 
-    <!-- Edit Book Modal -->
-    <div id="edit-book-modal" class="modal">
+    <!-- Edit Project Modal -->
+    <div id="edit-project-modal" class="modal">
       <div class="modal-content">
         <span class="close" id="close-edit-modal">&times;</span>
-        <h2>Edit Book</h2>
+        <h2>Edit Project</h2>
         <input type="text" id="edit-id" readonly />
-        <input type="text" id="edit-title" placeholder="Title" required />
-        <input type="text" id="edit-author" placeholder="Author" required />
-        <input type="text" id="edit-categories" placeholder="Categories (Comma Separated)" required />
-        <div class="upload-container">
-          <button type="button" id="edit-cover-upload-btn" class="upload-btn">Upload Cover Image</button>
-          <input type="file" id="edit-cover-upload" accept="image/*" style="display: none;" />
-          <div id="edit-cover-preview" class="image-preview"></div>
-        </div>
-        <div class="upload-container">
-          <button type="button" id="edit-purchase-upload-btn" class="upload-btn">Upload Purchase PDF</button>
-          <input type="file" id="edit-purchase-upload" accept=".pdf" style="display: none;" />
-          <div id="edit-purchase-preview" class="file-preview"></div>
-        </div>
-        <select id="edit-section" required>
-          <option value="members">Members</option>
-          <option value="readers">Readers</option>
+        <input type="text" id="edit-customer" placeholder="Customer Name" required />
+        <input type="text" id="edit-project-name" placeholder="Project Name" required />
+        <select id="edit-status" required>
+          <option value="Live">Live</option>
+          <option value="Under Development">Under Development</option>
+          <option value="Closed">Closed</option>
+          <option value="Fixing Bugs">Fixing Bugs</option>
         </select>
-        <input type="number" id="edit-reads" placeholder="Reads" min="0" required />
-        <button id="update-book-btn">Save Changes</button>
+        <select id="edit-support-status" required>
+          <option value="Active">Active</option>
+          <option value="Expire Soon">Expire Soon</option>
+          <option value="Expired">Expired</option>
+        </select>
+        <input type="text" id="edit-deployment" placeholder="Deployment Date" required />
+        <input type="text" id="edit-support-end" placeholder="Support End Date" required />
+        <input type="url" id="edit-url" placeholder="Website URL" required />
+        <button id="update-project-btn">Save Changes</button>
       </div>
     </div>
   </body>
