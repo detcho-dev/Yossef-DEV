@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creative Cuts | Video Editing Portfolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        /* --- DESIGN SYSTEM & VARIABLES --- */
+        :root {
+            --bg-base: #121212;
+            --bg-surface: #1E1E1E;
+            --text-primary: #F8F9FA;
+            --text-secondary: #ADB5BD;
+            --accent: #00E5FF; /* Electric Cyan */
+            --font-heading: 'Montserrat', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3 {
+            font-family: var(--font-heading);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        section {
+            padding: 100px 10%;
+        }
+
+        /* --- NAVIGATION --- */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 20px 10%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        nav.scrolled {
+            background-color: rgba(18, 18, 18, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 10%;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .logo {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        .nav-links a {
+            margin-left: 30px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+
+        /* --- HERO SECTION --- */
+        #hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -2;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(18, 18, 18, 0.6);
+            z-index: -1;
+        }
+
+        .hero-content h1 {
+            font-size: 4.5rem;
+            margin-bottom: 20px;
+            line-height: 1.1;
+        }
+
+        .hero-content p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-btn {
+            display: inline-block;
+            background: var(--accent);
+            color: #000;
+            padding: 15px 40px;
+            font-family: var(--font-heading);
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 50px;
+            transition: var(--transition);
+            border: 2px solid var(--accent);
+        }
+
+        .cta-btn:hover {
+            background: transparent;
+            color: var(--accent);
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
+        }
+
+        /* --- PORTFOLIO GRID --- */
+        .section-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .filters {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: transparent;
+            border: 1px solid var(--text-secondary);
+            color: var(--text-primary);
+            padding: 8px 24px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-family: var(--font-body);
+            transition: var(--transition);
+        }
+
+        .filter-btn.active, .filter-btn:hover {
+            border-color: var(--accent);
+            background: var(--accent);
+            color: #000;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .grid-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            aspect-ratio: 16/9;
+            cursor: pointer;
+        }
+
+        .grid-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .grid-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 30px 20px 20px;
+            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+            transform: translateY(100%);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+
+        .grid-item:hover img {
+            transform: scale(1.05);
+        }
+
+        .grid-item:hover .grid-overlay {
+            transform: translateY(0);
+        }
+
+        .grid-overlay h3 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .grid-overlay span {
+            color: var(--accent);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        /* --- PROCESS SECTION --- */
+        #process {
+            background-color: var(--bg-surface);
+        }
+
+        .process-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+        }
+
+        .card {
+            background: var(--bg-base);
+            padding: 40px 30px;
+            border-radius: 12px;
+            text-align: left;
+            border-top: 3px solid transparent;
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            border-top: 3px solid var(--accent);
+            transform: translateY(-10px);
+        }
+
+        .card-number {
+            font-family: var(--font-heading);
+            font-size: 3rem;
+            color: rgba(255,255,255,0.05);
+            line-height: 1;
+            margin-bottom: -20px;
+        }
+
+        .card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 768px) {
+            .hero-content h1 { font-size: 3rem; }
+            .nav-links { display: none; } /* Add a hamburger menu here in production */
+        }
+    </style>
+</head>
+<body>
+
+    <nav id="navbar">
+        <div class="logo">CREATIVE<span>CUTS</span></div>
+        <div class="nav-links">
+            <a href="#portfolio">Work</a>
+            <a href="#process">Process</a>
+            <a href="#contact">Contact</a>
+        </div>
+    </nav>
+
+    <header id="hero">
+        <img src="https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?q=80&w=2070&auto=format&fit=crop" class="hero-bg" alt="Video Editing Timeline">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1>We Cut.<br>You Captivate.</h1>
+            <p>Elevating brands and artists through rhythm, color, and story. Welcome to the editing suite.</p>
+            <a href="#portfolio" class="cta-btn">View the Reel</a>
+        </div>
+    </header>
+
+    <section id="portfolio">
+        <div class="section-header">
+            <h2>Featured Cuts</h2>
+            <p style="color: var(--text-secondary);">Select a category to filter our work.</p>
+        </div>
+
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="commercial">Commercials</button>
+            <button class="filter-btn" data-filter="music">Music Videos</button>
+            <button class="filter-btn" data-filter="social">Social Media</button>
+        </div>
+
+        <div class="grid">
+            <div class="grid-item" data-category="commercial">
+                <img src="https://images.unsplash.com/photo-1542204165-65bf26472b9b?q=80&w=1000&auto=format&fit=crop" alt="Nike Promo">
+                <div class="grid-overlay">
+                    <h3>Velocity Air Promo</h3>
+                    <span>Commercial</span>
+                </div>
+            </div>
+            <div class="grid-item" data-category="music">
+                <img src="https://images.unsplash.com/photo-1493225457124-a1a2a5f0113f?q=80&w=1000&auto=format&fit=crop" alt="Music Video">
+                <div class="grid-overlay">
+                    <h3>Neon Nights - The Band</h3>
+                    <span>Music Video</span>
+                </div>
+            </div>
+            <div class="grid-item" data-category="social">
+                <img src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=1000&auto=format&fit=crop" alt="Instagram Reel">
+                <div class="grid-overlay">
+                    <h3>Summer Vibes Campaign</h3>
+                    <span>Social Media</span>
+                </div>
+            </div>
+            <div class="grid-item" data-category="commercial">
+                <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000&auto=format&fit=crop" alt="Tech Ad">
+                <div class="grid-overlay">
+                    <h3>TechX Launch</h3>
+                    <span>Commercial</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="process">
+        <div class="section-header">
+            <h2>The Workflow</h2>
+        </div>
+        <div class="process-cards">
+            <div class="card">
+                <div class="card-number">01</div>
+                <h3>Ingestion & Prep</h3>
+                <p>Organizing footage, syncing audio, and building the rock-solid project architecture so the story can begin to take shape.</p>
+            </div>
+            <div class="card">
+                <div class="card-number">02</div>
+                <h3>Creative Edit</h3>
+                <p>Finding the rhythm, cutting the fat, and weaving the narrative. This is the timeline where the magic actually happens.</p>
+            </div>
+            <div class="card">
+                <div class="card-number">03</div>
+                <h3>Final Polish</h3>
+                <p>Color grading, sound design, motion graphics, and final delivery perfectly tailored to your platform specifications.</p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // 1. Sticky Navigation logic
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // 2. Portfolio Filtering Logic
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const gridItems = document.querySelectorAll('.grid-item');
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from all buttons
+                filterBtns.forEach(b => b.classList.remove('active'));
+                // Add active class to clicked button
+                btn.classList.add('active');
+
+                const filterValue = btn.getAttribute('data-filter');
+
+                gridItems.forEach(item => {
+                    if (filterValue === 'all' || item.getAttribute('data-category') === filterValue) {
+                        item.style.display = 'block';
+                        // Small timeout to allow display:block to apply before animating opacity
+                        setTimeout(() => {
+                            item.style.opacity = '1';
+                            item.style.transform = 'scale(1)';
+                        }, 50);
+                    } else {
+                        item.style.opacity = '0';
+                        item.style.transform = 'scale(0.8)';
+                        setTimeout(() => {
+                            item.style.display = 'none';
+                        }, 300); // matches CSS transition time if added
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
