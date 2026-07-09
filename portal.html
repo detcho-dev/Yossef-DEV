@@ -1,1 +1,361 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Project Status</title>
+    <style>
+        :root {
+            --bg-dark: #121212;
+            --bg-card: #1e1e1e;
+            --text: #e0e0e0;
+            --accent: #bb86fc;
+            --danger: #cf6679;
+            --success: #03dac6;
+        }
 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: var(--accent);
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .header .project-id {
+            color: #888;
+            font-size: 0.9em;
+            background: #2d2d2d;
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .status-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .status-card {
+            background: #2d2d2d;
+            padding: 20px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-card .label {
+            font-weight: bold;
+            color: #888;
+        }
+
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .status-live {
+            background: #2e7d32;
+            color: white;
+        }
+
+        .status-developing {
+            background: #ff9800;
+            color: white;
+        }
+
+        .status-closed {
+            background: #9e9e9e;
+            color: white;
+        }
+
+        .status-fixing {
+            background: #f44336;
+            color: white;
+        }
+
+        .support-active {
+            background: #2e7d32;
+            color: white;
+        }
+
+        .support-expire-soon {
+            background: #ff9800;
+            color: white;
+        }
+
+        .support-expired {
+            background: #d32f2f;
+            color: white;
+        }
+
+        .support-unlimited {
+            background: #1565c0;
+            color: white;
+        }
+
+        .website-link {
+            display: block;
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            background: var(--accent);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.1em;
+            transition: background 0.3s;
+        }
+
+        .website-link:hover {
+            background: #a569fd;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+        }
+
+        .error {
+            text-align: center;
+            padding: 40px;
+            color: var(--danger);
+        }
+
+        .error h2 {
+            margin-bottom: 10px;
+        }
+
+        .support-note {
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            background: #2d2d2d;
+            border-radius: 8px;
+            font-size: 0.9em;
+            color: #888;
+        }
+
+        .support-note.warning {
+            background: rgba(255, 152, 0, 0.1);
+            color: #ff9800;
+            border: 1px solid #ff9800;
+        }
+
+        .support-note.expired {
+            background: rgba(211, 47, 47, 0.1);
+            color: #d32f2f;
+            border: 1px solid #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 id="project-name">Loading...</h1>
+            <span class="project-id" id="project-id-display"></span>
+        </div>
+
+        <div id="content">
+            <div class="loading">Loading project details...</div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import {
+            getFirestore,
+            doc,
+            getDoc,
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAemoGMX1PHF55qUTh_5SZIrN3Y-QaqrWA",
+            authDomain: "yossef-dev-216b0.firebaseapp.com",
+            projectId: "yossef-dev-216b0",
+            storageBucket: "yossef-dev-216b0.firebasestorage.app",
+            messagingSenderId: "509948939620",
+            appId: "1:509948939620:web:017b806e995bb114d8be71",
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Get project ID from URL
+        function getProjectIdFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('id');
+        }
+
+        function getSupportStatusClass(status) {
+            switch(status) {
+                case 'Active': return 'support-active';
+                case 'Expire Soon': return 'support-expire-soon';
+                case 'Expired': return 'support-expired';
+                default: return 'support-active';
+            }
+        }
+
+        function getProjectStatusClass(status) {
+            switch(status) {
+                case 'Live': return 'status-live';
+                case 'Under Development': return 'status-developing';
+                case 'Closed': return 'status-closed';
+                case 'Fixing Bugs': return 'status-fixing';
+                default: return 'status-developing';
+            }
+        }
+
+        function getSupportEndMessage(endDate) {
+            if (!endDate || endDate.trim().toLowerCase() === 'un') {
+                return { message: 'Unlimited Support', class: '' };
+            }
+
+            // Convert DD-MM-YYYY to Date object
+            let formattedDate = endDate;
+            if (typeof endDate === 'string' && endDate.includes('-')) {
+                const parts = endDate.split('-');
+                if (parts.length === 3) {
+                    const [day, month, year] = parts;
+                    formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+                }
+            }
+
+            const end = new Date(formattedDate);
+            if (isNaN(end.getTime())) {
+                return { message: endDate, class: '' };
+            }
+
+            const now = new Date();
+            const diffMs = end - now;
+            const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+            if (diffDays > 7) {
+                return { message: `Until ${end.toLocaleDateString('en-GB')}`, class: '' };
+            } else if (diffDays > 0) {
+                return { message: `Ends in ${diffDays} day${diffDays !== 1 ? 's' : ''}`, class: 'warning' };
+            } else if (diffDays === 0) {
+                return { message: 'Ends today!', class: 'warning' };
+            } else {
+                const daysAgo = Math.abs(diffDays);
+                return { message: `Ended ${daysAgo} day${daysAgo !== 1 ? 's' : ''} ago`, class: 'expired' };
+            }
+        }
+
+        async function loadProject() {
+            const projectId = getProjectIdFromURL();
+            const content = document.getElementById('content');
+            const projectNameEl = document.getElementById('project-name');
+            const projectIdDisplay = document.getElementById('project-id-display');
+
+            if (!projectId) {
+                content.innerHTML = `
+                    <div class="error">
+                        <h2>No Project ID</h2>
+                        <p>Please provide a project ID in the URL.</p>
+                        <p style="margin-top:10px;color:#888">Example: ?id=project123</p>
+                    </div>
+                `;
+                projectNameEl.textContent = 'Error';
+                return;
+            }
+
+            projectIdDisplay.textContent = `ID: ${projectId}`;
+
+            try {
+                const docRef = doc(db, "projects", projectId);
+                const docSnap = await getDoc(docRef);
+
+                if (!docSnap.exists()) {
+                    content.innerHTML = `
+                        <div class="error">
+                            <h2>Project Not Found</h2>
+                            <p>The project with ID "${projectId}" does not exist.</p>
+                        </div>
+                    `;
+                    projectNameEl.textContent = 'Not Found';
+                    return;
+                }
+
+                const data = docSnap.data();
+                projectNameEl.textContent = data.projectName || 'Unnamed Project';
+
+                const supportEndInfo = getSupportEndMessage(data.supportEndDate);
+
+                content.innerHTML = `
+                    <div class="status-grid">
+                        <div class="status-card">
+                            <span class="label">Customer</span>
+                            <span>${data.customerName || 'N/A'}</span>
+                        </div>
+                        <div class="status-card">
+                            <span class="label">Project Status</span>
+                            <span class="status-badge ${getProjectStatusClass(data.projectStatus)}">${data.projectStatus || 'Unknown'}</span>
+                        </div>
+                        <div class="status-card">
+                            <span class="label">Support Status</span>
+                            <span class="status-badge ${getSupportStatusClass(data.supportStatus)}">${data.supportStatus || 'Unknown'}</span>
+                        </div>
+                        <div class="status-card">
+                            <span class="label">Deployed</span>
+                            <span>${data.deploymentDate || 'N/A'}</span>
+                        </div>
+                        <div class="status-card">
+                            <span class="label">Support End</span>
+                            <span>${supportEndInfo.message}</span>
+                        </div>
+                    </div>
+                    ${supportEndInfo.class ? `<div class="support-note ${supportEndInfo.class}">⚠️ ${supportEndInfo.message}</div>` : ''}
+                    ${data.url ? `<a href="${data.url}" target="_blank" class="website-link">🌐 Visit Website</a>` : '<p style="text-align:center;margin-top:20px;color:#888">No website URL available</p>'}
+                `;
+            } catch (error) {
+                content.innerHTML = `
+                    <div class="error">
+                        <h2>Error Loading Project</h2>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+                projectNameEl.textContent = 'Error';
+                console.error('Error loading project:', error);
+            }
+        }
+
+        // Load project on page load
+        loadProject();
+    </script>
+</body>
+</html>
