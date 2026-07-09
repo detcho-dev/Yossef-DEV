@@ -931,4 +931,15 @@ tbody tr:last-child td {
 }
 
 @media (max-width: 480px) {
-    .stats
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .top-bar {
+        padding: 12px 16px;
+    }
+    
+    .top-bar-left h1 {
+        font-size: 18px;
+    }
+}
