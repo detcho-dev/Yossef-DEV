@@ -405,6 +405,88 @@ auth.onAuthStateChanged((user) => {
   }
 });
 
+// Add to your existing admin.js
+
+// Update stats
+function updateStats() {
+    const rows = document.querySelectorAll('#table-body tr:not(.skeleton-row)');
+    let total = 0, live = 0, expiringSoon = 0, expired = 0;
+    
+    rows.forEach(row => {
+        total++;
+        const statusBadge = row.querySelector('.status-badge');
+        const supportBadge = row.querySelector('.support-badge');
+        
+        if (statusBadge?.classList.contains('status-live')) live++;
+        if (supportBadge?.classList.contains('support-expire-soon')) expiringSoon++;
+        if (supportBadge?.classList.contains('support-expired')) expired++;
+    });
+    
+    document.getElementById('total-projects').textContent = total;
+    document.getElementById('live-projects').textContent = live;
+    document.getElementById('expiring-support').textContent = expiringSoon;
+    document.getElementById('expired-support').textContent = expired;
+    document.getElementById('project-count').textContent = total;
+}
+
+// Clear search
+document.getElementById('clear-search')?.addEventListener('click', () => {
+    document.getElementById('search').value = '';
+    searchTable();
+    document.getElementById('clear-search').style.display = 'none';
+});
+
+document.getElementById('search')?.addEventListener('input', (e) => {
+    const clearBtn = document.getElementById('clear-search');
+    clearBtn.style.display = e.target.value ? 'flex' : 'none';
+});
+
+// Mobile menu toggle
+document.querySelector('.menu-toggle')?.addEventListener('click', () => {
+    document.querySelector('.sidebar').classList.toggle('open');
+});
+
+// Update the showToast function
+function showToast(message, type = 'info') {
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toast-message');
+    const toastIcon = toast.querySelector('i');
+    
+    toastMessage.textContent = message;
+    toast.className = 'toast ' + type;
+    
+    if (type === 'success') {
+        toastIcon.className = 'fas fa-check-circle';
+    } else if (type === 'error') {
+        toastIcon.className = 'fas fa-exclamation-circle';
+    } else {
+        toastIcon.className = 'fas fa-info-circle';
+    }
+    
+    toast.style.transform = 'translateX(0)';
+    
+    setTimeout(() => {
+        toast.style.transform = 'translateX(200%)';
+    }, 3000);
+}
+
+// Hide loading screen
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        document.getElementById('loading-screen').style.opacity = '0';
+        setTimeout(() => {
+            document.getElementById('loading-screen').style.display = 'none';
+        }, 500);
+    }, 1000);
+});
+
+// Call updateStats after loading projects
+const originalLoadProjects = loadProjects;
+loadProjects = async function() {
+    await originalLoadProjects();
+    updateStats();
+};
+
 // Export Functions (for module)
 export {
   login,
