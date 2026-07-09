@@ -339,7 +339,7 @@ function attachActionButtons() {
       const id = e.target.dataset.id;
       const url = e.target.dataset.url || 'https://example.com';
       const encoded = encodeURIComponent(url);
-      const link = `https://detcho-dev.github.io/Yossef-DEV/port?url=${encoded}&id=${id}`;
+      const link = `https://detcho-dev.github.io/Yossef-DEV/port?id=${id}`;
       if (navigator.clipboard) {
         navigator.clipboard.writeText(link).then(() => {
           showToast("Link copied!", "success");
