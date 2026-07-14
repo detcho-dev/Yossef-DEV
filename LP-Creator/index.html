@@ -110,205 +110,177 @@
     </div>
 
     <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
-      // ===== Firebase Configuration =====
-      const firebaseConfig = {
-  apiKey: "AIzaSyBkh_fPK47s4jMIqdWPsg44fRryZtEF7KM",
-  authDomain: "landing-pages-63d47.firebaseapp.com",
-  projectId: "landing-pages-63d47",
-  storageBucket: "landing-pages-63d47.firebasestorage.app",
-  messagingSenderId: "347591934109",
-  appId: "1:347591934109:web:08e995e316ac5250fdd474",
-  measurementId: "G-XP2QY9QSPD"
-};
-      firebase.initializeApp(firebaseConfig);
-      const db = firebase.firestore();
+     // ===== Supabase Configuration =====
+        const supabaseUrl = 'https://fhgszopuwnrnijxvghku.supabase.co'; // مثال: 
+        const supabaseKey = 'sb_publishable_E1rFR_s0u4kxhKpVTGbzKQ_16xQDOkI'; // المفتاح العام
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-      // ===== Helper: Get current template ID from URL hash =====
-      function getTemplateIdFromHash() {
-        const hash = window.location.hash; // e.g. "#/template1" or "#/product-launch"
-        if (hash && hash.startsWith("#/")) {
-          return hash.substring(2); // Remove "#/" and return the rest
+        // ===== Helper: Get current template slug from URL hash =====
+        function getTemplateSlugFromHash() {
+            const hash = window.location.hash;
+            if (hash && hash.startsWith('#/')) {
+                return hash.substring(2);
+            }
+            return null;
         }
-        return null;
-      }
 
-      // ===== Helper: Update URL hash without reload =====
-      function updateHash(templateId) {
-        if (templateId) {
-          window.location.hash = `#/${templateId}`;
-        } else {
-          window.location.hash = "";
+        // ===== Helper: Update URL hash without reload =====
+        function updateHash(slug) {
+            window.location.hash = slug ? `#/${slug}` : '';
         }
-      }
 
-      // ===== Load all templates and display as cards =====
-      async function loadTemplates() {
-        const grid = document.getElementById("templates-grid");
-        grid.innerHTML = '<div class="loading">⏳ Loading templates...</div>';
+        // ===== Load all templates from Supabase =====
+        async function loadTemplates() {
+            const grid = document.getElementById('templates-grid');
+            grid.innerHTML = '<div class="loading">⏳ Loading templates...</div>';
 
-        try {
-          const snapshot = await db.collection("templates").get();
+            try {
+                const { data, error } = await supabase
+                    .from('templates')
+                    .select('*')
+                    .eq('is_active', true)
+                    .order('views', { ascending: false });
 
-          if (snapshot.empty) {
-            grid.innerHTML =
-              "<p>❌ No templates found. Please add some via the admin panel.</p>";
-            return;
-          }
+                if (error) throw error;
 
-          let html = "";
-          snapshot.forEach((doc) => {
-            const t = doc.data();
-            html += `
-                        <div class="template-card" onclick="showTemplate('${doc.id}')">
-                            <img src="${t.coverImage || "https://via.placeholder.com/300x150?text=No+Image"}" 
-                                 alt="${t.name || "Template"}">
+                if (!data || data.length === 0) {
+                    grid.innerHTML = '<p>❌ No templates found. Please add some via the admin panel.</p>';
+                    return;
+                }
+
+                let html = '';
+                data.forEach(template => {
+                    html += `
+                        <div class="template-card" onclick="showTemplate('${template.slug}')">
+                            <img src="${template.cover_image || 'https://via.placeholder.com/300x150?text=No+Image'}" 
+                                 alt="${template.name || 'Template'}">
                             <div class="info">
-                                <h3>${t.name || "Unnamed"}</h3>
-                                <span class="id-badge">#${t.id || doc.id}</span>
+                                <h3>${template.name || 'Unnamed'}</h3>
+                                <span class="id-badge">#${template.slug}</span>
+                                <small style="display:block;color:#999;margin-top:5px;">👁️ ${template.views || 0} views</small>
                             </div>
                         </div>
                     `;
-          });
+                });
 
-          grid.innerHTML = html;
-        } catch (error) {
-          console.error("Error loading templates:", error);
-          grid.innerHTML = `<p style="color:red;">❌ Error: ${error.message}</p>`;
+                grid.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error loading templates:', error);
+                grid.innerHTML = `<p style="color:red;">❌ Error: ${error.message}</p>`;
+            }
         }
-      }
 
-      // ===== Show a specific template =====
-      async function showTemplate(docId) {
-        const viewer = document.getElementById("template-viewer");
-        const content = document.getElementById("template-content");
+        // ===== Show a specific template =====
+        async function showTemplate(slug) {
+            const viewer = document.getElementById('template-viewer');
+            const content = document.getElementById('template-content');
 
-        viewer.style.display = "block";
-        content.innerHTML = '<div class="loading">⏳ Loading template...</div>';
+            viewer.style.display = 'block';
+            content.innerHTML = '<div class="loading">⏳ Loading template...</div>';
 
-        try {
-          const doc = await db.collection("templates").doc(docId).get();
+            try {
+                const { data, error } = await supabase
+                    .from('templates')
+                    .select('*')
+                    .eq('slug', slug)
+                    .single();
 
-          if (!doc.exists) {
-            content.innerHTML =
-              '<p style="color:red;">❌ Template not found.</p>';
-            return;
-          }
+                if (error) throw error;
 
-          const template = doc.data();
+                if (!data) {
+                    content.innerHTML = '<p style="color:red;">❌ Template not found.</p>';
+                    return;
+                }
 
-          // Remove old injected styles/scripts from previous template
-          removeOldTemplateAssets();
+                const template = data;
 
-          // Build the display
-          content.innerHTML = `
+                // Remove old injected styles/scripts
+                removeOldTemplateAssets();
+
+                // Build the display
+                content.innerHTML = `
                     <div style="border-bottom: 2px solid #eee; margin-bottom: 20px; padding-bottom: 10px;">
-                        <h2>📄 ${template.name || "Unnamed"}</h2>
-                        <p><strong>ID:</strong> ${template.id || docId}</p>
-                        ${template.coverImage ? `<img src="${template.coverImage}" style="max-width:100%; max-height:200px; border-radius:8px; margin-top:10px;">` : ""}
+                        <h2>📄 ${template.name || 'Unnamed'}</h2>
+                        <p><strong>Slug:</strong> ${template.slug}</p>
+                        ${template.cover_image ? `<img src="${template.cover_image}" style="max-width:100%; max-height:200px; border-radius:8px; margin-top:10px;">` : ''}
                     </div>
                     <div class="template-display-area" id="template-display">
                         ${template.html || '<p style="color:#999;">⚠️ This template has no HTML content.</p>'}
                     </div>
                 `;
 
-          // Inject CSS if present
-          if (template.css) {
-            const styleTag = document.createElement("style");
-            styleTag.id = `template-style-${docId}`;
-            styleTag.textContent = template.css;
-            document.head.appendChild(styleTag);
-          }
+                // Inject CSS if present
+                if (template.css) {
+                    const styleTag = document.createElement('style');
+                    styleTag.id = `template-style-${template.id}`;
+                    styleTag.textContent = template.css;
+                    document.head.appendChild(styleTag);
+                }
 
-          // Execute JavaScript if present (safe because you control the templates)
-          if (template.js) {
-            const exec = new Function(`
+                // Execute JavaScript if present
+                if (template.js) {
+                    const exec = new Function(`
                         const templateData = ${JSON.stringify(template)};
                         ${template.js}
                     `);
-            setTimeout(exec, 0);
-          }
+                    setTimeout(exec, 0);
+                }
 
-          // Increment view count
-          await db
-            .collection("templates")
-            .doc(docId)
-            .update({
-              "metadata.views": firebase.firestore.FieldValue.increment(1),
-            });
+                // Increment view count (don't await to not block UI)
+                supabase
+                    .from('templates')
+                    .update({ views: (template.views || 0) + 1 })
+                    .eq('id', template.id)
+                    .then(({ error }) => {
+                        if (error) console.error('Error updating views:', error);
+                    });
 
-          // Update URL hash
-          updateHash(template.id || docId);
-        } catch (error) {
-          console.error("Error loading template:", error);
-          content.innerHTML = `<p style="color:red;">❌ Error: ${error.message}</p>`;
+                // Update URL hash
+                updateHash(template.slug);
+
+            } catch (error) {
+                console.error('Error loading template:', error);
+                content.innerHTML = `<p style="color:red;">❌ Error: ${error.message}</p>`;
+            }
         }
-      }
 
-      // ===== Cleanup old styles and scripts =====
-      function removeOldTemplateAssets() {
-        document
-          .querySelectorAll('style[id^="template-style-"]')
-          .forEach((el) => el.remove());
-        document
-          .querySelectorAll("script[data-template]")
-          .forEach((el) => el.remove());
-      }
-
-      // ===== Close viewer and reset URL =====
-      function closeViewer() {
-        document.getElementById("template-viewer").style.display = "none";
-        updateHash(null);
-        removeOldTemplateAssets();
-      }
-
-      // ===== Handle hash changes (back/forward buttons) =====
-      window.addEventListener("hashchange", function () {
-        const templateId = getTemplateIdFromHash();
-        if (templateId) {
-          // Find template by its 'id' field
-          db.collection("templates")
-            .where("id", "==", templateId)
-            .get()
-            .then((snapshot) => {
-              if (!snapshot.empty) {
-                const doc = snapshot.docs[0];
-                showTemplate(doc.id);
-              } else {
-                // If not found, try using the hash as docId directly
-                db.collection("templates")
-                  .doc(templateId)
-                  .get()
-                  .then((doc) => {
-                    if (doc.exists) {
-                      showTemplate(templateId);
-                    } else {
-                      closeViewer();
-                    }
-                  })
-                  .catch(() => closeViewer());
-              }
-            })
-            .catch(() => closeViewer());
-        } else {
-          closeViewer();
+        // ===== Cleanup old styles and scripts =====
+        function removeOldTemplateAssets() {
+            document.querySelectorAll('style[id^="template-style-"]').forEach(el => el.remove());
+            document.querySelectorAll('script[data-template]').forEach(el => el.remove());
         }
-      });
 
-      // ===== Initial load =====
-      window.onload = function () {
-        loadTemplates();
-
-        // Check if URL has a hash (e.g., #/template1)
-        const hashTemplateId = getTemplateIdFromHash();
-        if (hashTemplateId) {
-          // Trigger hashchange to load the template
-          window.dispatchEvent(new HashChangeEvent("hashchange"));
+        // ===== Close viewer =====
+        function closeViewer() {
+            document.getElementById('template-viewer').style.display = 'none';
+            updateHash(null);
+            removeOldTemplateAssets();
         }
-      };
+
+        // ===== Handle hash changes (back/forward buttons) =====
+        window.addEventListener('hashchange', function() {
+            const slug = getTemplateSlugFromHash();
+            if (slug) {
+                showTemplate(slug);
+            } else {
+                closeViewer();
+            }
+        });
+
+        // ===== Initial load =====
+        window.onload = function() {
+            loadTemplates();
+
+            const hashSlug = getTemplateSlugFromHash();
+            if (hashSlug) {
+                // Wait for templates to load then show the specific one
+                setTimeout(() => showTemplate(hashSlug), 500);
+            }
+        };
     </script>
   </body>
 </html>
