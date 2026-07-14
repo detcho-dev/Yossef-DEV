@@ -116,7 +116,7 @@
      // ===== Supabase Configuration =====
         const supabaseUrl = 'https://fhgszopuwnrnijxvghku.supabase.co'; // مثال: 
         const supabaseKey = 'sb_publishable_E1rFR_s0u4kxhKpVTGbzKQ_16xQDOkI'; // المفتاح العام
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
         // ===== Helper: Get current template slug from URL hash =====
         function getTemplateSlugFromHash() {
@@ -138,7 +138,7 @@
             grid.innerHTML = '<div class="loading">⏳ Loading templates...</div>';
 
             try {
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('templates')
                     .select('*')
                     .eq('is_active', true)
@@ -183,7 +183,7 @@
             content.innerHTML = '<div class="loading">⏳ Loading template...</div>';
 
             try {
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('templates')
                     .select('*')
                     .eq('slug', slug)
@@ -231,7 +231,7 @@
                 }
 
                 // Increment view count (don't await to not block UI)
-                supabase
+                supabaseClient
                     .from('templates')
                     .update({ views: (template.views || 0) + 1 })
                     .eq('id', template.id)
