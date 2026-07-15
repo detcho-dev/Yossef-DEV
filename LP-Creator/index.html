@@ -139,10 +139,9 @@
 
             try {
                 const { data, error } = await supabaseClient
-                    .from('templates')
-                    .select('*')
-                    .eq('is_active', TRUE)
-                    .order('views', { ascending: FALSE });
+                  .from('templates')
+                  .select('*')
+                  .order('views', { ascending: false });
 
                 if (error) throw error;
 
