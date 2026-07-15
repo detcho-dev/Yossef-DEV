@@ -1,90 +1,49 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Firestore Connection Test</title>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <title>Supabase Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <h1>🔍 Firestore Connection Test</h1>
-    <div id="result" style="font-family:monospace;padding:20px;background:#f4f4f4;border-radius:8px;margin-top:20px;">
-        ⏳ Testing connection...
-    </div>
+    <h1>Supabase Connection Test</h1>
+    <div id="result">Loading...</div>
 
     <script>
-        // ===== استخدم نفس الـ Config الموجود في مشروعك =====
-        
-            const firebaseConfig = {
-  apiKey: "AIzaSyBkh_fPK47s4jMIqdWPsg44fRryZtEF7KM",
-  authDomain: "landing-pages-63d47.firebaseapp.com",
-  projectId: "landing-pages-63d47",
-  storageBucket: "landing-pages-63d47.firebasestorage.app",
-  messagingSenderId: "347591934109",
-  appId: "1:347591934109:web:08e995e316ac5250fdd474",
-};
-        
+        const supabaseUrl = 'https://fhgszopuwnrnijxvghku.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZoZ3N6b3B1d25ybmlqeHZnaGt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMzQ1MTUsImV4cCI6MjA5OTYxMDUxNX0.K2WVDxjRh6JC51nZHdJpR2l8kjS1jhXJ9EkmQ5ElPtQ';
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-        // التحقق من وجود البيانات
-        console.log('Firebase Config:', firebaseConfig);
+        async function test() {
+            const result = document.getElementById('result');
+            result.innerHTML = '⏳ Connecting...';
 
-        try {
-            firebase.initializeApp(firebaseConfig);
-            console.log('✅ Firebase initialized');
-        } catch (error) {
-            console.error('❌ Initialize error:', error);
-            document.getElementById('result').innerHTML = `
-                ❌ <strong>Firebase initialization failed:</strong><br>
-                ${error.message}
-            `;
-        }
-
-        const db = firebase.firestore();
-
-        async function testFirestore() {
-            const resultDiv = document.getElementById('result');
-            
             try {
-                resultDiv.innerHTML = '⏳ Attempting to read from Firestore...';
-                
-                // محاولة قراءة القالب 'home'
-                const docRef = db.collection('templates').doc('home');
-                const doc = await docRef.get();
-                
-                if (doc.exists) {
-                    const data = doc.data();
-                    resultDiv.innerHTML = `
-                        ✅ <strong>Connection Successful!</strong><br><br>
-                        <strong>Template Data:</strong><br>
-                        <pre style="background:#fff;padding:15px;border-radius:5px;border:1px solid #ddd;">${JSON.stringify(data, null, 2)}</pre>
+                const { data, error } = await supabase
+                    .from('templates')
+                    .select('*');
+
+                if (error) throw error;
+
+                if (data && data.length > 0) {
+                    result.innerHTML = `
+                        ✅ <strong>Success!</strong><br>
+                        Found ${data.length} templates:<br>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
                     `;
                 } else {
-                    resultDiv.innerHTML = `
-                        ⚠️ <strong>Connection works, but document "home" not found.</strong><br>
-                        Available collections: ${(await db.collection('templates').get()).size}
-                    `;
+                    result.innerHTML = '✅ Connection works, but no templates found. Add one in the Table Editor.';
                 }
             } catch (error) {
-                console.error('❌ Firestore error:', error);
-                resultDiv.innerHTML = `
-                    ❌ <strong>Firestore Error:</strong><br>
-                    <strong>Code:</strong> ${error.code || 'unknown'}<br>
-                    <strong>Message:</strong> ${error.message}<br><br>
-                    <strong>Full error:</strong><br>
-                    <pre style="background:#fff;padding:15px;border-radius:5px;border:1px solid #ddd;font-size:12px;">${error.toString()}</pre>
-                    <br>
-                    <strong>Possible causes:</strong><br>
-                    • Firestore database not enabled<br>
-                    • Incorrect Firebase Config<br>
-                    • Network/firewall blocking Google services<br>
-                    • CORS issues (if testing locally)
+                result.innerHTML = `
+                    ❌ <strong>Error:</strong><br>
+                    Code: ${error.code}<br>
+                    Message: ${error.message}
                 `;
+                console.error('Error:', error);
             }
         }
 
-        // تشغيل الاختبار بعد تحميل الصفحة
-        window.onload = function() {
-            setTimeout(testFirestore, 1000);
-        };
+        window.onload = test;
     </script>
 </body>
 </html>
