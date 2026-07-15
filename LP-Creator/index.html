@@ -5,7 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Template Gallery</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f0f2f5;
@@ -112,22 +116,26 @@
         </div>
     </div>
 
-    <!-- Supabase SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- ===== ES Module Script ===== -->
+    <script type="module">
+        // ===== Import Supabase =====
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-    <script>
-        // ===== Supabase Configuration =====
+        // ===== Configuration =====
         const supabaseUrl = 'https://fhgszopuwnrnijxvghku.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZoZ3N6b3B1d25ybmlqeHZnaGt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMzQ1MTUsImV4cCI6MjA5OTYxMDUxNX0.K2WVDxjRh6JC51nZHdJpR2l8kjS1jhXJ9EkmQ5ElPtQ';
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        // ===== DOM Elements =====
+        const grid = document.getElementById('templates-grid');
+        const viewer = document.getElementById('template-viewer');
+        const content = document.getElementById('template-content');
 
         // ===== Load templates =====
         async function loadTemplates() {
-            const grid = document.getElementById('templates-grid');
             grid.innerHTML = '<div class="loading">⏳ Loading templates...</div>';
 
             try {
-                // جيب كل القوالب من غير أي تصفية
                 const { data, error } = await supabase
                     .from('templates')
                     .select('*');
@@ -143,12 +151,12 @@
                     return;
                 }
 
-                console.log('Templates loaded:', data); // للتأكد في الـ Console
+                console.log('Templates loaded:', data);
 
                 let html = '';
                 data.forEach(template => {
                     html += `
-                        <div class="template-card" onclick="showTemplate('${template.slug}')">
+                        <div class="template-card" onclick="window.showTemplate('${template.slug}')">
                             <img src="${template.cover_image || 'https://via.placeholder.com/300x150?text=No+Image'}" 
                                  alt="${template.name || 'Template'}">
                             <div class="info">
@@ -170,9 +178,6 @@
 
         // ===== Show template =====
         async function showTemplate(slug) {
-            const viewer = document.getElementById('template-viewer');
-            const content = document.getElementById('template-content');
-
             viewer.style.display = 'block';
             content.innerHTML = '<div class="loading">⏳ Loading template...</div>';
 
@@ -241,10 +246,14 @@
 
         // ===== Close viewer =====
         function closeViewer() {
-            document.getElementById('template-viewer').style.display = 'none';
+            viewer.style.display = 'none';
             document.querySelectorAll('style[id^="template-style-"]').forEach(el => el.remove());
             window.location.hash = '';
         }
+
+        // ===== Make functions global for inline onclick =====
+        window.showTemplate = showTemplate;
+        window.closeViewer = closeViewer;
 
         // ===== Handle hash changes =====
         window.addEventListener('hashchange', function() {
