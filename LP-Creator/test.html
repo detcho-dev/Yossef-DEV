@@ -1,52 +1,72 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Supabase Test</title>
-</head>
+<head><title>Check Data</title></head>
 <body>
-    <h1>Supabase Connection Test</h1>
+    <h1>🔍 Checking Templates</h1>
     <div id="result">Loading...</div>
 
-    <script type="module">
-        // ===== Import Supabase =====
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+    <script type="importmap">
+        {
+            "imports": {
+                "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
+            }
+        }
+    </script>
 
-        // ===== Configuration =====
+    <script type="module">
+        import { createClient } from '@supabase/supabase-js';
+
         const supabaseUrl = 'https://fhgszopuwnrnijxvghku.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZoZ3N6b3B1d25ybmlqeHZnaGt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMzQ1MTUsImV4cCI6MjA5OTYxMDUxNX0.K2WVDxjRh6JC51nZHdJpR2l8kjS1jhXJ9EkmQ5ElPtQ';
         const supabase = createClient(supabaseUrl, supabaseKey);
 
-        async function test() {
+        async function checkData() {
             const result = document.getElementById('result');
-            result.innerHTML = '⏳ Connecting...';
-
+            
             try {
+                // 1. جيب عدد الصفوف
+                const { count, error: countError } = await supabase
+                    .from('templates')
+                    .select('*', { count: 'exact', head: true });
+
+                if (countError) throw countError;
+
+                // 2. جيب أول 5 صفوف
                 const { data, error } = await supabase
                     .from('templates')
-                    .select('*');
+                    .select('id, name, slug')
+                    .limit(5);
 
                 if (error) throw error;
 
-                if (data && data.length > 0) {
-                    result.innerHTML = `
-                        ✅ <strong>Success!</strong><br>
-                        Found ${data.length} templates:<br>
-                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                result.innerHTML = `
+                    <strong>✅ Connection Successful!</strong><br>
+                    <strong>Total templates:</strong> ${count || 0}<br>
+                    <strong>Sample data:</strong><br>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+
+                if (count === 0) {
+                    result.innerHTML += `
+                        <br>
+                        ⚠️ <strong>No templates found!</strong><br>
+                        Please add a row in the Table Editor with:<br>
+                        - name: "Homepage"<br>
+                        - slug: "home"<br>
+                        - html: "<h1>Hello</h1>"
                     `;
-                } else {
-                    result.innerHTML = '✅ Connection works, but no templates found. Add one in the Table Editor.';
                 }
+
             } catch (error) {
                 result.innerHTML = `
                     ❌ <strong>Error:</strong><br>
-                    Code: ${error.code}<br>
-                    Message: ${error.message}
+                    ${error.message}
                 `;
-                console.error('Error:', error);
+                console.error(error);
             }
         }
 
-        test();
+        checkData();
     </script>
 </body>
 </html>
