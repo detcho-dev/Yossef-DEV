@@ -1,292 +1,427 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Template Admin</title>
+    <title>Admin Panel</title>
     <style>
-      * {
-        box-sizing: border-box;
-      }
-      body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background: #f8f9fa;
-        padding: 20px;
-      }
-      .admin-panel {
-        max-width: 900px;
-        margin: 0 auto;
-        background: white;
-        padding: 30px;
-        border-radius: 16px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      }
-      h1,
-      h2 {
-        margin-top: 0;
-      }
-      .form-group {
-        margin-bottom: 18px;
-      }
-      .form-group label {
-        display: block;
-        font-weight: 600;
-        margin-bottom: 5px;
-      }
-      .form-group input,
-      .form-group textarea {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ced4da;
-        border-radius: 6px;
-        font-size: 14px;
-        font-family: "Courier New", monospace;
-      }
-      .form-group textarea {
-        min-height: 120px;
-        resize: vertical;
-      }
-      .btn {
-        background: #007bff;
-        color: white;
-        border: none;
-        padding: 10px 24px;
-        border-radius: 6px;
-        font-size: 16px;
-        cursor: pointer;
-        transition: background 0.2s;
-      }
-      .btn:hover {
-        background: #0056b3;
-      }
-      .btn-danger {
-        background: #dc3545;
-      }
-      .btn-danger:hover {
-        background: #a71d2a;
-      }
-      hr {
-        margin: 30px 0;
-        border: 0;
-        border-top: 2px solid #e9ecef;
-      }
-      .template-item {
-        border: 1px solid #dee2e6;
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 12px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-      .template-item .info {
-        flex: 1;
-      }
-      .template-item .info strong {
-        font-size: 18px;
-      }
-      .template-item .info small {
-        color: #6c757d;
-      }
-      .template-item .actions button {
-        margin-left: 8px;
-      }
-      #templates-list {
-        margin-top: 15px;
-      }
-      .empty-msg {
-        color: #6c757d;
-        font-style: italic;
-      }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            margin-top: 0;
+        }
+        .form-group {
+            margin-bottom: 18px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+        }
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .btn-danger {
+            background: #dc3545;
+        }
+        .btn-danger:hover {
+            background: #a71d2a;
+        }
+        .btn-logout {
+            background: #6c757d;
+            float: right;
+        }
+        .btn-logout:hover {
+            background: #5a6268;
+        }
+        hr {
+            margin: 30px 0;
+            border: 0;
+            border-top: 2px solid #e9ecef;
+        }
+        .template-item {
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .template-item .info {
+            flex: 1;
+        }
+        .template-item .info strong {
+            font-size: 18px;
+        }
+        .template-item .info small {
+            color: #6c757d;
+        }
+        .template-item .actions button {
+            margin-left: 8px;
+        }
+        #templates-list {
+            margin-top: 15px;
+        }
+        .empty-msg {
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        /* ===== Login Form ===== */
+        .login-container {
+            max-width: 400px;
+            margin: 50px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .login-container h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .login-container input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        .login-container button {
+            width: 100%;
+            padding: 12px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .login-container button:hover {
+            background: #0056b3;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+        .success {
+            color: green;
+            margin-top: 10px;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .admin-panel {
+            display: none;
+        }
+        .admin-panel.active {
+            display: block;
+        }
     </style>
-  </head>
-  <body>
-    <div class="admin-panel">
-      <h1>📝 Template Admin Panel</h1>
-      <p>Add or edit templates. All fields except image are required.</p>
+</head>
+<body>
 
-      <form id="template-form">
-        <div class="form-group">
-          <label for="template-name">Template Name *</label>
-          <input
-            type="text"
-            id="template-name"
-            required
-            placeholder="e.g. Product Launch"
-          />
-        </div>
-        <div class="form-group">
-          <label for="template-id"
-            >Template ID * (used in URL, e.g. 'product')</label
-          >
-          <input
-            type="text"
-            id="template-id"
-            required
-            placeholder="e.g. product-launch"
-          />
-        </div>
-        <div class="form-group">
-          <label for="template-image">Cover Image URL</label>
-          <input
-            type="url"
-            id="template-image"
-            placeholder="https://example.com/cover.jpg"
-          />
-        </div>
-        <div class="form-group">
-          <label for="template-html">HTML Code *</label>
-          <textarea
-            id="template-html"
-            required
-            placeholder="<div>Your HTML here...</div>"
-          ></textarea>
-        </div>
-        <div class="form-group">
-          <label for="template-css">CSS Code</label>
-          <textarea
-            id="template-css"
-            placeholder=".my-class { color: red; }"
-          ></textarea>
-        </div>
-        <div class="form-group">
-          <label for="template-js">JavaScript Code</label>
-          <textarea
-            id="template-js"
-            placeholder="console.log('Hello');"
-          ></textarea>
-        </div>
-        <button type="submit" class="btn">💾 Save Template</button>
-      </form>
-
-      <hr />
-
-      <h2>📋 Existing Templates</h2>
-      <div id="templates-list">
-        <p class="empty-msg">Loading templates...</p>
-      </div>
+    <!-- ============================================================ -->
+    <!-- ===== LOGIN FORM (يظهر لو مش مسجل) ===== -->
+    <!-- ============================================================ -->
+    <div id="login-container" class="login-container">
+        <h1>🔐 Admin Login</h1>
+        <form id="login-form">
+            <input type="email" id="email" placeholder="Email" required />
+            <input type="password" id="password" placeholder="Password" required />
+            <button type="submit">Login</button>
+        </form>
+        <div id="login-message"></div>
     </div>
 
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <!-- ============================================================ -->
+    <!-- ===== ADMIN PANEL (يظهر لو مسجل) ===== -->
+    <!-- ============================================================ -->
+    <div id="admin-panel" class="admin-panel">
+        <div class="container">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h1>📝 Template Admin Panel</h1>
+                <button class="btn btn-logout" onclick="logout()">🚪 Logout</button>
+            </div>
+            <p>Add or edit templates. All fields except image are required.</p>
 
-    <script>
-      // ===== Firebase Config (same as index.html) =====
-      const firebaseConfig = {
-  apiKey: "AIzaSyBkh_fPK47s4jMIqdWPsg44fRryZtEF7KM",
-  authDomain: "landing-pages-63d47.firebaseapp.com",
-  projectId: "landing-pages-63d47",
-  storageBucket: "landing-pages-63d47.firebasestorage.app",
-  messagingSenderId: "347591934109",
-  appId: "1:347591934109:web:08e995e316ac5250fdd474",
-  measurementId: "G-XP2QY9QSPD"
-};
+            <form id="template-form">
+                <div class="form-group">
+                    <label for="template-name">Template Name *</label>
+                    <input type="text" id="template-name" required placeholder="e.g. Product Launch" />
+                </div>
+                <div class="form-group">
+                    <label for="template-slug">Template Slug * (used in URL, e.g. 'product')</label>
+                    <input type="text" id="template-slug" required placeholder="e.g. product-launch" />
+                </div>
+                <div class="form-group">
+                    <label for="template-image">Cover Image URL</label>
+                    <input type="url" id="template-image" placeholder="https://example.com/cover.jpg" />
+                </div>
+                <div class="form-group">
+                    <label for="template-html">HTML Code *</label>
+                    <textarea id="template-html" required placeholder="<div>Your HTML here...</div>"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="template-css">CSS Code</label>
+                    <textarea id="template-css" placeholder=".my-class { color: red; }"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="template-js">JavaScript Code</label>
+                    <textarea id="template-js" placeholder="console.log('Hello');"></textarea>
+                </div>
+                <button type="submit" class="btn">💾 Save Template</button>
+            </form>
 
-      firebase.initializeApp(firebaseConfig);
-      const db = firebase.firestore();
+            <hr />
 
-      // ===== Save new template =====
-      document
-        .getElementById("template-form")
-        .addEventListener("submit", async (e) => {
-          e.preventDefault();
+            <h2>📋 Existing Templates</h2>
+            <div id="templates-list">
+                <p class="empty-msg">Loading templates...</p>
+            </div>
+        </div>
+    </div>
 
-          const name = document.getElementById("template-name").value.trim();
-          const id = document.getElementById("template-id").value.trim();
-          const coverImage =
-            document.getElementById("template-image").value.trim() ||
-            "https://via.placeholder.com/300x150?text=Template";
-          const html = document.getElementById("template-html").value.trim();
-          const css = document.getElementById("template-css").value.trim();
-          const js = document.getElementById("template-js").value.trim();
+    <!-- ============================================================ -->
+    <!-- ===== SUPABASE SDK ===== -->
+    <!-- ============================================================ -->
+    <script type="importmap">
+        {
+            "imports": {
+                "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
+            }
+        }
+    </script>
 
-          if (!name || !id || !html) {
-            alert("Name, ID, and HTML are required.");
-            return;
-          }
+    <script type="module">
+        // ============================================================
+        // 1. IMPORTS & CONFIG
+        // ============================================================
+        import { createClient } from '@supabase/supabase-js';
 
-          const templateData = {
-            name,
-            id,
-            coverImage,
-            html,
-            css,
-            js,
-            metadata: {
-              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-              updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-              views: 0,
-              isActive: true,
-            },
-          };
+        const supabaseUrl = 'https://fhgszopuwnrnijxvghku.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZoZ3N6b3B1d25ybmlqeHZnaGt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMzQ1MTUsImV4cCI6MjA5OTYxMDUxNX0.K2WVDxjRh6JC51nZHdJpR2l8kjS1jhXJ9EkmQ5ElPtQ';
+        const supabase = createClient(supabaseUrl, supabaseKey);
 
-          try {
-            const docRef = await db.collection("templates").add(templateData);
-            alert(`✅ Template saved successfully! ID: ${docRef.id}`);
-            document.getElementById("template-form").reset();
-            loadTemplatesList();
-          } catch (error) {
-            alert(`❌ Error: ${error.message}`);
-          }
+        // ============================================================
+        // 2. DOM ELEMENTS
+        // ============================================================
+        const loginContainer = document.getElementById('login-container');
+        const adminPanel = document.getElementById('admin-panel');
+        const loginForm = document.getElementById('login-form');
+        const loginMessage = document.getElementById('login-message');
+        const templateForm = document.getElementById('template-form');
+        const templatesList = document.getElementById('templates-list');
+
+        // ============================================================
+        // 3. AUTH FUNCTIONS
+        // ============================================================
+        async function checkAuth() {
+            const { data: { session } } = await supabase.auth.getSession();
+
+            if (session) {
+                // مسجل دخول → أظهر لوحة الإدارة
+                loginContainer.style.display = 'none';
+                adminPanel.classList.add('active');
+                loadTemplatesList();
+            } else {
+                // مش مسجل → أظهر صفحة تسجيل الدخول
+                loginContainer.style.display = 'block';
+                adminPanel.classList.remove('active');
+            }
+        }
+
+        // ===== Login =====
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            loginMessage.innerHTML = '⏳ Logging in...';
+            loginMessage.className = '';
+
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email,
+                    password
+                });
+
+                if (error) throw error;
+
+                loginMessage.innerHTML = '✅ Login successful!';
+                loginMessage.className = 'success';
+
+                setTimeout(() => {
+                    checkAuth();
+                }, 500);
+
+            } catch (error) {
+                loginMessage.innerHTML = `❌ ${error.message}`;
+                loginMessage.className = 'error';
+                console.error(error);
+            }
         });
 
-      // ===== Load templates for admin list =====
-      async function loadTemplatesList() {
-        const listDiv = document.getElementById("templates-list");
+        // ===== Logout =====
+        window.logout = async function() {
+            await supabase.auth.signOut();
+            checkAuth();
+        };
 
-        try {
-          const snapshot = await db
-            .collection("templates")
-            .orderBy("metadata.createdAt", "desc")
-            .get();
+        // ============================================================
+        // 4. CRUD OPERATIONS (Admin)
+        // ============================================================
 
-          if (snapshot.empty) {
-            listDiv.innerHTML =
-              '<p class="empty-msg">No templates yet. Add one above.</p>';
-            return;
-          }
+        // ===== Load templates list =====
+        async function loadTemplatesList() {
+            templatesList.innerHTML = '<p class="empty-msg">Loading templates...</p>';
 
-          let html = "";
-          snapshot.forEach((doc) => {
-            const t = doc.data();
-            html += `
+            try {
+                const { data, error } = await supabase
+                    .from('templates')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                if (!data || data.length === 0) {
+                    templatesList.innerHTML = '<p class="empty-msg">No templates yet. Add one above.</p>';
+                    return;
+                }
+
+                let html = '';
+                data.forEach(template => {
+                    html += `
                         <div class="template-item">
                             <div class="info">
-                                <strong>${t.name || "Unnamed"}</strong>
-                                <span style="color:#6c757d; font-size:14px;">#${t.id || doc.id}</span>
+                                <strong>${template.name || 'Unnamed'}</strong>
+                                <span style="color:#6c757d; font-size:14px;">#${template.slug}</span>
                                 <br />
-                                <small>👁️ ${t.metadata?.views || 0} views</small>
-                                <span style="margin-left:15px; color:#6c757d;">${new Date(t.metadata?.createdAt?.toMillis() || Date.now()).toLocaleDateString()}</span>
+                                <small>👁️ ${template.views || 0} views</small>
+                                <span style="margin-left:15px; color:#6c757d;">${new Date(template.created_at).toLocaleDateString()}</span>
                             </div>
                             <div class="actions">
-                                <button class="btn btn-danger" onclick="deleteTemplate('${doc.id}')">🗑️ Delete</button>
+                                <button class="btn btn-danger" onclick="window.deleteTemplate('${template.id}')">🗑️ Delete</button>
                             </div>
                         </div>
                     `;
-          });
+                });
 
-          listDiv.innerHTML = html;
-        } catch (error) {
-          listDiv.innerHTML = `<p style="color:red;">❌ Error: ${error.message}</p>`;
+                templatesList.innerHTML = html;
+
+            } catch (error) {
+                templatesList.innerHTML = `<p style="color:red;">❌ Error: ${error.message}</p>`;
+                console.error(error);
+            }
         }
-      }
 
-      // ===== Delete template =====
-      async function deleteTemplate(docId) {
-        if (!confirm("Are you sure you want to delete this template?")) return;
+        // ===== Save new template =====
+        templateForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
 
-        try {
-          await db.collection("templates").doc(docId).delete();
-          alert("✅ Template deleted.");
-          loadTemplatesList();
-        } catch (error) {
-          alert(`❌ Error: ${error.message}`);
-        }
-      }
+            const name = document.getElementById('template-name').value.trim();
+            const slug = document.getElementById('template-slug').value.trim();
+            const cover_image = document.getElementById('template-image').value.trim() || 'https://via.placeholder.com/300x150?text=Template';
+            const html = document.getElementById('template-html').value.trim();
+            const css = document.getElementById('template-css').value.trim();
+            const js = document.getElementById('template-js').value.trim();
 
-      // ===== Load list on page load =====
-      window.onload = loadTemplatesList;
+            if (!name || !slug || !html) {
+                alert('Name, Slug, and HTML are required.');
+                return;
+            }
+
+            try {
+                const { data, error } = await supabase
+                    .from('templates')
+                    .insert([{
+                        name,
+                        slug,
+                        cover_image,
+                        html,
+                        css,
+                        js,
+                        is_active: true
+                    }]);
+
+                if (error) throw error;
+
+                alert(`✅ Template saved successfully! Slug: ${slug}`);
+                templateForm.reset();
+                loadTemplatesList();
+
+            } catch (error) {
+                alert(`❌ Error: ${error.message}`);
+                console.error(error);
+            }
+        });
+
+        // ===== Delete template =====
+        window.deleteTemplate = async function(id) {
+            if (!confirm('Are you sure you want to delete this template?')) return;
+
+            try {
+                const { error } = await supabase
+                    .from('templates')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) throw error;
+
+                alert('✅ Template deleted.');
+                loadTemplatesList();
+            } catch (error) {
+                alert(`❌ Error: ${error.message}`);
+                console.error(error);
+            }
+        };
+
+        // ============================================================
+        // 5. INIT
+        // ============================================================
+        checkAuth();
     </script>
-  </body>
+</body>
 </html>
