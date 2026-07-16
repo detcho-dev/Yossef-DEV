@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
-<head><title>Check Data</title></head>
+<head>
+    <title>Check Data</title>
+</head>
 <body>
     <h1>🔍 Checking Templates</h1>
     <div id="result">Loading...</div>
@@ -24,45 +26,50 @@
             const result = document.getElementById('result');
             
             try {
-                // 1. جيب عدد الصفوف
-                const { count, error: countError } = await supabase
+                // 1. جيب كل البيانات من غير أي فلتر
+                const { data, error, status, statusText } = await supabase
                     .from('templates')
-                    .select('*', { count: 'exact', head: true });
+                    .select('*');
 
-                if (countError) throw countError;
+                if (error) {
+                    result.innerHTML = `
+                        ❌ <strong>Error:</strong><br>
+                        Code: ${error.code}<br>
+                        Message: ${error.message}<br>
+                        Details: ${error.details || 'No details'}<br>
+                        Status: ${status}
+                    `;
+                    console.error('Error:', error);
+                    return;
+                }
 
-                // 2. جيب أول 5 صفوف
-                const { data, error } = await supabase
-                    .from('templates')
-                    .select('id, name, slug')
-                    .limit(5);
-
-                if (error) throw error;
-
+                // 2. اعرض كل شيء
                 result.innerHTML = `
                     <strong>✅ Connection Successful!</strong><br>
-                    <strong>Total templates:</strong> ${count || 0}<br>
-                    <strong>Sample data:</strong><br>
-                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                    <strong>Status:</strong> ${status} ${statusText}<br>
+                    <strong>Data length:</strong> ${data?.length || 0}<br>
+                    <strong>Raw data:</strong><br>
+                    <pre style="background:#f4f4f4;padding:10px;border-radius:5px;overflow:auto;max-height:400px;">${JSON.stringify(data, null, 2)}</pre>
                 `;
 
-                if (count === 0) {
+                if (!data || data.length === 0) {
                     result.innerHTML += `
                         <br>
-                        ⚠️ <strong>No templates found!</strong><br>
-                        Please add a row in the Table Editor with:<br>
-                        - name: "Homepage"<br>
-                        - slug: "home"<br>
-                        - html: "<h1>Hello</h1>"
+                        ⚠️ <strong>No templates found in the 'templates' table.</strong><br>
+                        Please check:<br>
+                        - Table name is exactly "templates" (lowercase)<br>
+                        - Table is in "public" schema<br>
+                        - Row Level Security (RLS) is disabled or has SELECT policy<br>
+                        - Data was committed (not in a transaction)
                     `;
                 }
 
             } catch (error) {
                 result.innerHTML = `
-                    ❌ <strong>Error:</strong><br>
+                    ❌ <strong>Unexpected Error:</strong><br>
                     ${error.message}
                 `;
-                console.error(error);
+                console.error('Unexpected error:', error);
             }
         }
 
