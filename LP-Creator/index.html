@@ -28,6 +28,25 @@
       color: #f1f5f9;
     }
 
+    /* جزيئات متحركة في الخلفية */
+body::before {
+  content: '';
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 30% 40%, rgba(240,147,251,0.08) 0%, transparent 60%);
+  animation: floatParticles 20s infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes floatParticles {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(5%, 5%) scale(1.2); }
+}
+
     @keyframes gradientBG {
       0% {
         background-position: 0% 50%;
