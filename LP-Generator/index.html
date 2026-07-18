@@ -554,34 +554,30 @@
         let currentUser = null;
         let selectedTemplate = null;
 
-        // ===== AUTH FUNCTIONS =====
+       // ===== تحديد الرابط الأساسي =====
+const SITE_URL = window.location.origin + window.location.pathname;
 
-        // Google
-        window.signInWithGoogle = async function() {
-            const { error } = await supabase.auth.signInWithOAuth({
-                provider: 'google',
-                options: { redirectTo: window.location.origin + window.location.pathname }
-            });
-            if (error) console.error('Google login error:', error);
-        };
+// ===== Google =====
+window.signInWithGoogle = async function() {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: SITE_URL  // الرابط الحقيقي للموقع
+    }
+  });
+  if (error) console.error('Google error:', error);
+};
 
-        // GitHub
-        window.signInWithGitHub = async function() {
-            const { error } = await supabase.auth.signInWithOAuth({
-                provider: 'github',
-                options: { redirectTo: window.location.origin + window.location.pathname }
-            });
-            if (error) console.error('GitHub login error:', error);
-        };
-
-        // Microsoft
-        window.signInWithMicrosoft = async function() {
-            const { error } = await supabase.auth.signInWithOAuth({
-                provider: 'azure',
-                options: { redirectTo: window.location.origin + window.location.pathname }
-            });
-            if (error) console.error('Microsoft login error:', error);
-        };
+// ===== GitHub =====
+window.signInWithGitHub = async function() {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'github',
+    options: {
+      redirectTo: SITE_URL
+    }
+  });
+  if (error) console.error('GitHub error:', error);
+};
 
         // Sign Out
         window.signOut = async function() {
