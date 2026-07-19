@@ -595,7 +595,7 @@
     // ===== الرابط الأساسي للموقع =====
     // في GitHub Pages: https://USERNAME.github.io/REPO/
     // في localhost: http://localhost:3000/
-    const SITE_URL = window.location.origin + window.location.pathname;
+    const SITE_URL = 'https://detcho-dev.github.io/Yossef-DEV/LP-Generator/';
 
     // ============================================================
     // ===== DOM REFS =====
@@ -615,33 +615,38 @@
     // ===== AUTH FUNCTIONS =====
     // ============================================================
 
-    // Google
-    window.signInWithGoogle = async function() {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: { redirectTo: SITE_URL }
-      });
-      if (error) console.error('Google error:', error);
-    };
+    // ===== Google =====
+window.signInWithGoogle = async function() {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: SITE_URL  // استخدم الرابط الثابت
+    }
+  });
+  if (error) console.error('Google error:', error);
+};
 
-    // GitHub
-    window.signInWithGitHub = async function() {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'github',
-        options: { redirectTo: SITE_URL }
-      });
-      if (error) console.error('GitHub error:', error);
-    };
+// ===== GitHub =====
+window.signInWithGitHub = async function() {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'github',
+    options: {
+      redirectTo: SITE_URL
+    }
+  });
+  if (error) console.error('GitHub error:', error);
+};
 
-    // Microsoft
-    window.signInWithMicrosoft = async function() {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'azure',
-        options: { redirectTo: SITE_URL }
-      });
-      if (error) console.error('Microsoft error:', error);
-    };
-
+// ===== Microsoft =====
+window.signInWithMicrosoft = async function() {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'azure',
+    options: {
+      redirectTo: SITE_URL
+    }
+  });
+  if (error) console.error('Microsoft error:', error);
+};
     // Sign Out
     window.signOut = async function() {
       await supabase.auth.signOut();
