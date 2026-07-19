@@ -1,783 +1,862 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>✨ Template Gallery</title>
-    <style>
-        /* ----- RESET & BASE ----- */
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🚀 Build Your Site</title>
+  <style>
+    /* ===== RESET & BASE ===== */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            min-height: 100vh;
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #1a1a2e);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-            color: #f1f5f9;
-        }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #1a1a2e);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      color: #f1f5f9;
+    }
 
-        @keyframes gradientBG {
-            0% {
-                background-position: 0% 50%;
-            }
-            50% {
-                background-position: 100% 50%;
-            }
-            100% {
-                background-position: 0% 50%;
-            }
-        }
+    @keyframes gradientBG {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
 
-        .container {
-            max-width: 1280px;
-            width: 100%;
-            margin: 0 auto;
-        }
+    .container {
+      max-width: 1280px;
+      width: 100%;
+      margin: 0 auto;
+    }
 
-        /* ----- HEADER (Glassmorphism) ----- */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 16px;
-            margin-bottom: 40px;
-            padding: 20px 28px;
-            background: rgba(255, 255, 255, 0.06);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-radius: 60px;
-            border: 1px solid rgba(255, 255, 255, 0.10);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
-            transition: all 0.3s ease;
-        }
+    /* ===== HEADER (Glassmorphism) ===== */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 40px;
+      padding: 20px 28px;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 60px;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+      transition: all 0.3s ease;
+    }
 
-        .header:hover {
-            background: rgba(255, 255, 255, 0.09);
-            border-color: rgba(255, 255, 255, 0.20);
-            box-shadow: 0 16px 56px rgba(0, 0, 0, 0.6);
-        }
+    .header:hover {
+      background: rgba(255, 255, 255, 0.09);
+      border-color: rgba(255, 255, 255, 0.20);
+      box-shadow: 0 16px 56px rgba(0, 0, 0, 0.6);
+    }
 
-        .header h1 {
-            font-size: 2.3rem;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #4facfe 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 0 0 60px rgba(245, 87, 108, 0.25);
-        }
+    .header h1 {
+      font-size: 2.3rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #4facfe 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 0 60px rgba(245, 87, 108, 0.25);
+    }
 
-        .header p {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 1.05rem;
-            font-weight: 300;
-            letter-spacing: 0.3px;
-            margin-top: 4px;
-        }
+    .header p {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 1.05rem;
+      font-weight: 300;
+      letter-spacing: 0.3px;
+      margin-top: 4px;
+    }
 
-        .header-actions {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
 
-        /* ===== أزرار تسجيل الدخول ===== */
-        .btn {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            color: #fff;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 10px 24px;
-            border-radius: 40px;
-            font-weight: 500;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-        }
+    /* ===== BUTTONS ===== */
+    .btn {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 10px 24px;
+      border-radius: 40px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
 
-        .btn:hover {
-            background: rgba(255, 255, 255, 0.18);
-            border-color: rgba(255, 255, 255, 0.4);
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-        }
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.4);
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
 
-        .btn-google {
-            background: rgba(255, 255, 255, 0.06);
-            border-color: rgba(255, 255, 255, 0.10);
-        }
-        .btn-google:hover {
-            background: rgba(255, 255, 255, 0.12);
-            border-color: #4285f4;
-        }
+    .btn-google {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.10);
+    }
+    .btn-google:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: #4285f4;
+    }
 
-        .btn-github {
-            background: rgba(255, 255, 255, 0.06);
-            border-color: rgba(255, 255, 255, 0.10);
-        }
-        .btn-github:hover {
-            background: rgba(255, 255, 255, 0.12);
-            border-color: #6e5494;
-        }
+    .btn-github {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.10);
+    }
+    .btn-github:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: #6e5494;
+    }
 
-        .btn-avatar {
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 40px;
-            padding: 6px 16px 6px 6px;
-            gap: 10px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-        }
-        .btn-avatar img {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
+    .btn-microsoft {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.10);
+    }
+    .btn-microsoft:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: #00a4ef;
+    }
 
-        /* ===== GRID ===== */
-        .templates-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-            gap: 28px;
-            margin: 28px 0 40px;
-        }
+    .btn-avatar {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 40px;
+      padding: 6px 16px 6px 6px;
+      gap: 10px;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+    }
+    .btn-avatar:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+    .btn-avatar img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .btn-avatar.active {
+      display: inline-flex;
+    }
 
-        /* ===== CARD (Glassmorphism) ===== */
-        .template-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-radius: 28px;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.2, 0, 0, 1);
-            display: flex;
-            flex-direction: column;
-        }
+    /* ===== GRID ===== */
+    .templates-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 28px;
+      margin: 28px 0 40px;
+    }
 
-        .template-card:hover {
-            transform: translateY(-10px) scale(1.01);
-            background: rgba(255, 255, 255, 0.10);
-            border-color: rgba(255, 255, 255, 0.25);
-            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
-        }
+    /* ===== CARD (Glassmorphism) ===== */
+    .template-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 28px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      transition: all 0.4s cubic-bezier(0.2, 0, 0, 1);
+      display: flex;
+      flex-direction: column;
+    }
 
-        .template-card:active {
-            transform: scale(0.97);
-        }
+    .template-card:hover {
+      transform: translateY(-10px) scale(1.01);
+      background: rgba(255, 255, 255, 0.10);
+      border-color: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+    }
 
-        .template-card img {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
-            display: block;
-            background: rgba(0, 0, 0, 0.3);
-            transition: transform 0.5s ease;
-        }
+    .template-card:active {
+      transform: scale(0.97);
+    }
 
-        .template-card:hover img {
-            transform: scale(1.04);
-        }
+    .template-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      display: block;
+      background: rgba(0, 0, 0, 0.3);
+      transition: transform 0.5s ease;
+    }
 
-        .template-card .info {
-            padding: 22px 22px 26px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
+    .template-card:hover img {
+      transform: scale(1.04);
+    }
 
-        .template-card .info h3 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #fff;
-            margin-bottom: 6px;
-            line-height: 1.3;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-        }
+    .template-card .info {
+      padding: 22px 22px 26px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
 
-        .template-card .info .id-badge {
-            background: rgba(255, 255, 255, 0.10);
-            backdrop-filter: blur(4px);
-            color: #c7d2fe;
-            padding: 4px 16px;
-            border-radius: 40px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            display: inline-block;
-            align-self: flex-start;
-            margin-top: 4px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-        }
+    .template-card .info h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 6px;
+      line-height: 1.3;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
 
-        .template-card .info .btn-use {
-            margin-top: 16px;
-            background: linear-gradient(135deg, #4facfe, #00f2fe);
-            border: none;
-            color: #fff;
-            padding: 8px 24px;
-            border-radius: 40px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .template-card .info .btn-use:hover {
-            transform: scale(1.05);
-            box-shadow: 0 8px 24px rgba(79, 172, 254, 0.4);
-        }
+    .template-card .info .id-badge {
+      background: rgba(255, 255, 255, 0.10);
+      backdrop-filter: blur(4px);
+      color: #c7d2fe;
+      padding: 4px 16px;
+      border-radius: 40px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      display: inline-block;
+      align-self: flex-start;
+      margin-top: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
 
-        /* ===== MODAL ===== */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 24px;
-        }
-        .modal-overlay.active {
-            display: flex;
-        }
-        .modal {
-            background: rgba(255, 255, 255, 0.06);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border-radius: 32px;
-            max-width: 700px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            border: 1px solid rgba(255, 255, 255, 0.10);
-            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
-            padding: 32px 36px;
-            animation: modalSlideUp 0.35s ease;
-        }
-        @keyframes modalSlideUp {
-            0% {
-                opacity: 0;
-                transform: translateY(40px) scale(0.96);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-            padding-bottom: 18px;
-            margin-bottom: 24px;
-        }
-        .modal-header h2 {
-            color: #fff;
-            font-size: 1.5rem;
-        }
-        .modal-close {
-            background: rgba(255, 255, 255, 0.06);
-            color: #fca5a5;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 8px 20px;
-            border-radius: 40px;
-            cursor: pointer;
-            transition: all 0.25s;
-        }
-        .modal-close:hover {
-            background: rgba(239, 68, 68, 0.2);
-        }
-        .modal-body {
-            color: #e2e8f0;
-        }
-        .form-group {
-            margin-bottom: 18px;
-        }
-        .form-group label {
-            display: block;
-            font-weight: 500;
-            margin-bottom: 6px;
-            color: rgba(255, 255, 255, 0.8);
-        }
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 12px 16px;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.10);
-            border-radius: 12px;
-            color: #fff;
-            font-size: 1rem;
-            transition: border 0.3s;
-        }
-        .form-group input:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #4facfe;
-        }
-        .form-group textarea {
-            min-height: 100px;
-            font-family: inherit;
-        }
-        .form-group small {
-            color: rgba(255, 255, 255, 0.4);
-            display: block;
-            margin-top: 4px;
-        }
+    .template-card .info .btn-use {
+      margin-top: 16px;
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      border: none;
+      color: #fff;
+      padding: 8px 24px;
+      border-radius: 40px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .template-card .info .btn-use:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 24px rgba(79, 172, 254, 0.4);
+    }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #f093fb, #f5576c);
-            border: none;
-            color: #fff;
-            padding: 14px;
-            border-radius: 40px;
-            font-weight: 600;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            width: 100%;
-            justify-content: center;
-        }
-        .btn-primary:hover {
-            transform: scale(1.02);
-            box-shadow: 0 8px 32px rgba(245, 87, 108, 0.4);
-        }
+    /* ===== MODAL (Glassmorphism) ===== */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 24px;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal {
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-radius: 32px;
+      max-width: 700px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+      padding: 32px 36px;
+      animation: modalSlideUp 0.35s ease;
+    }
+    @keyframes modalSlideUp {
+      0% {
+        opacity: 0;
+        transform: translateY(40px) scale(0.96);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding-bottom: 18px;
+      margin-bottom: 24px;
+    }
+    .modal-header h2 {
+      color: #fff;
+      font-size: 1.5rem;
+    }
+    .modal-close {
+      background: rgba(255, 255, 255, 0.06);
+      color: #fca5a5;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 8px 20px;
+      border-radius: 40px;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .modal-close:hover {
+      background: rgba(239, 68, 68, 0.2);
+    }
+    .modal-body {
+      color: #e2e8f0;
+    }
 
-        .loading {
-            text-align: center;
-            padding: 60px 20px;
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 1.1rem;
-        }
-        .loading::after {
-            content: '';
-            display: inline-block;
-            width: 28px;
-            height: 28px;
-            margin-left: 14px;
-            border: 3px solid rgba(255, 255, 255, 0.08);
-            border-top-color: #f093fb;
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-            vertical-align: middle;
-        }
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-        .error-msg {
-            color: #fca5a5;
-            background: rgba(239, 68, 68, 0.10);
-            padding: 20px 28px;
-            border-radius: 20px;
-            border: 1px solid rgba(239, 68, 68, 0.15);
-        }
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 32px;
-            border: 2px dashed rgba(255, 255, 255, 0.06);
-        }
-        .empty-state p {
-            font-size: 1.1rem;
-            color: rgba(255, 255, 255, 0.5);
-        }
+    /* ===== FORM ===== */
+    .form-group {
+      margin-bottom: 18px;
+    }
+    .form-group label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 6px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      border-radius: 12px;
+      color: #fff;
+      font-size: 1rem;
+      transition: border 0.3s;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #4facfe;
+    }
+    .form-group textarea {
+      min-height: 100px;
+      font-family: inherit;
+    }
+    .form-group small {
+      color: rgba(255, 255, 255, 0.4);
+      display: block;
+      margin-top: 4px;
+    }
 
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 768px) {
-            body {
-                padding: 16px;
-            }
-            .header {
-                padding: 16px 20px;
-                border-radius: 40px;
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .header h1 {
-                font-size: 1.7rem;
-            }
-            .header p {
-                font-size: 0.95rem;
-            }
-            .templates-grid {
-                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-                gap: 18px;
-            }
-            .modal {
-                padding: 20px 18px;
-                margin: 12px;
-            }
-            .modal-header h2 {
-                font-size: 1.2rem;
-            }
-            .header-actions {
-                width: 100%;
-            }
-            .btn {
-                flex: 1;
-                justify-content: center;
-                padding: 8px 16px;
-                font-size: 0.8rem;
-            }
-        }
-        @media (max-width: 480px) {
-            .templates-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 14px;
-            }
-            .template-card img {
-                height: 130px;
-            }
-            .template-card .info {
-                padding: 14px 14px 18px;
-            }
-            .template-card .info h3 {
-                font-size: 1rem;
-            }
-            .header-actions {
-                flex-wrap: wrap;
-            }
-            .btn {
-                flex: 1 1 100%;
-            }
-        }
-        @media (max-width: 380px) {
-            .templates-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+    .btn-primary {
+      background: linear-gradient(135deg, #f093fb, #f5576c);
+      border: none;
+      color: #fff;
+      padding: 14px;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      width: 100%;
+      justify-content: center;
+    }
+    .btn-primary:hover {
+      transform: scale(1.02);
+      box-shadow: 0 8px 32px rgba(245, 87, 108, 0.4);
+    }
+
+    /* ===== LOADING & EMPTY ===== */
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 1.1rem;
+    }
+    .loading::after {
+      content: '';
+      display: inline-block;
+      width: 28px;
+      height: 28px;
+      margin-left: 14px;
+      border: 3px solid rgba(255, 255, 255, 0.08);
+      border-top-color: #f093fb;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+    }
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+    .error-msg {
+      color: #fca5a5;
+      background: rgba(239, 68, 68, 0.10);
+      padding: 20px 28px;
+      border-radius: 20px;
+      border: 1px solid rgba(239, 68, 68, 0.15);
+    }
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 32px;
+      border: 2px dashed rgba(255, 255, 255, 0.06);
+    }
+    .empty-state p {
+      font-size: 1.1rem;
+      color: rgba(255, 255, 255, 0.5);
+    }
+    .empty-state a {
+      color: #f093fb;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .empty-state a:hover {
+      color: #f5576c;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      body {
+        padding: 16px;
+      }
+      .header {
+        padding: 16px 20px;
+        border-radius: 40px;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .header h1 {
+        font-size: 1.7rem;
+      }
+      .header p {
+        font-size: 0.95rem;
+      }
+      .templates-grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 18px;
+      }
+      .modal {
+        padding: 20px 18px;
+        margin: 12px;
+      }
+      .modal-header h2 {
+        font-size: 1.2rem;
+      }
+      .header-actions {
+        width: 100%;
+      }
+      .btn {
+        flex: 1;
+        justify-content: center;
+        padding: 8px 16px;
+        font-size: 0.8rem;
+      }
+    }
+    @media (max-width: 480px) {
+      .templates-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      .template-card img {
+        height: 130px;
+      }
+      .template-card .info {
+        padding: 14px 14px 18px;
+      }
+      .template-card .info h3 {
+        font-size: 1rem;
+      }
+      .header-actions {
+        flex-wrap: wrap;
+      }
+      .btn {
+        flex: 1 1 100%;
+      }
+    }
+    @media (max-width: 380px) {
+      .templates-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ===== SCROLLBAR ===== */
+    .modal::-webkit-scrollbar {
+      width: 6px;
+    }
+    .modal::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 10px;
+    }
+    .modal::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+    }
+    .modal::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <!-- ===== HEADER ===== -->
-        <header class="header">
-            <div>
-                <h1>🚀 Build Your Site</h1>
-                <p>Choose a template, customize it, and publish your own website</p>
-            </div>
-            <div class="header-actions" id="auth-section">
-                <button class="btn btn-google" onclick="signInWithGoogle()">
-                    <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="m6.306 14.691 6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/><path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/></svg>
-                    Google
-                </button>
-                <button class="btn btn-github" onclick="signInWithGitHub()">
-                    <svg width="18" height="18" viewBox="0 0 16 16" fill="white"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
-                    GitHub
-                </button>
-                
-                <button class="btn" id="auth-profile" style="display:none;" onclick="signOut()">
-                    <span id="user-name">User</span>
-                </button>
-            </div>
-        </header>
+  <div class="container">
+    <!-- ===== HEADER ===== -->
+    <header class="header">
+      <div>
+        <h1>🚀 Build Your Site</h1>
+        <p>Choose a template, customize it, and publish your own website</p>
+      </div>
+      <div class="header-actions" id="auth-section">
+        <!-- أزرار تسجيل الدخول -->
+        <button class="btn btn-google" id="btn-google" onclick="signInWithGoogle()">
+          <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="m6.306 14.691 6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/><path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/></svg>
+          Google
+        </button>
+        <button class="btn btn-github" id="btn-github" onclick="signInWithGitHub()">
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="white"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+          GitHub
+        </button>
+        <button class="btn btn-microsoft" id="btn-microsoft" onclick="signInWithMicrosoft()">
+          <svg width="18" height="18" viewBox="0 0 23 23"><path fill="#f25022" d="M1 1h10v10H1z"/><path fill="#7fba00" d="M12 1h10v10H12z"/><path fill="#00a4ef" d="M1 12h10v10H1z"/><path fill="#ffb900" d="M12 12h10v10H12z"/></svg>
+          Microsoft
+        </button>
+        <!-- زر المستخدم (يظهر بعد تسجيل الدخول) -->
+        <button class="btn btn-avatar" id="btn-avatar" onclick="signOut()">
+          <img id="user-avatar" src="https://via.placeholder.com/32" alt="Avatar" />
+          <span id="user-name">User</span>
+        </button>
+      </div>
+    </header>
 
-        <!-- ===== GRID ===== -->
-        <div id="templates-grid" class="templates-grid">
-            <div class="loading">Loading templates...</div>
-        </div>
+    <!-- ===== TEMPLATES GRID ===== -->
+    <div id="templates-grid" class="templates-grid">
+      <div class="loading">Loading templates...</div>
     </div>
+  </div>
 
-    <!-- ===== MODAL: Customize Template ===== -->
-    <div id="customize-modal" class="modal-overlay" onclick="if(event.target===this) closeCustomizeModal()">
-        <div class="modal">
-            <div class="modal-header">
-                <h2 id="modal-title">✏️ Customize Your Site</h2>
-                <button class="modal-close" onclick="closeCustomizeModal()">✕ Close</button>
-            </div>
-            <div class="modal-body" id="modal-body">
-                <!-- يتم تعبئته ديناميكياً -->
-            </div>
-        </div>
+  <!-- ===== MODAL: Customize Template ===== -->
+  <div id="customize-modal" class="modal-overlay" onclick="if(event.target===this) closeCustomizeModal()">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="modal-title">✏️ Customize Your Site</h2>
+        <button class="modal-close" onclick="closeCustomizeModal()">✕ Close</button>
+      </div>
+      <div class="modal-body" id="modal-body">
+        <!-- يتم تعبئته ديناميكياً -->
+      </div>
     </div>
+  </div>
 
-    <!-- ===== SUPABASE ===== -->
-    <script type="importmap">
-        {
-            "imports": {
-                "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
-            }
-        }
-    </script>
-
-    <script type="module">
-        import { createClient } from '@supabase/supabase-js';
-
-        // ===== CONFIG =====
-        const supabaseUrl = 'https://fhgszopuwnrnijxvghku.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZoZ3N6b3B1d25ybmlqeHZnaGt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMzQ1MTUsImV4cCI6MjA5OTYxMDUxNX0.K2WVDxjRh6JC51nZHdJpR2l8kjS1jhXJ9EkmQ5ElPtQ';
-        const supabase = createClient(supabaseUrl, supabaseKey);
-
-        // ===== DOM REFS =====
-        const grid = document.getElementById('templates-grid');
-        const authProfile = document.getElementById('auth-profile');
-        const userName = document.getElementById('user-name');
-        const modalOverlay = document.getElementById('customize-modal');
-        const modalBody = document.getElementById('modal-body');
-        const modalTitle = document.getElementById('modal-title');
-
-        let currentUser = null;
-        let selectedTemplate = null;
-
-       // ===== تحديد الرابط الأساسي =====
-const SITE_URL = window.location.origin + window.location.pathname;
-
-// ===== Google =====
-window.signInWithGoogle = async function() {
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-      redirectTo: SITE_URL  // الرابط الحقيقي للموقع
+  <!-- ============================================================ -->
+  <!-- ===== SUPABASE ===== -->
+  <!-- ============================================================ -->
+  <script type="importmap">
+    {
+      "imports": {
+        "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
+      }
     }
-  });
-  if (error) console.error('Google error:', error);
-};
+  </script>
 
-// ===== GitHub =====
-window.signInWithGitHub = async function() {
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider: 'github',
-    options: {
-      redirectTo: SITE_URL
+  <script type="module">
+    import { createClient } from '@supabase/supabase-js';
+
+    // ============================================================
+    // ===== CONFIG =====
+    // ============================================================
+    const supabaseUrl = 'https://fhgszopuwnrnijxvghku.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZoZ3N6b3B1d25ybmlqeHZnaGt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMzQ1MTUsImV4cCI6MjA5OTYxMDUxNX0.K2WVDxjRh6JC51nZHdJpR2l8kjS1jhXJ9EkmQ5ElPtQ';
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // ===== الرابط الأساسي للموقع =====
+    // في GitHub Pages: https://USERNAME.github.io/REPO/
+    // في localhost: http://localhost:3000/
+    const SITE_URL = window.location.origin + window.location.pathname;
+
+    // ============================================================
+    // ===== DOM REFS =====
+    // ============================================================
+    const grid = document.getElementById('templates-grid');
+    const btnAvatar = document.getElementById('btn-avatar');
+    const userName = document.getElementById('user-name');
+    const userAvatar = document.getElementById('user-avatar');
+    const modalOverlay = document.getElementById('customize-modal');
+    const modalBody = document.getElementById('modal-body');
+    const modalTitle = document.getElementById('modal-title');
+
+    let currentUser = null;
+    let selectedTemplate = null;
+
+    // ============================================================
+    // ===== AUTH FUNCTIONS =====
+    // ============================================================
+
+    // Google
+    window.signInWithGoogle = async function() {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: SITE_URL }
+      });
+      if (error) console.error('Google error:', error);
+    };
+
+    // GitHub
+    window.signInWithGitHub = async function() {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'github',
+        options: { redirectTo: SITE_URL }
+      });
+      if (error) console.error('GitHub error:', error);
+    };
+
+    // Microsoft
+    window.signInWithMicrosoft = async function() {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'azure',
+        options: { redirectTo: SITE_URL }
+      });
+      if (error) console.error('Microsoft error:', error);
+    };
+
+    // Sign Out
+    window.signOut = async function() {
+      await supabase.auth.signOut();
+      location.reload();
+    };
+
+    // ===== التحقق من الجلسة =====
+    async function checkAuth() {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (session) {
+        currentUser = session.user;
+        const name = session.user.user_metadata?.full_name || session.user.email || 'User';
+        const avatar = session.user.user_metadata?.avatar_url || 'https://via.placeholder.com/32';
+
+        userName.textContent = name.split('@')[0];
+        userAvatar.src = avatar;
+        btnAvatar.classList.add('active');
+
+        // إخفاء أزرار تسجيل الدخول
+        document.getElementById('btn-google').style.display = 'none';
+        document.getElementById('btn-github').style.display = 'none';
+        document.getElementById('btn-microsoft').style.display = 'none';
+      } else {
+        currentUser = null;
+        btnAvatar.classList.remove('active');
+
+        // إظهار أزرار تسجيل الدخول
+        document.getElementById('btn-google').style.display = 'inline-flex';
+        document.getElementById('btn-github').style.display = 'inline-flex';
+        document.getElementById('btn-microsoft').style.display = 'inline-flex';
+      }
     }
-  });
-  if (error) console.error('GitHub error:', error);
-};
 
-        // Sign Out
-        window.signOut = async function() {
-            await supabase.auth.signOut();
-            location.reload();
-        };
+    // ============================================================
+    // ===== LOAD TEMPLATES =====
+    // ============================================================
+    async function loadTemplates() {
+      grid.innerHTML = '<div class="loading">Loading templates...</div>';
 
-        // ===== CHECK AUTH =====
-        async function checkAuth() {
-            const { data: { session } } = await supabase.auth.getSession();
+      try {
+        const { data, error } = await supabase
+          .from('templates')
+          .select('*')
+          .eq('is_active', true)
+          .order('created_at', { ascending: false });
 
-            if (session) {
-                currentUser = session.user;
-                const name = session.user.user_metadata?.full_name || session.user.email;
-                userName.textContent = name.split('@')[0];
-                authProfile.style.display = 'inline-flex';
-                // إخفاء أزرار تسجيل الدخول (نخليها ظاهرة عشان المستخدم يشوفها)
-                // لكن هنخلي زر واحد يظهر اسمه
-                document.querySelectorAll('.btn-google, .btn-github, .btn:not(#auth-profile)').forEach(btn => {
-                    btn.style.display = 'none';
-                });
-                authProfile.style.display = 'inline-flex';
-            } else {
-                currentUser = null;
-                authProfile.style.display = 'none';
-                document.querySelectorAll('.btn-google, .btn-github, .btn:not(#auth-profile)').forEach(btn => {
-                    btn.style.display = 'inline-flex';
-                });
-            }
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+          grid.innerHTML = `
+            <div class="empty-state" style="grid-column:1/-1;">
+              <p>✨ No templates yet. <br>Add one via the admin panel.</p>
+            </div>
+          `;
+          return;
         }
 
-        // ===== LOAD TEMPLATES =====
-        async function loadTemplates() {
-            grid.innerHTML = '<div class="loading">Loading templates...</div>';
+        let html = '';
+        data.forEach(tpl => {
+          html += `
+            <div class="template-card">
+              <img src="${tpl.cover_image || 'https://via.placeholder.com/400x200?text=Template'}" 
+                   alt="${tpl.name}" loading="lazy" />
+              <div class="info">
+                <h3>${tpl.name}</h3>
+                <span class="id-badge">#${tpl.slug}</span>
+                <button class="btn-use" onclick="window.useTemplate('${tpl.slug}')">
+                  ✨ Use this template
+                </button>
+              </div>
+            </div>
+          `;
+        });
+        grid.innerHTML = html;
 
-            try {
-                const { data, error } = await supabase
-                    .from('templates')
-                    .select('*')
-                    .eq('is_active', true)
-                    .order('created_at', { ascending: false });
+      } catch (err) {
+        console.error(err);
+        grid.innerHTML = `<div class="error-msg">❌ Error: ${err.message}</div>`;
+      }
+    }
 
-                if (error) throw error;
+    // ============================================================
+    // ===== USE TEMPLATE (Open Modal) =====
+    // ============================================================
+    window.useTemplate = async function(slug) {
+      if (!currentUser) {
+        alert('Please sign in first to create your site.');
+        return;
+      }
 
-                if (!data || data.length === 0) {
-                    grid.innerHTML = `
-                        <div class="empty-state" style="grid-column:1/-1;">
-                            <p>✨ No templates yet. <br>Add one via the admin panel.</p>
-                        </div>
-                    `;
-                    return;
-                }
+      try {
+        const { data: template, error } = await supabase
+          .from('templates')
+          .select('*')
+          .eq('slug', slug)
+          .single();
 
-                let html = '';
-                data.forEach(tpl => {
-                    html += `
-                        <div class="template-card">
-                            <img src="${tpl.cover_image || 'https://via.placeholder.com/400x200?text=Template'}" 
-                                 alt="${tpl.name}" loading="lazy" />
-                            <div class="info">
-                                <h3>${tpl.name}</h3>
-                                <span class="id-badge">#${tpl.slug}</span>
-                                <button class="btn-use" onclick="window.useTemplate('${tpl.slug}')">
-                                    ✨ Use this template
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                });
-                grid.innerHTML = html;
+        if (error) throw error;
+        selectedTemplate = template;
 
-            } catch (err) {
-                console.error(err);
-                grid.innerHTML = `<div class="error-msg">❌ Error: ${err.message}</div>`;
-            }
+        // Build form from template.fields
+        const fields = template.fields || {};
+        let formHtml = `
+          <form id="site-form">
+            <div class="form-group">
+              <label>Your Site Name (username)</label>
+              <input type="text" id="site-slug" 
+                     value="${currentUser.user_metadata?.username || currentUser.email.split('@')[0]}" 
+                     placeholder="my-site" required />
+              <small>This will be your site URL: <span id="slug-preview">your-site</span>.yourdomain.com</small>
+            </div>
+        `;
+
+        // Generate fields from template.fields
+        for (const [key, value] of Object.entries(fields)) {
+          const label = key.replace(/_/g, ' ').toUpperCase();
+          formHtml += `
+            <div class="form-group">
+              <label>${label}</label>
+              <input type="text" id="field-${key}" value="${value || ''}" placeholder="${value || ''}" />
+            </div>
+          `;
         }
 
-        // ===== USE TEMPLATE =====
-        window.useTemplate = async function(slug) {
-            if (!currentUser) {
-                alert('Please sign in first to create your site.');
-                return;
-            }
+        formHtml += `
+            <button type="submit" class="btn-primary">🚀 Publish My Site</button>
+          </form>
+        `;
 
-            try {
-                const { data: template, error } = await supabase
-                    .from('templates')
-                    .select('*')
-                    .eq('slug', slug)
-                    .single();
+        modalBody.innerHTML = formHtml;
+        modalTitle.textContent = `✏️ ${template.name}`;
+        modalOverlay.classList.add('active');
 
-                if (error) throw error;
-                selectedTemplate = template;
+        // Preview slug
+        const slugInput = document.getElementById('site-slug');
+        const slugPreview = document.getElementById('slug-preview');
+        slugInput?.addEventListener('input', () => {
+          slugPreview.textContent = slugInput.value || 'your-site';
+        });
+        slugPreview.textContent = slugInput?.value || 'your-site';
 
-                // Build form
-                const fields = template.fields || {};
-                let formHtml = `
-                    <form id="site-form">
-                        <div class="form-group">
-                            <label>Your Site Name (username)</label>
-                            <input type="text" id="site-slug" 
-                                   value="${currentUser.user_metadata?.username || currentUser.email.split('@')[0]}" 
-                                   placeholder="my-site" required />
-                            <small>This will be your site URL: <span id="slug-preview">your-site</span>.domain.com</small>
-                        </div>
-                `;
+        // Handle form submit
+        document.getElementById('site-form').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          await publishSite(template);
+        });
 
-                for (const [key, value] of Object.entries(fields)) {
-                    const label = key.replace(/_/g, ' ').toUpperCase();
-                    formHtml += `
-                        <div class="form-group">
-                            <label>${label}</label>
-                            <input type="text" id="field-${key}" value="${value || ''}" placeholder="${value || ''}" />
-                        </div>
-                    `;
-                }
+      } catch (err) {
+        console.error(err);
+        alert('Error: ' + err.message);
+      }
+    };
 
-                formHtml += `
-                        <button type="submit" class="btn-primary">🚀 Publish My Site</button>
-                    </form>
-                `;
+    window.closeCustomizeModal = function() {
+      modalOverlay.classList.remove('active');
+    };
 
-                modalBody.innerHTML = formHtml;
-                modalTitle.textContent = `✏️ ${template.name}`;
-                modalOverlay.classList.add('active');
+    // ============================================================
+    // ===== PUBLISH SITE =====
+    // ============================================================
+    async function publishSite(template) {
+      const slug = document.getElementById('site-slug').value.trim();
+      if (!slug) {
+        alert('Please enter a site name.');
+        return;
+      }
 
-                // Preview slug
-                const slugInput = document.getElementById('site-slug');
-                const slugPreview = document.getElementById('slug-preview');
-                slugInput?.addEventListener('input', () => {
-                    slugPreview.textContent = slugInput.value || 'your-site';
-                });
-                slugPreview.textContent = slugInput?.value || 'your-site';
+      // Collect field data
+      const data = {};
+      const fields = template.fields || {};
+      for (const key of Object.keys(fields)) {
+        const input = document.getElementById(`field-${key}`);
+        if (input) data[key] = input.value;
+      }
 
-                // Handle form submit
-                document.getElementById('site-form').addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    await publishSite(template);
-                });
+      // Generate HTML from template
+      let html = template.html;
+      for (const [key, value] of Object.entries(data)) {
+        html = html.replace(new RegExp(`{{${key}}}`, 'g'), value);
+      }
 
-            } catch (err) {
-                console.error(err);
-                alert('Error: ' + err.message);
-            }
-        };
+      try {
+        const { error: saveError } = await supabase
+          .from('sites')
+          .upsert({
+            user_id: currentUser.id,
+            template_id: template.id,
+            slug: slug,
+            title: data.title || slug,
+            data: data,
+            html: html,
+            published: true,
+            published_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }, {
+            onConflict: 'user_id, template_id'
+          });
 
-        window.closeCustomizeModal = function() {
-            modalOverlay.classList.remove('active');
-        };
+        if (saveError) throw saveError;
 
-        // ===== PUBLISH SITE =====
-        async function publishSite(template) {
-            const slug = document.getElementById('site-slug').value.trim();
-            if (!slug) {
-                alert('Please enter a site name.');
-                return;
-            }
+        alert(`✅ Your site is published!\n\n🔗 URL: https://${slug}.yourdomain.com\n(Replace with your actual domain)`);
+        closeCustomizeModal();
 
-            // Collect field data
-            const data = {};
-            const fields = template.fields || {};
-            for (const key of Object.keys(fields)) {
-                const input = document.getElementById(`field-${key}`);
-                if (input) data[key] = input.value;
-            }
+      } catch (err) {
+        console.error(err);
+        alert('❌ Error publishing: ' + err.message);
+      }
+    }
 
-            // Generate HTML from template
-            let html = template.html;
-            for (const [key, value] of Object.entries(data)) {
-                html = html.replace(new RegExp(`{{${key}}}`, 'g'), value);
-            }
-
-            try {
-                const { error: saveError } = await supabase
-                    .from('sites')
-                    .upsert({
-                        user_id: currentUser.id,
-                        template_id: template.id,
-                        slug: slug,
-                        title: data.title || slug,
-                        data: data,
-                        html: html,
-                        published: true,
-                        published_at: new Date().toISOString(),
-                        updated_at: new Date().toISOString()
-                    }, {
-                        onConflict: 'user_id, template_id'
-                    });
-
-                if (saveError) throw saveError;
-
-                alert(`✅ Your site is published!\n\n🔗 URL: https://${slug}.yourdomain.com\n(Replace with your actual domain)`);
-                closeCustomizeModal();
-
-            } catch (err) {
-                console.error(err);
-                alert('❌ Error publishing: ' + err.message);
-            }
-        }
-
-        // ===== INIT =====
-        await checkAuth();
-        await loadTemplates();
-    </script>
+    // ============================================================
+    // ===== INIT =====
+    // ============================================================
+    await checkAuth();
+    await loadTemplates();
+  </script>
 </body>
 </html>
