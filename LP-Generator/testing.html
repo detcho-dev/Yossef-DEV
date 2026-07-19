@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>OAuth Test</title>
+</head>
+<body>
+  <h1>OAuth Test</h1>
+  <button onclick="testAuth()">Sign in with Google</button>
+  <div id="result"></div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import { createClient } from '@supabase/supabase-js';
+
+    const supabaseUrl = 'https://fhgszopuwnrnijxvghku.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZoZ3N6b3B1d25ybmlqeHZnaGt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMzQ1MTUsImV4cCI6MjA5OTYxMDUxNX0.K2WVDxjRh6JC51nZHdJpR2l8kjS1jhXJ9EkmQ5ElPtQ';
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // ===== رابط GitHub Pages (عدله لرابطك) =====
+    const SITE_URL = 'https://detcho-dev.github.io/Yossef-DEV/LP-Generator/';
+
+    window.testAuth = async function() {
+      const result = document.getElementById('result');
+      result.innerHTML = '⏳ Redirecting...';
+      
+      console.log('Redirecting to:', SITE_URL); // عشان تشوف الرابط في Console
+      
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: SITE_URL
+        }
+      });
+      
+      if (error) {
+        result.innerHTML = '❌ Error: ' + error.message;
+        console.error('Error:', error);
+      }
+    };
+
+    // ===== بعد العودة من OAuth =====
+    async function checkSession() {
+      const { data: { session } } = await supabase.auth.getSession();
+      const result = document.getElementById('result');
+      if (session) {
+        result.innerHTML = `✅ Logged in as: ${session.user.email}`;
+      } else {
+        result.innerHTML = '❌ Not logged in';
+      }
+    }
+    checkSession();
+  </script>
+</body>
+</html>
