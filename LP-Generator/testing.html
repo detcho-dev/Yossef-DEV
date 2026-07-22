@@ -1,25 +1,264 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Passwordless Auth</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🚀 LP Generator</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #1a1a2e);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    @keyframes gradientBG {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+    .container {
+      max-width: 600px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-radius: 32px;
+      padding: 48px 40px;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+      text-align: center;
+      color: #f1f5f9;
+    }
+    .container h1 {
+      font-size: 2.4rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #4facfe 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 12px;
+    }
+    .container p {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 1.05rem;
+      margin-bottom: 32px;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 16px 20px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      border-radius: 16px;
+      color: #fff;
+      font-size: 1rem;
+      transition: all 0.3s;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: #4facfe;
+      box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.2);
+    }
+    .btn-primary {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      border: none;
+      border-radius: 16px;
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .btn-primary:hover {
+      transform: scale(1.02);
+      box-shadow: 0 8px 32px rgba(79, 172, 254, 0.4);
+    }
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    #message {
+      margin-top: 20px;
+      padding: 12px;
+      border-radius: 12px;
+      font-weight: 500;
+      display: none;
+    }
+    #message.success {
+      display: block;
+      background: rgba(34, 197, 94, 0.15);
+      color: #4ade80;
+      border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+    #message.error {
+      display: block;
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+    #message.info {
+      display: block;
+      background: rgba(251, 191, 36, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(251, 191, 36, 0.2);
+    }
+    .user-info {
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      display: none;
+    }
+    .user-info.active {
+      display: block;
+    }
+    .btn-outline {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      color: #fff;
+      padding: 10px 24px;
+      border-radius: 40px;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 12px;
+    }
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+    .user-avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 12px;
+      border: 2px solid rgba(255, 255, 255, 0.10);
+    }
+    .auth-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .auth-buttons .btn {
+      padding: 12px 20px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 40px;
+      color: #fff;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .auth-buttons .btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      transform: scale(1.02);
+    }
+    .auth-buttons .btn-google:hover {
+      border-color: #4285f4;
+    }
+    .auth-buttons .btn-github:hover {
+      border-color: #6e5494;
+    }
+    .auth-buttons .btn-microsoft:hover {
+      border-color: #00a4ef;
+    }
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 20px 0;
+      color: rgba(255, 255, 255, 0.2);
+      font-size: 0.8rem;
+    }
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .forgot-link {
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 0.85rem;
+      text-decoration: none;
+      transition: color 0.3s;
+      display: block;
+      margin-top: 12px;
+    }
+    .forgot-link:hover {
+      color: rgba(255, 255, 255, 0.7);
+    }
+  </style>
 </head>
 <body>
-  <h1>🚀 Passwordless Email Auth</h1>
+  <div class="container">
+    <h1>🚀 LP Generator</h1>
+    <p>Sign in with email — no password needed</p>
 
-  <!-- نموذج تسجيل الدخول -->
-  <div id="login-form">
-    <h2>🔐 Sign in with Email</h2>
-    <input type="email" id="email-input" placeholder="Enter your email" />
-    <button onclick="handleSignIn()">Send Magic Link</button>
-    <div id="message"></div>
+    <!-- ===== نموذج تسجيل الدخول ===== -->
+    <div id="login-form">
+      <div class="form-group">
+        <input type="email" id="email-input" placeholder="Enter your email" />
+      </div>
+      <button class="btn-primary" id="signin-btn" onclick="handleSignIn()">
+        Send Magic Link ✨
+      </button>
+      <div id="message"></div>
+
+      <div class="divider">or continue with</div>
+
+      <div class="auth-buttons">
+        <button class="btn btn-google" onclick="signInWithGoogle()">
+          <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="m6.306 14.691 6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/><path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/></svg>
+          Google
+        </button>
+        <button class="btn btn-github" onclick="signInWithGitHub()">
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="white"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+          GitHub
+        </button>
+        <button class="btn btn-microsoft" onclick="signInWithMicrosoft()">
+          <svg width="18" height="18" viewBox="0 0 23 23"><path fill="#f25022" d="M1 1h10v10H1z"/><path fill="#7fba00" d="M12 1h10v10H12z"/><path fill="#00a4ef" d="M1 12h10v10H1z"/><path fill="#ffb900" d="M12 12h10v10H12z"/></svg>
+          Microsoft
+        </button>
+      </div>
+    </div>
+
+    <!-- ===== معلومات المستخدم ===== -->
+    <div id="user-info" class="user-info">
+      <img id="user-avatar" class="user-avatar" src="https://via.placeholder.com/64" alt="Avatar" />
+      <h3 id="user-name" style="margin-bottom:4px;">User</h3>
+      <p id="user-email" style="color:rgba(255,255,255,0.4);font-size:0.9rem;"></p>
+      <button class="btn-outline" onclick="signOut()">🚪 Sign Out</button>
+    </div>
   </div>
 
-  <!-- معلومات المستخدم -->
-  <div id="user-info" style="display:none;">
-    <p>✅ Logged in as: <span id="user-email"></span></p>
-    <button onclick="signOut()">Sign Out</button>
-  </div>
-
+  <!-- ============================================================ -->
+  <!-- ===== SUPABASE ===== -->
+  <!-- ============================================================ -->
   <script type="importmap">
     {
       "imports": {
@@ -31,61 +270,134 @@
   <script type="module">
     import { createClient } from '@supabase/supabase-js';
 
+    // ===== CONFIG =====
     const supabaseUrl = 'https://fhgszopuwnrnijxvghku.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZoZ3N6b3B1d25ybmlqeHZnaGt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMzQ1MTUsImV4cCI6MjA5OTYxMDUxNX0.K2WVDxjRh6JC51nZHdJpR2l8kjS1jhXJ9EkmQ5ElPtQ';
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // ===== تسجيل الدخول =====
-    window.handleSignIn = async function() {
-      const email = document.getElementById('email-input').value;
-      const message = document.getElementById('message');
+    // ===== الرابط الأساسي =====
+    const SITE_URL = window.location.origin + window.location.pathname;
 
+    // ===== DOM REFS =====
+    const loginForm = document.getElementById('login-form');
+    const userInfo = document.getElementById('user-info');
+    const userName = document.getElementById('user-name');
+    const userEmail = document.getElementById('user-email');
+    const userAvatar = document.getElementById('user-avatar');
+    const message = document.getElementById('message');
+    const emailInput = document.getElementById('email-input');
+    const signinBtn = document.getElementById('signin-btn');
+
+    // ============================================================
+    // ===== AUTH FUNCTIONS =====
+    // ============================================================
+
+    // ===== Passwordless Email =====
+    window.handleSignIn = async function() {
+      const email = emailInput.value.trim();
       if (!email) {
-        message.innerHTML = '⚠️ Please enter your email.';
+        showMessage('Please enter your email.', 'error');
         return;
       }
 
-      message.innerHTML = '⏳ Sending magic link...';
+      signinBtn.disabled = true;
+      signinBtn.textContent = '⏳ Sending...';
+      showMessage('Sending magic link...', 'info');
 
       const { error } = await supabase.auth.signInWithOtp({
         email: email,
         options: {
-          emailRedirectTo: window.location.origin + window.location.pathname
+          emailRedirectTo: SITE_URL
         }
       });
 
+      signinBtn.disabled = false;
+      signinBtn.textContent = 'Send Magic Link ✨';
+
       if (error) {
-        message.innerHTML = '❌ ' + error.message;
+        if (error.message.includes('rate limit')) {
+          showMessage('⏳ Too many requests. Please wait 5-10 minutes.', 'error');
+        } else {
+          showMessage('❌ ' + error.message, 'error');
+        }
+        console.error('SignIn error:', error);
       } else {
-        message.innerHTML = '✅ Magic link sent! Check your email.';
+        showMessage('✅ Magic link sent! Check your email.', 'success');
+        emailInput.value = '';
       }
     };
 
-    // ===== تسجيل الخروج =====
+    // ===== Google =====
+    window.signInWithGoogle = async function() {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: SITE_URL }
+      });
+      if (error) console.error('Google error:', error);
+    };
+
+    // ===== GitHub =====
+    window.signInWithGitHub = async function() {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'github',
+        options: { redirectTo: SITE_URL }
+      });
+      if (error) console.error('GitHub error:', error);
+    };
+
+    // ===== Microsoft =====
+    window.signInWithMicrosoft = async function() {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'azure',
+        options: { redirectTo: SITE_URL }
+      });
+      if (error) console.error('Microsoft error:', error);
+    };
+
+    // ===== Sign Out =====
     window.signOut = async function() {
       await supabase.auth.signOut();
       location.reload();
     };
 
-    // ===== التحقق من الجلسة =====
+    // ===== Show Message =====
+    function showMessage(text, type = 'info') {
+      message.textContent = text;
+      message.className = type;
+      message.style.display = 'block';
+    }
+
+    // ============================================================
+    // ===== CHECK AUTH =====
+    // ============================================================
     async function checkAuth() {
       const { data: { session } } = await supabase.auth.getSession();
 
       if (session) {
-        document.getElementById('login-form').style.display = 'none';
-        document.getElementById('user-info').style.display = 'block';
-        document.getElementById('user-email').textContent = session.user.email;
+        const user = session.user;
+        loginForm.style.display = 'none';
+        userInfo.classList.add('active');
+        userName.textContent = user.user_metadata?.full_name || 'User';
+        userEmail.textContent = user.email;
+        userAvatar.src = user.user_metadata?.avatar_url || 'https://via.placeholder.com/64';
       } else {
-        document.getElementById('login-form').style.display = 'block';
-        document.getElementById('user-info').style.display = 'none';
+        loginForm.style.display = 'block';
+        userInfo.classList.remove('active');
       }
     }
 
+    // ============================================================
+    // ===== INIT =====
+    // ============================================================
     checkAuth();
 
-    // ===== التعامل مع الـ Magic Link =====
-    // Supabase بيشتغل تلقائياً مع الرابط
-    // لما المستخدم يضغط على الرابط في الإيميل، Supabase بيسجل الدخول تلقائياً
+    // ===== Allow Enter key =====
+    emailInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        window.handleSignIn();
+      }
+    });
   </script>
 </body>
 </html>
