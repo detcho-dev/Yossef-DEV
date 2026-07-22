@@ -294,7 +294,8 @@
       color: rgba(255, 255, 255, 0.8);
     }
     .form-group input,
-    .form-group textarea {
+    .form-group textarea,
+    .form-group select {
       width: 100%;
       padding: 12px 16px;
       background: rgba(255, 255, 255, 0.06);
@@ -305,7 +306,8 @@
       transition: border 0.3s;
     }
     .form-group input:focus,
-    .form-group textarea:focus {
+    .form-group textarea:focus,
+    .form-group select:focus {
       outline: none;
       border-color: #4facfe;
     }
@@ -313,10 +315,45 @@
       min-height: 100px;
       font-family: inherit;
     }
+    .form-group select option {
+      background: #1a1a2e;
+    }
     .form-group small {
       color: rgba(255, 255, 255, 0.4);
       display: block;
       margin-top: 4px;
+    }
+
+    /* ===== Image Upload ===== */
+    .image-upload-wrapper {
+      display: flex;
+      gap: 8px;
+    }
+    .image-upload-wrapper input {
+      flex: 1;
+    }
+    .btn-upload {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      border-radius: 12px;
+      padding: 0 16px;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.3s;
+      white-space: nowrap;
+    }
+    .btn-upload:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+    .image-preview {
+      margin-top: 8px;
+      max-width: 100%;
+      max-height: 150px;
+      border-radius: 8px;
+      display: none;
+    }
+    .image-preview.visible {
+      display: block;
     }
 
     .btn-primary {
@@ -337,7 +374,7 @@
       box-shadow: 0 8px 32px rgba(245, 87, 108, 0.4);
     }
 
-    /* ===== POPUP (Toast/Notification) ===== */
+    /* ===== POPUP ===== */
     .popup-overlay {
       position: fixed;
       top: 0;
@@ -393,6 +430,7 @@
       font-size: 1rem;
       margin-bottom: 20px;
       word-break: break-all;
+      white-space: pre-wrap;
     }
     .popup .popup-btn {
       background: linear-gradient(135deg, #4facfe, #00f2fe);
@@ -480,6 +518,7 @@
       color: #f5576c;
     }
 
+    /* ===== RESPONSIVE ===== */
     @media (max-width: 768px) {
       body {
         padding: 16px;
@@ -524,6 +563,13 @@
       }
       .popup .popup-btn-secondary {
         margin-left: 0;
+      }
+      .image-upload-wrapper {
+        flex-wrap: wrap;
+      }
+      .btn-upload {
+        width: 100%;
+        padding: 10px;
       }
     }
     @media (max-width: 480px) {
@@ -601,7 +647,7 @@
     </div>
   </div>
 
-  <!-- ===== POPUP (Notification) ===== -->
+  <!-- ===== POPUP ===== -->
   <div id="popup" class="popup-overlay" onclick="if(event.target===this) closePopup()">
     <div class="popup">
       <div class="popup-icon" id="popup-icon">✅</div>
@@ -635,8 +681,8 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZoZ3N6b3B1d25ybmlqeHZnaGt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMzQ1MTUsImV4cCI6MjA5OTYxMDUxNX0.K2WVDxjRh6JC51nZHdJpR2l8kjS1jhXJ9EkmQ5ElPtQ';
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // ===== الرابط الأساسي للموقع =====
-    const SITE_URL = 'https://detcho-dev.github.io/Yossef-DEV/LP-Generator/';
+    // ===== Site URL =====
+    const SITE_URL = window.location.origin + window.location.pathname;
 
     // ============================================================
     // ===== DOM REFS =====
@@ -674,7 +720,6 @@
       popupMessage.textContent = message;
       popupBtnPrimary.textContent = primaryText;
 
-      // Primary button
       popupBtnPrimary.onclick = () => {
         closePopup();
         if (primaryAction && typeof primaryAction === 'function') {
@@ -682,7 +727,6 @@
         }
       };
 
-      // Secondary button
       if (secondaryText && secondaryAction) {
         popupBtnSecondary.style.display = 'inline-block';
         popupBtnSecondary.textContent = secondaryText;
@@ -714,15 +758,12 @@
         return;
       }
 
-      // Show popup to ask for email
       showPopup({
         icon: '📧',
         title: 'Sign in with Email',
         message: 'Enter your email to receive a magic link:',
         primaryText: 'Send Magic Link ✨',
         primaryAction: async () => {
-          // We need a way to get email input - use a prompt fallback
-          // Or we can create a more complex popup with form
           const email = prompt('Enter your email:');
           if (!email) return;
 
@@ -752,7 +793,7 @@
       });
     };
 
-    // ===== التحقق من الجلسة =====
+    // ===== Check Auth =====
     async function checkAuth() {
       const { data: { session } } = await supabase.auth.getSession();
 
@@ -760,12 +801,164 @@
         currentUser = session.user;
         const name = session.user.user_metadata?.full_name || session.user.email || 'User';
         authBtn.textContent = `👤 ${name.split('@')[0]}`;
-        authBtn.onclick = window.handleAuth;
       } else {
         currentUser = null;
         authBtn.textContent = '🔑 Login';
-        authBtn.onclick = window.handleAuth;
       }
+    }
+
+    // ============================================================
+    // ===== BUILD FORM FROM FIELDS =====
+    // ============================================================
+
+    function buildFormFromFields(fields) {
+      if (!fields || typeof fields !== 'object') {
+        return '<p style="color:rgba(255,255,255,0.4);">No customization fields available.</p>';
+      }
+
+      let html = '';
+
+      for (const [key, config] of Object.entries(fields)) {
+        const { type, label, default: defaultValue, placeholder, required, options } = config;
+
+        switch (type) {
+          case 'text':
+          case 'url':
+          case 'color':
+            html += `
+              <div class="form-group">
+                <label>${label} ${required ? '*' : ''}</label>
+                <input type="${type === 'url' ? 'url' : type === 'color' ? 'color' : 'text'}" 
+                       id="field-${key}" 
+                       value="${defaultValue || ''}" 
+                       placeholder="${placeholder || ''}" 
+                       ${required ? 'required' : ''} />
+              </div>
+            `;
+            break;
+
+          case 'textarea':
+            html += `
+              <div class="form-group">
+                <label>${label} ${required ? '*' : ''}</label>
+                <textarea id="field-${key}" 
+                          placeholder="${placeholder || ''}" 
+                          ${required ? 'required' : ''}>${defaultValue || ''}</textarea>
+              </div>
+            `;
+            break;
+
+          case 'select':
+            html += `
+              <div class="form-group">
+                <label>${label} ${required ? '*' : ''}</label>
+                <select id="field-${key}" ${required ? 'required' : ''}>
+                  ${options.map(opt => `
+                    <option value="${opt}" ${opt === defaultValue ? 'selected' : ''}>${opt}</option>
+                  `).join('')}
+                </select>
+              </div>
+            `;
+            break;
+
+          case 'image':
+            html += `
+              <div class="form-group">
+                <label>${label} ${required ? '*' : ''}</label>
+                <div class="image-upload-wrapper">
+                  <input type="text" id="field-${key}" 
+                         value="${defaultValue || ''}" 
+                         placeholder="${placeholder || 'https://...'}" 
+                         ${required ? 'required' : ''} />
+                  <button type="button" class="btn-upload" onclick="window.uploadImage('${key}')">📤 Upload</button>
+                </div>
+                <img id="preview-${key}" class="image-preview ${defaultValue ? 'visible' : ''}" 
+                     src="${defaultValue || ''}" alt="Preview" />
+              </div>
+            `;
+            break;
+
+          default:
+            html += `
+              <div class="form-group">
+                <label>${label} ${required ? '*' : ''}</label>
+                <input type="text" id="field-${key}" value="${defaultValue || ''}" placeholder="${placeholder || ''}" />
+              </div>
+            `;
+        }
+      }
+
+      return html;
+    }
+
+    // ============================================================
+    // ===== UPLOAD IMAGE =====
+    // ============================================================
+
+    window.uploadImage = async function(fieldKey) {
+      // Create a file input dynamically
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'image/*';
+      fileInput.style.display = 'none';
+      document.body.appendChild(fileInput);
+
+      fileInput.click();
+
+      fileInput.onchange = async function() {
+        const file = this.files[0];
+        if (!file) return;
+
+        const fieldInput = document.getElementById(`field-${fieldKey}`);
+        const preview = document.getElementById(`preview-${fieldKey}`);
+
+        const { data, error } = await supabase.storage
+          .from('templates-images')
+          .upload(`${Date.now()}-${file.name}`, file);
+
+        if (error) {
+          showPopup({
+            icon: '❌',
+            title: 'Upload Failed',
+            message: error.message,
+            primaryText: 'OK'
+          });
+          return;
+        }
+
+        const { data: urlData } = supabase.storage
+          .from('templates-images')
+          .getPublicUrl(data.path);
+
+        fieldInput.value = urlData.publicUrl;
+        preview.src = urlData.publicUrl;
+        preview.classList.add('visible');
+
+        document.body.removeChild(fileInput);
+      };
+    };
+
+    // ============================================================
+    // ===== COLLECT FIELD DATA =====
+    // ============================================================
+
+    function collectFieldData(fields) {
+      const data = {};
+
+      for (const [key, config] of Object.entries(fields)) {
+        const { type } = config;
+        const input = document.getElementById(`field-${key}`);
+
+        if (!input) continue;
+
+        if (type === 'select') {
+          data[key] = input.value;
+        } else {
+          data[key] = input.value.trim();
+        }
+      }
+
+      return data;
     }
 
     // ============================================================
@@ -843,8 +1036,8 @@
         if (error) throw error;
         selectedTemplate = template;
 
-        // Build form from template.fields
         const fields = template.fields || {};
+
         let formHtml = `
           <form id="site-form">
             <div class="form-group">
@@ -854,19 +1047,7 @@
                      placeholder="my-site" required />
               <small>This will be your site URL: <span id="slug-preview">your-site</span>.html</small>
             </div>
-        `;
-
-        for (const [key, value] of Object.entries(fields)) {
-          const label = key.replace(/_/g, ' ').toUpperCase();
-          formHtml += `
-            <div class="form-group">
-              <label>${label}</label>
-              <input type="text" id="field-${key}" value="${value || ''}" placeholder="${value || ''}" />
-            </div>
-          `;
-        }
-
-        formHtml += `
+            ${buildFormFromFields(fields)}
             <button type="submit" class="btn-primary">🚀 Publish My Site</button>
           </form>
         `;
@@ -917,15 +1098,9 @@
         return;
       }
 
-      // Collect field data
-      const data = {};
       const fields = template.fields || {};
-      for (const key of Object.keys(fields)) {
-        const input = document.getElementById(`field-${key}`);
-        if (input) data[key] = input.value;
-      }
+      const data = collectFieldData(fields);
 
-      // Generate HTML from template
       let html = template.html;
       for (const [key, value] of Object.entries(data)) {
         html = html.replace(new RegExp(`{{${key}}}`, 'g'), value);
@@ -952,7 +1127,6 @@
 
         const siteUrl = `${SITE_URL}site.html?slug=${slug}`;
 
-        // Show popup with success and link
         showPopup({
           icon: '🎉',
           title: 'Site Published!',
