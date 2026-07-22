@@ -3,49 +3,534 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Site Preview</title>
+  <title>🚀 Build Your Site</title>
   <style>
-    * {
+    /* ===== RESET & BASE ===== */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
     }
+
     body {
-      font-family: system-ui, -apple-system, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       min-height: 100vh;
-      background: #f8fafc;
+      padding: 24px;
       display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #1a1a2e);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      color: #f1f5f9;
+    }
+
+    @keyframes gradientBG {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    .container {
+      max-width: 1280px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* ===== HEADER (Glassmorphism) ===== */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 40px;
+      padding: 20px 28px;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 60px;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+      transition: all 0.3s ease;
+    }
+
+    .header:hover {
+      background: rgba(255, 255, 255, 0.09);
+      border-color: rgba(255, 255, 255, 0.20);
+      box-shadow: 0 16px 56px rgba(0, 0, 0, 0.6);
+    }
+
+    .header h1 {
+      font-size: 2.3rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #4facfe 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 0 60px rgba(245, 87, 108, 0.25);
+    }
+
+    .header p {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 1.05rem;
+      font-weight: 300;
+      letter-spacing: 0.3px;
+      margin-top: 4px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    /* ===== BUTTONS ===== */
+    .btn {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 10px 24px;
+      border-radius: 40px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.4);
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .btn-avatar {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 40px;
+      padding: 6px 16px 6px 6px;
+      gap: 10px;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+    }
+    .btn-avatar:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+    .btn-avatar img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .btn-avatar.active {
+      display: inline-flex;
+    }
+
+    /* ===== GRID ===== */
+    .templates-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 28px;
+      margin: 28px 0 40px;
+    }
+
+    /* ===== CARD (Glassmorphism) ===== */
+    .template-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 28px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      transition: all 0.4s cubic-bezier(0.2, 0, 0, 1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .template-card:hover {
+      transform: translateY(-10px) scale(1.01);
+      background: rgba(255, 255, 255, 0.10);
+      border-color: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+    }
+
+    .template-card:active {
+      transform: scale(0.97);
+    }
+
+    .template-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      display: block;
+      background: rgba(0, 0, 0, 0.3);
+      transition: transform 0.5s ease;
+    }
+
+    .template-card:hover img {
+      transform: scale(1.04);
+    }
+
+    .template-card .info {
+      padding: 22px 22px 26px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .template-card .info h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 6px;
+      line-height: 1.3;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .template-card .info .id-badge {
+      background: rgba(255, 255, 255, 0.10);
+      backdrop-filter: blur(4px);
+      color: #c7d2fe;
+      padding: 4px 16px;
+      border-radius: 40px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      display: inline-block;
+      align-self: flex-start;
+      margin-top: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .template-card .info .btn-use {
+      margin-top: 16px;
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      border: none;
+      color: #fff;
+      padding: 8px 24px;
+      border-radius: 40px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .template-card .info .btn-use:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 24px rgba(79, 172, 254, 0.4);
+    }
+
+    /* ===== MODAL (Glassmorphism) ===== */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: none;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      z-index: 1000;
+      padding: 24px;
     }
-    .container {
-      max-width: 1200px;
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal {
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-radius: 32px;
+      max-width: 700px;
       width: 100%;
-      background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
-      padding: 40px;
-      text-align: center;
+      max-height: 90vh;
+      overflow-y: auto;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+      padding: 32px 36px;
+      animation: modalSlideUp 0.35s ease;
     }
+    @keyframes modalSlideUp {
+      0% {
+        opacity: 0;
+        transform: translateY(40px) scale(0.96);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding-bottom: 18px;
+      margin-bottom: 24px;
+    }
+    .modal-header h2 {
+      color: #fff;
+      font-size: 1.5rem;
+    }
+    .modal-close {
+      background: rgba(255, 255, 255, 0.06);
+      color: #fca5a5;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 8px 20px;
+      border-radius: 40px;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .modal-close:hover {
+      background: rgba(239, 68, 68, 0.2);
+    }
+    .modal-body {
+      color: #e2e8f0;
+    }
+
+    /* ===== FORM ===== */
+    .form-group {
+      margin-bottom: 18px;
+    }
+    .form-group label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 6px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      border-radius: 12px;
+      color: #fff;
+      font-size: 1rem;
+      transition: border 0.3s;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #4facfe;
+    }
+    .form-group textarea {
+      min-height: 100px;
+      font-family: inherit;
+    }
+    .form-group small {
+      color: rgba(255, 255, 255, 0.4);
+      display: block;
+      margin-top: 4px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #f093fb, #f5576c);
+      border: none;
+      color: #fff;
+      padding: 14px;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      width: 100%;
+      justify-content: center;
+    }
+    .btn-primary:hover {
+      transform: scale(1.02);
+      box-shadow: 0 8px 32px rgba(245, 87, 108, 0.4);
+    }
+
+    /* ===== LOADING & EMPTY ===== */
     .loading {
-      color: #64748b;
+      text-align: center;
+      padding: 60px 20px;
+      color: rgba(255, 255, 255, 0.5);
       font-size: 1.1rem;
     }
-    .error {
-      color: #b91c1c;
-      background: #fee2e2;
-      padding: 16px 24px;
-      border-radius: 12px;
-      border: 1px solid #fecaca;
+    .loading::after {
+      content: '';
+      display: inline-block;
+      width: 28px;
+      height: 28px;
+      margin-left: 14px;
+      border: 3px solid rgba(255, 255, 255, 0.08);
+      border-top-color: #f093fb;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+    }
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+    .error-msg {
+      color: #fca5a5;
+      background: rgba(239, 68, 68, 0.10);
+      padding: 20px 28px;
+      border-radius: 20px;
+      border: 1px solid rgba(239, 68, 68, 0.15);
+    }
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 32px;
+      border: 2px dashed rgba(255, 255, 255, 0.06);
+    }
+    .empty-state p {
+      font-size: 1.1rem;
+      color: rgba(255, 255, 255, 0.5);
+    }
+    .empty-state a {
+      color: #f093fb;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .empty-state a:hover {
+      color: #f5576c;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      body {
+        padding: 16px;
+      }
+      .header {
+        padding: 16px 20px;
+        border-radius: 40px;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .header h1 {
+        font-size: 1.7rem;
+      }
+      .header p {
+        font-size: 0.95rem;
+      }
+      .templates-grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 18px;
+      }
+      .modal {
+        padding: 20px 18px;
+        margin: 12px;
+      }
+      .modal-header h2 {
+        font-size: 1.2rem;
+      }
+      .header-actions {
+        width: 100%;
+      }
+      .btn {
+        flex: 1;
+        justify-content: center;
+        padding: 8px 16px;
+        font-size: 0.8rem;
+      }
+    }
+    @media (max-width: 480px) {
+      .templates-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      .template-card img {
+        height: 130px;
+      }
+      .template-card .info {
+        padding: 14px 14px 18px;
+      }
+      .template-card .info h3 {
+        font-size: 1rem;
+      }
+      .header-actions {
+        flex-wrap: wrap;
+      }
+      .btn {
+        flex: 1 1 100%;
+      }
+    }
+    @media (max-width: 380px) {
+      .templates-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ===== SCROLLBAR ===== */
+    .modal::-webkit-scrollbar {
+      width: 6px;
+    }
+    .modal::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 10px;
+    }
+    .modal::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+    }
+    .modal::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.25);
     }
   </style>
 </head>
 <body>
-  <div class="container" id="app">
-    <div class="loading">Loading site...</div>
+  <div class="container">
+    <!-- ===== HEADER ===== -->
+    <header class="header">
+      <div>
+        <h1>🚀 Build Your Site</h1>
+        <p>Choose a template, customize it, and publish your own website</p>
+      </div>
+      <div class="header-actions" id="auth-section">
+        <!-- زر Login / Logout -->
+        <button class="btn" id="auth-btn" onclick="handleAuth()">🔑 Login</button>
+      </div>
+    </header>
+
+    <!-- ===== TEMPLATES GRID ===== -->
+    <div id="templates-grid" class="templates-grid">
+      <div class="loading">Loading templates...</div>
+    </div>
   </div>
 
+  <!-- ===== MODAL: Customize Template ===== -->
+  <div id="customize-modal" class="modal-overlay" onclick="if(event.target===this) closeCustomizeModal()">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="modal-title">✏️ Customize Your Site</h2>
+        <button class="modal-close" onclick="closeCustomizeModal()">✕ Close</button>
+      </div>
+      <div class="modal-body" id="modal-body">
+        <!-- يتم تعبئته ديناميكياً -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- ===== SUPABASE ===== -->
+  <!-- ============================================================ -->
   <script type="importmap">
     {
       "imports": {
@@ -57,66 +542,261 @@
   <script type="module">
     import { createClient } from '@supabase/supabase-js';
 
+    // ============================================================
+    // ===== CONFIG =====
+    // ============================================================
     const supabaseUrl = 'https://fhgszopuwnrnijxvghku.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZoZ3N6b3B1d25ybmlqeHZnaGt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMzQ1MTUsImV4cCI6MjA5OTYxMDUxNX0.K2WVDxjRh6JC51nZHdJpR2l8kjS1jhXJ9EkmQ5ElPtQ';
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const app = document.getElementById('app');
+    // ===== الرابط الأساسي للموقع =====
+    const SITE_URL = 'https://detcho-dev.github.io/Yossef-DEV/LP-Generator/';
 
-    // Get slug from URL query parameter
-    const params = new URLSearchParams(window.location.search);
-    const slug = params.get('slug');
+    // ============================================================
+    // ===== DOM REFS =====
+    // ============================================================
+    const grid = document.getElementById('templates-grid');
+    const authBtn = document.getElementById('auth-btn');
+    const modalOverlay = document.getElementById('customize-modal');
+    const modalBody = document.getElementById('modal-body');
+    const modalTitle = document.getElementById('modal-title');
 
-    async function loadSite() {
-      if (!slug) {
-        app.innerHTML = `<div class="error">❌ No site specified.</div>`;
+    let currentUser = null;
+    let selectedTemplate = null;
+
+    // ============================================================
+    // ===== AUTH FUNCTIONS (Passwordless Email) =====
+    // ============================================================
+
+    // ===== Handle Login/Logout =====
+    window.handleAuth = async function() {
+      if (currentUser) {
+        // Logout
+        await supabase.auth.signOut();
+        location.reload();
+        return;
+      }
+
+      // Login: ask for email
+      const email = prompt('Enter your email to receive a magic link:');
+      if (!email) return;
+
+      const { error } = await supabase.auth.signInWithOtp({
+        email: email,
+        options: {
+          emailRedirectTo: SITE_URL
+        }
+      });
+
+      if (error) {
+        alert('❌ Error: ' + error.message);
+      } else {
+        alert('✅ Magic link sent! Check your email.');
+      }
+    };
+
+    // ===== التحقق من الجلسة =====
+    async function checkAuth() {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (session) {
+        currentUser = session.user;
+        const name = session.user.user_metadata?.full_name || session.user.email || 'User';
+        authBtn.textContent = `👤 ${name.split('@')[0]}`;
+        authBtn.onclick = window.handleAuth; // logout on click
+      } else {
+        currentUser = null;
+        authBtn.textContent = '🔑 Login';
+        authBtn.onclick = window.handleAuth;
+      }
+    }
+
+    // ============================================================
+    // ===== LOAD TEMPLATES =====
+    // ============================================================
+    async function loadTemplates() {
+      grid.innerHTML = '<div class="loading">Loading templates...</div>';
+
+      try {
+        const { data, error } = await supabase
+          .from('templates')
+          .select('*')
+          .eq('is_active', true)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+          grid.innerHTML = `
+            <div class="empty-state" style="grid-column:1/-1;">
+              <p>✨ No templates yet. <br>Add one via the admin panel.</p>
+            </div>
+          `;
+          return;
+        }
+
+        let html = '';
+        data.forEach(tpl => {
+          html += `
+            <div class="template-card">
+              <img src="${tpl.cover_image || 'https://via.placeholder.com/400x200?text=Template'}" 
+                   alt="${tpl.name}" loading="lazy" />
+              <div class="info">
+                <h3>${tpl.name}</h3>
+                <span class="id-badge">#${tpl.slug}</span>
+                <button class="btn-use" onclick="window.useTemplate('${tpl.slug}')">
+                  ✨ Use this template
+                </button>
+              </div>
+            </div>
+          `;
+        });
+        grid.innerHTML = html;
+
+      } catch (err) {
+        console.error(err);
+        grid.innerHTML = `<div class="error-msg">❌ Error: ${err.message}</div>`;
+      }
+    }
+
+    // ============================================================
+    // ===== USE TEMPLATE (Open Modal) =====
+    // ============================================================
+    window.useTemplate = async function(slug) {
+      if (!currentUser) {
+        alert('Please sign in first to create your site.');
         return;
       }
 
       try {
-        const { data, error } = await supabase
-          .from('sites')
+        const { data: template, error } = await supabase
+          .from('templates')
           .select('*')
           .eq('slug', slug)
-          .eq('published', true)
           .single();
 
-        if (error || !data) {
-          app.innerHTML = `<div class="error">❌ Site not found or not published yet.</div>`;
-          return;
+        if (error) throw error;
+        selectedTemplate = template;
+
+        // Build form from template.fields
+        const fields = template.fields || {};
+        let formHtml = `
+          <form id="site-form">
+            <div class="form-group">
+              <label>Your Site Name (username)</label>
+              <input type="text" id="site-slug" 
+                     value="${currentUser.user_metadata?.username || currentUser.email.split('@')[0]}" 
+                     placeholder="my-site" required />
+              <small>This will be your site URL: <span id="slug-preview">your-site</span>.html</small>
+            </div>
+        `;
+
+        // Generate fields from template.fields
+        for (const [key, value] of Object.entries(fields)) {
+          const label = key.replace(/_/g, ' ').toUpperCase();
+          formHtml += `
+            <div class="form-group">
+              <label>${label}</label>
+              <input type="text" id="field-${key}" value="${value || ''}" placeholder="${value || ''}" />
+            </div>
+          `;
         }
 
-        // Render the site HTML
-        app.innerHTML = data.html || '<p>No content yet.</p>';
+        formHtml += `
+            <button type="submit" class="btn-primary">🚀 Publish My Site</button>
+          </form>
+        `;
 
-        // Inject custom CSS if exists
-        if (data.css) {
-          const style = document.createElement('style');
-          style.textContent = data.css;
-          document.head.appendChild(style);
-        }
+        modalBody.innerHTML = formHtml;
+        modalTitle.textContent = `✏️ ${template.name}`;
+        modalOverlay.classList.add('active');
 
-        // Execute custom JS if exists
-        if (data.js) {
-          const script = document.createElement('script');
-          script.textContent = data.js;
-          document.body.appendChild(script);
-        }
+        // Preview slug
+        const slugInput = document.getElementById('site-slug');
+        const slugPreview = document.getElementById('slug-preview');
+        slugInput?.addEventListener('input', () => {
+          slugPreview.textContent = slugInput.value || 'your-site';
+        });
+        slugPreview.textContent = slugInput?.value || 'your-site';
 
-        // Increment views (optional)
-        supabase
-          .from('sites')
-          .update({ views: (data.views || 0) + 1 })
-          .eq('id', data.id)
-          .then(({ error }) => error && console.error('View update error:', error));
+        // Handle form submit
+        document.getElementById('site-form').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          await publishSite(template);
+        });
 
       } catch (err) {
         console.error(err);
-        app.innerHTML = `<div class="error">❌ Error loading site: ${err.message}</div>`;
+        alert('Error: ' + err.message);
+      }
+    };
+
+    window.closeCustomizeModal = function() {
+      modalOverlay.classList.remove('active');
+    };
+
+    // ============================================================
+    // ===== PUBLISH SITE =====
+    // ============================================================
+    async function publishSite(template) {
+      const slug = document.getElementById('site-slug').value.trim();
+      if (!slug) {
+        alert('Please enter a site name.');
+        return;
+      }
+
+      // Collect field data
+      const data = {};
+      const fields = template.fields || {};
+      for (const key of Object.keys(fields)) {
+        const input = document.getElementById(`field-${key}`);
+        if (input) data[key] = input.value;
+      }
+
+      // Generate HTML from template
+      let html = template.html;
+      for (const [key, value] of Object.entries(data)) {
+        html = html.replace(new RegExp(`{{${key}}}`, 'g'), value);
+      }
+
+      try {
+        const { error: saveError } = await supabase
+          .from('sites')
+          .upsert({
+            user_id: currentUser.id,
+            template_id: template.id,
+            slug: slug,
+            title: data.title || slug,
+            data: data,
+            html: html,
+            published: true,
+            published_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }, {
+            onConflict: 'user_id, template_id'
+          });
+
+        if (saveError) throw saveError;
+
+        // Show the link to the published page (site.html?slug=slug)
+        const siteUrl = `${SITE_URL}site?slug=${slug}`;
+        alert(`✅ Your site is published!\n\n🔗 URL: ${siteUrl}\n(Share this link with others)`);
+        closeCustomizeModal();
+
+        // Open the site in a new tab
+        window.open(siteUrl, '_blank');
+
+      } catch (err) {
+        console.error(err);
+        alert('❌ Error publishing: ' + err.message);
       }
     }
 
-    loadSite();
+    // ============================================================
+    // ===== INIT =====
+    // ============================================================
+    await checkAuth();
+    await loadTemplates();
   </script>
 </body>
 </html>
