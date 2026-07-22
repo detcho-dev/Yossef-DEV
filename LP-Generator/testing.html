@@ -1,12 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>OAuth Test</title>
+  <title>Passwordless Auth</title>
 </head>
 <body>
-  <h1>OAuth Test</h1>
-  <button onclick="testAuth()">Sign in with Google</button>
-  <div id="result"></div>
+  <h1>🚀 Passwordless Email Auth</h1>
+
+  <!-- نموذج تسجيل الدخول -->
+  <div id="login-form">
+    <h2>🔐 Sign in with Email</h2>
+    <input type="email" id="email-input" placeholder="Enter your email" />
+    <button onclick="handleSignIn()">Send Magic Link</button>
+    <div id="message"></div>
+  </div>
+
+  <!-- معلومات المستخدم -->
+  <div id="user-info" style="display:none;">
+    <p>✅ Logged in as: <span id="user-email"></span></p>
+    <button onclick="signOut()">Sign Out</button>
+  </div>
 
   <script type="importmap">
     {
@@ -23,39 +35,57 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZoZ3N6b3B1d25ybmlqeHZnaGt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMzQ1MTUsImV4cCI6MjA5OTYxMDUxNX0.K2WVDxjRh6JC51nZHdJpR2l8kjS1jhXJ9EkmQ5ElPtQ';
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // ===== رابط GitHub Pages (عدله لرابطك) =====
-    const SITE_URL = 'https://detcho-dev.github.io/Yossef-DEV/LP-Generator/';
+    // ===== تسجيل الدخول =====
+    window.handleSignIn = async function() {
+      const email = document.getElementById('email-input').value;
+      const message = document.getElementById('message');
 
-    window.testAuth = async function() {
-      const result = document.getElementById('result');
-      result.innerHTML = '⏳ Redirecting...';
-      
-      console.log('Redirecting to:', SITE_URL); // عشان تشوف الرابط في Console
-      
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
+      if (!email) {
+        message.innerHTML = '⚠️ Please enter your email.';
+        return;
+      }
+
+      message.innerHTML = '⏳ Sending magic link...';
+
+      const { error } = await supabase.auth.signInWithOtp({
+        email: email,
         options: {
-          redirectTo: SITE_URL
+          emailRedirectTo: window.location.origin + window.location.pathname
         }
       });
-      
+
       if (error) {
-        result.innerHTML = '❌ Error: ' + error.message;
-        console.error('Error:', error);
+        message.innerHTML = '❌ ' + error.message;
+      } else {
+        message.innerHTML = '✅ Magic link sent! Check your email.';
       }
     };
 
-    // ===== بعد العودة من OAuth =====
-    async function checkSession() {
+    // ===== تسجيل الخروج =====
+    window.signOut = async function() {
+      await supabase.auth.signOut();
+      location.reload();
+    };
+
+    // ===== التحقق من الجلسة =====
+    async function checkAuth() {
       const { data: { session } } = await supabase.auth.getSession();
-      const result = document.getElementById('result');
+
       if (session) {
-        result.innerHTML = `✅ Logged in as: ${session.user.email}`;
+        document.getElementById('login-form').style.display = 'none';
+        document.getElementById('user-info').style.display = 'block';
+        document.getElementById('user-email').textContent = session.user.email;
       } else {
-        result.innerHTML = '❌ Not logged in';
+        document.getElementById('login-form').style.display = 'block';
+        document.getElementById('user-info').style.display = 'none';
       }
     }
-    checkSession();
+
+    checkAuth();
+
+    // ===== التعامل مع الـ Magic Link =====
+    // Supabase بيشتغل تلقائياً مع الرابط
+    // لما المستخدم يضغط على الرابط في الإيميل، Supabase بيسجل الدخول تلقائياً
   </script>
 </body>
 </html>
