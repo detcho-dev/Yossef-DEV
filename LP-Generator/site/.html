@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>User Site</title>
+  <title>Site Preview</title>
   <style>
     * {
       margin: 0;
@@ -13,17 +13,37 @@
     body {
       font-family: system-ui, -apple-system, sans-serif;
       min-height: 100vh;
+      background: #f8fafc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
     }
     .container {
       max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
+      width: 100%;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+      padding: 40px;
+      text-align: center;
+    }
+    .loading {
+      color: #64748b;
+      font-size: 1.1rem;
+    }
+    .error {
+      color: #b91c1c;
+      background: #fee2e2;
+      padding: 16px 24px;
+      border-radius: 12px;
+      border: 1px solid #fecaca;
     }
   </style>
 </head>
 <body>
-  <div id="app" class="container">
-    <div style="text-align:center;padding:60px;color:#666;">Loading site...</div>
+  <div class="container" id="app">
+    <div class="loading">Loading site...</div>
   </div>
 
   <script type="importmap">
@@ -41,10 +61,18 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZoZ3N6b3B1d25ybmlqeHZnaGt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMzQ1MTUsImV4cCI6MjA5OTYxMDUxNX0.K2WVDxjRh6JC51nZHdJpR2l8kjS1jhXJ9EkmQ5ElPtQ';
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Get slug from URL
-    const slug = window.location.pathname.split('/').pop();
+    const app = document.getElementById('app');
+
+    // Get slug from URL query parameter
+    const params = new URLSearchParams(window.location.search);
+    const slug = params.get('slug');
 
     async function loadSite() {
+      if (!slug) {
+        app.innerHTML = `<div class="error">❌ No site specified.</div>`;
+        return;
+      }
+
       try {
         const { data, error } = await supabase
           .from('sites')
@@ -54,19 +82,14 @@
           .single();
 
         if (error || !data) {
-          document.getElementById('app').innerHTML = `
-            <div style="text-align:center;padding:80px;">
-              <h1>404</h1>
-              <p>Site not found or not published yet.</p>
-            </div>
-          `;
+          app.innerHTML = `<div class="error">❌ Site not found or not published yet.</div>`;
           return;
         }
 
         // Render the site HTML
-        document.getElementById('app').innerHTML = data.html || '<p>No content yet.</p>';
+        app.innerHTML = data.html || '<p>No content yet.</p>';
 
-        // Add custom CSS if exists
+        // Inject custom CSS if exists
         if (data.css) {
           const style = document.createElement('style');
           style.textContent = data.css;
@@ -80,7 +103,7 @@
           document.body.appendChild(script);
         }
 
-        // Increment views
+        // Increment views (optional)
         supabase
           .from('sites')
           .update({ views: (data.views || 0) + 1 })
@@ -89,11 +112,7 @@
 
       } catch (err) {
         console.error(err);
-        document.getElementById('app').innerHTML = `
-          <div style="text-align:center;padding:80px;color:red;">
-            ❌ Error loading site: ${err.message}
-          </div>
-        `;
+        app.innerHTML = `<div class="error">❌ Error loading site: ${err.message}</div>`;
       }
     }
 
