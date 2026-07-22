@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Site Preview</title>
+  <title>Loading...</title>
   <style>
     * {
       margin: 0;
@@ -13,39 +13,72 @@
     body {
       font-family: system-ui, -apple-system, sans-serif;
       min-height: 100vh;
-      background: #f8fafc;
       display: flex;
       align-items: center;
       justify-content: center;
+      background: #0f0c29;
+      color: #fff;
       padding: 20px;
     }
-    .container {
-      max-width: 1200px;
-      width: 100%;
-      background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
-      padding: 40px;
+    .loader {
       text-align: center;
     }
-    .loading {
-      color: #64748b;
-      font-size: 1.1rem;
+    .loader .spinner {
+      width: 40px;
+      height: 40px;
+      margin: 0 auto 16px;
+      border: 3px solid rgba(255, 255, 255, 0.06);
+      border-top-color: #4facfe;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+    .loader p {
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 0.9rem;
     }
     .error {
-      color: #b91c1c;
-      background: #fee2e2;
-      padding: 16px 24px;
-      border-radius: 12px;
-      border: 1px solid #fecaca;
+      text-align: center;
+      max-width: 400px;
+    }
+    .error h1 {
+      font-size: 4rem;
+      margin-bottom: 8px;
+    }
+    .error p {
+      color: rgba(255, 255, 255, 0.5);
+    }
+    .error a {
+      color: #4facfe;
+      text-decoration: none;
+      display: inline-block;
+      margin-top: 16px;
+      padding: 10px 24px;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      border-radius: 40px;
+      transition: all 0.3s;
+    }
+    .error a:hover {
+      background: rgba(255, 255, 255, 0.05);
     }
   </style>
 </head>
 <body>
-  <div class="container" id="app">
-    <div class="loading">Loading site...</div>
+
+  <div id="app">
+    <div class="loader">
+      <div class="spinner"></div>
+      <p>Loading site...</p>
+    </div>
   </div>
 
+  <!-- ============================================================ -->
+  <!-- ===== SUPABASE ===== -->
+  <!-- ============================================================ -->
   <script type="importmap">
     {
       "imports": {
@@ -63,13 +96,19 @@
 
     const app = document.getElementById('app');
 
-    // Get slug from URL query parameter
+    // Get slug from URL
     const params = new URLSearchParams(window.location.search);
     const slug = params.get('slug');
 
     async function loadSite() {
       if (!slug) {
-        app.innerHTML = `<div class="error">❌ No site specified.</div>`;
+        app.innerHTML = `
+          <div class="error">
+            <h1>404</h1>
+            <p>No site specified.</p>
+            <a href="/">Go Home</a>
+          </div>
+        `;
         return;
       }
 
@@ -81,29 +120,50 @@
           .eq('published', true)
           .single();
 
-        if (error || !data) {
-          app.innerHTML = `<div class="error">❌ Site not found or not published yet.</div>`;
+        if (error || !data || !data.html) {
+          app.innerHTML = `
+            <div class="error">
+              <h1>404</h1>
+              <p>Site not found or not published yet.</p>
+              <a href="/">Go Home</a>
+            </div>
+          `;
           return;
         }
 
-        // Render the site HTML
-        app.innerHTML = data.html || '<p>No content yet.</p>';
+        // ===== IMPORTANT: Render the full page =====
+        // Replace the entire document with the site's HTML
+        // But we need to preserve the URL and allow navigation back
 
-        // Inject custom CSS if exists
-        if (data.css) {
-          const style = document.createElement('style');
-          style.textContent = data.css;
-          document.head.appendChild(style);
+        // Get the site's HTML
+        let fullHtml = data.html;
+
+        // If the site HTML doesn't have its own <html> tag,
+        // wrap it with a full document structure
+        if (!fullHtml.includes('<!DOCTYPE html') && !fullHtml.includes('<html')) {
+          fullHtml = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${data.title || 'My Site'}</title>
+  ${data.css ? `<style>${data.css}</style>` : ''}
+  ${data.js ? `<script>${data.js}<\/script>` : ''}
+</head>
+<body>
+  ${fullHtml}
+</body>
+</html>
+          `;
         }
 
-        // Execute custom JS if exists
-        if (data.js) {
-          const script = document.createElement('script');
-          script.textContent = data.js;
-          document.body.appendChild(script);
-        }
+        // Replace the entire page content
+        document.open();
+        document.write(fullHtml);
+        document.close();
 
-        // Increment views (optional)
+        // Increment views (async)
         supabase
           .from('sites')
           .update({ views: (data.views || 0) + 1 })
@@ -112,7 +172,13 @@
 
       } catch (err) {
         console.error(err);
-        app.innerHTML = `<div class="error">❌ Error loading site: ${err.message}</div>`;
+        app.innerHTML = `
+          <div class="error">
+            <h1>⚠️</h1>
+            <p>Error loading site: ${err.message}</p>
+            <a href="/">Go Home</a>
+          </div>
+        `;
       }
     }
 
