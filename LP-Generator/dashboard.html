@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>📊 My Sites - Dashboard</title>
+  <style>
+    /* ===== RESET & BASE ===== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      padding: 24px;
+      background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #1a1a2e);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      color: #f1f5f9;
+    }
+
+    @keyframes gradientBG {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 32px;
+      padding: 20px 28px;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(16px);
+      border-radius: 60px;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #f093fb, #f5576c, #4facfe);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(8px);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 10px 24px;
+      border-radius: 40px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      border: none;
+    }
+    .btn-primary:hover {
+      box-shadow: 0 8px 24px rgba(79, 172, 254, 0.3);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #f5576c, #f093fb);
+      border: none;
+    }
+    .btn-danger:hover {
+      box-shadow: 0 8px 24px rgba(245, 87, 108, 0.3);
+    }
+
+    .btn-sm {
+      padding: 6px 16px;
+      font-size: 0.8rem;
+    }
+
+    /* ===== STATS ===== */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(8px);
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .stat-card .number {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .stat-card .label {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.4);
+      margin-top: 4px;
+    }
+
+    /* ===== SITES GRID ===== */
+    .sites-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .site-card {
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      padding: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      transition: all 0.3s;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .site-card:hover {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(255, 255, 255, 0.12);
+      transform: translateY(-4px);
+    }
+
+    .site-card .site-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .site-card .site-header h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #fff;
+      word-break: break-word;
+    }
+
+    .site-card .site-header .slug {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.06);
+      padding: 2px 12px;
+      border-radius: 40px;
+    }
+
+    .site-card .site-info {
+      flex: 1;
+      margin-bottom: 16px;
+    }
+
+    .site-card .site-info .meta {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .site-card .site-info .meta span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .site-card .site-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .site-card .site-actions .btn {
+      flex: 1;
+      justify-content: center;
+      min-width: 80px;
+      padding: 8px 16px;
+      font-size: 0.8rem;
+    }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 32px;
+      border: 2px dashed rgba(255, 255, 255, 0.06);
+      grid-column: 1 / -1;
+    }
+
+    .empty-state h2 {
+      font-size: 1.5rem;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 8px;
+    }
+
+    .empty-state p {
+      color: rgba(255, 255, 255, 0.3);
+      margin-bottom: 16px;
+    }
+
+    /* ===== LOADING ===== */
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+      color: rgba(255, 255, 255, 0.4);
+      grid-column: 1 / -1;
+    }
+
+    .loading::after {
+      content: '';
+      display: inline-block;
+      width: 28px;
+      height: 28px;
+      margin-left: 12px;
+      border: 3px solid rgba(255, 255, 255, 0.06);
+      border-top-color: #4facfe;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ===== POPUP ===== */
+    .popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 24px;
+    }
+    .popup-overlay.active {
+      display: flex;
+    }
+    .popup {
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(24px);
+      border-radius: 32px;
+      max-width: 420px;
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      padding: 32px 36px;
+      text-align: center;
+      animation: popupFade 0.3s ease;
+    }
+    @keyframes popupFade {
+      0% {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+    .popup .popup-icon {
+      font-size: 3rem;
+      margin-bottom: 12px;
+    }
+    .popup h3 {
+      color: #fff;
+      font-size: 1.3rem;
+      margin-bottom: 8px;
+    }
+    .popup p {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+      word-break: break-all;
+    }
+    .popup .popup-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .popup .popup-btn {
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      border: none;
+      color: #fff;
+      padding: 10px 28px;
+      border-radius: 40px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .popup .popup-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 24px rgba(79, 172, 254, 0.3);
+    }
+    .popup .popup-btn-secondary {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      color: #fff;
+      padding: 10px 28px;
+      border-radius: 40px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .popup .popup-btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      body {
+        padding: 16px;
+      }
+      .header {
+        padding: 16px 20px;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .header h1 {
+        font-size: 1.5rem;
+      }
+      .header-actions {
+        width: 100%;
+      }
+      .header-actions .btn {
+        flex: 1;
+        justify-content: center;
+      }
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+      .sites-grid {
+        grid-template-columns: 1fr;
+      }
+      .site-card .site-actions .btn {
+        flex: 1 1 100%;
+      }
+      .popup {
+        padding: 24px 20px;
+        margin: 12px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .stats {
+        grid-template-columns: 1fr;
+      }
+      .site-card {
+        padding: 18px;
+      }
+    }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- ===== HEADER ===== -->
+    <header class="header">
+      <h1>📊 My Sites</h1>
+      <div class="header-actions">
+        <a href="index.html" class="btn">🏠 Home</a>
+        <button class="btn btn-primary" onclick="window.location.href='index.html'">➕ New Site</button>
+        <button class="btn" onclick="logout()">🚪 Logout</button>
+      </div>
+    </header>
+
+    <!-- ===== STATS ===== -->
+    <div class="stats" id="stats">
+      <div class="stat-card">
+        <div class="number" id="total-sites">0</div>
+        <div class="label">Total Sites</div>
+      </div>
+      <div class="stat-card">
+        <div class="number" id="total-views">0</div>
+        <div class="label">Total Views</div>
+      </div>
+      <div class="stat-card">
+        <div class="number" id="published-sites">0</div>
+        <div class="label">Published</div>
+      </div>
+    </div>
+
+    <!-- ===== SITES GRID ===== -->
+    <h2 style="font-size:1.2rem;font-weight:500;color:rgba(255,255,255,0.6);margin-bottom:8px;">Your Sites</h2>
+    <div id="sites-grid" class="sites-grid">
+      <div class="loading">Loading your sites...</div>
+    </div>
+  </div>
+
+  <!-- ===== POPUP ===== -->
+  <div id="popup" class="popup-overlay" onclick="if(event.target===this) closePopup()">
+    <div class="popup">
+      <div class="popup-icon" id="popup-icon">✅</div>
+      <h3 id="popup-title">Success!</h3>
+      <p id="popup-message">Operation completed.</p>
+      <div class="popup-actions">
+        <button class="popup-btn" id="popup-btn-primary" onclick="closePopup()">OK</button>
+        <button class="popup-btn-secondary" id="popup-btn-secondary" style="display:none;" onclick="closePopup()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- ===== SUPABASE ===== -->
+  <!-- ============================================================ -->
+  <script type="importmap">
+    {
+      "imports": {
+        "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import { createClient } from '@supabase/supabase-js';
+
+    // ===== CONFIG =====
+    const supabaseUrl = 'https://fhgszopuwnrnijxvghku.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZoZ3N6b3B1d25ybmlqeHZnaGt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMzQ1MTUsImV4cCI6MjA5OTYxMDUxNX0.K2WVDxjRh6JC51nZHdJpR2l8kjS1jhXJ9EkmQ5ElPtQ';
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const SITE_URL = window.location.origin + window.location.pathname.replace('dashboard.html', '');
+
+    // ===== DOM REFS =====
+    const sitesGrid = document.getElementById('sites-grid');
+    const totalSites = document.getElementById('total-sites');
+    const totalViews = document.getElementById('total-views');
+    const publishedSites = document.getElementById('published-sites');
+    const popup = document.getElementById('popup');
+    const popupIcon = document.getElementById('popup-icon');
+    const popupTitle = document.getElementById('popup-title');
+    const popupMessage = document.getElementById('popup-message');
+    const popupBtnPrimary = document.getElementById('popup-btn-primary');
+    const popupBtnSecondary = document.getElementById('popup-btn-secondary');
+
+    let currentUser = null;
+
+    // ===== POPUP =====
+    function showPopup({ icon = '✅', title = 'Success!', message = '', primaryText = 'OK', primaryAction = null }) {
+      popupIcon.textContent = icon;
+      popupTitle.textContent = title;
+      popupMessage.textContent = message;
+      popupBtnPrimary.textContent = primaryText;
+      popupBtnPrimary.onclick = () => {
+        closePopup();
+        if (primaryAction) primaryAction();
+      };
+      popupBtnSecondary.style.display = 'none';
+      popup.classList.add('active');
+    }
+
+    function closePopup() {
+      popup.classList.remove('active');
+    }
+    window.closePopup = closePopup;
+
+    // ===== LOGOUT =====
+    window.logout = async function() {
+      await supabase.auth.signOut();
+      window.location.href = 'index.html';
+    };
+
+    // ===== CHECK AUTH =====
+    async function checkAuth() {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      currentUser = session.user;
+      loadSites();
+    }
+
+    // ===== LOAD SITES =====
+    async function loadSites() {
+      sitesGrid.innerHTML = '<div class="loading">Loading your sites...</div>';
+
+      try {
+        const { data, error } = await supabase
+          .from('sites')
+          .select('*')
+          .eq('user_id', currentUser.id)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        // Update stats
+        const published = data ? data.filter(s => s.published).length : 0;
+        const views = data ? data.reduce((sum, s) => sum + (s.views || 0), 0) : 0;
+
+        totalSites.textContent = data?.length || 0;
+        totalViews.textContent = views;
+        publishedSites.textContent = published;
+
+        if (!data || data.length === 0) {
+          sitesGrid.innerHTML = `
+            <div class="empty-state">
+              <h2>🏗️ No sites yet</h2>
+              <p>Create your first landing page by choosing a template.</p>
+              <a href="index.html" class="btn btn-primary">➕ Create New Site</a>
+            </div>
+          `;
+          return;
+        }
+
+        let html = '';
+        data.forEach(site => {
+          const siteUrl = `${SITE_URL}site.html?slug=${site.slug}`;
+          const templateName = site.title || site.slug;
+
+          html += `
+            <div class="site-card">
+              <div class="site-header">
+                <h3>${templateName}</h3>
+                <span class="slug">#${site.slug}</span>
+              </div>
+              <div class="site-info">
+                <div class="meta">
+                  <span>👁️ ${site.views || 0} views</span>
+                  <span>📅 ${new Date(site.created_at).toLocaleDateString()}</span>
+                  <span>${site.published ? '✅ Published' : '⏳ Draft'}</span>
+                </div>
+              </div>
+              <div class="site-actions">
+                <a href="${siteUrl}" target="_blank" class="btn btn-sm btn-primary">🔗 View</a>
+                <a href="edit.html?slug=${site.slug}" class="btn btn-sm">✏️ Edit</a>
+                <button class="btn btn-sm btn-danger" onclick="deleteSite('${site.id}')">🗑️</button>
+              </div>
+            </div>
+          `;
+        });
+
+        sitesGrid.innerHTML = html;
+
+      } catch (err) {
+        console.error(err);
+        sitesGrid.innerHTML = `<div class="empty-state"><p style="color:#f87171;">❌ Error: ${err.message}</p></div>`;
+      }
+    }
+
+    // ===== DELETE SITE =====
+    window.deleteSite = async function(id) {
+      if (!confirm('Are you sure you want to delete this site?')) return;
+
+      try {
+        const { error } = await supabase
+          .from('sites')
+          .delete()
+          .eq('id', id);
+
+        if (error) throw error;
+
+        showPopup({
+          icon: '🗑️',
+          title: 'Deleted!',
+          message: 'Site has been deleted successfully.',
+          primaryText: 'OK',
+          primaryAction: () => loadSites()
+        });
+
+      } catch (err) {
+        showPopup({
+          icon: '❌',
+          title: 'Error',
+          message: err.message,
+          primaryText: 'OK'
+        });
+      }
+    };
+
+    // ===== INIT =====
+    checkAuth();
+  </script>
+</body>
+</html>
