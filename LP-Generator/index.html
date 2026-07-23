@@ -631,36 +631,6 @@
     }
 
     /* ============================================================ */
-    /* ===== SCROLLBAR ===== */
-    /* ============================================================ */
-    .modal::-webkit-scrollbar,
-    .split-left::-webkit-scrollbar,
-    .split-right::-webkit-scrollbar,
-    .preview-popup::-webkit-scrollbar {
-      width: 6px;
-    }
-    .modal::-webkit-scrollbar-track,
-    .split-left::-webkit-scrollbar-track,
-    .split-right::-webkit-scrollbar-track,
-    .preview-popup::-webkit-scrollbar-track {
-      background: rgba(255, 255, 255, 0.04);
-      border-radius: 10px;
-    }
-    .modal::-webkit-scrollbar-thumb,
-    .split-left::-webkit-scrollbar-thumb,
-    .split-right::-webkit-scrollbar-thumb,
-    .preview-popup::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.15);
-      border-radius: 10px;
-    }
-    .modal::-webkit-scrollbar-thumb:hover,
-    .split-left::-webkit-scrollbar-thumb:hover,
-    .split-right::-webkit-scrollbar-thumb:hover,
-    .preview-popup::-webkit-scrollbar-thumb:hover {
-      background: rgba(255, 255, 255, 0.25);
-    }
-
-    /* ============================================================ */
     /* ===== RESPONSIVE ===== */
     /* ============================================================ */
     @media (max-width: 1024px) {
@@ -784,6 +754,32 @@
         grid-template-columns: 1fr;
       }
     }
+
+    /* ============================================================ */
+    /* ===== SCROLLBAR ===== */
+    /* ============================================================ */
+    .preview-popup::-webkit-scrollbar,
+    .split-left::-webkit-scrollbar,
+    .split-right::-webkit-scrollbar {
+      width: 6px;
+    }
+    .preview-popup::-webkit-scrollbar-track,
+    .split-left::-webkit-scrollbar-track,
+    .split-right::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 10px;
+    }
+    .preview-popup::-webkit-scrollbar-thumb,
+    .split-left::-webkit-scrollbar-thumb,
+    .split-right::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+    }
+    .preview-popup::-webkit-scrollbar-thumb:hover,
+    .split-left::-webkit-scrollbar-thumb:hover,
+    .split-right::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
   </style>
 </head>
 <body>
@@ -796,7 +792,7 @@
       </div>
       <div class="header-actions" id="auth-section">
         <button class="btn" id="auth-btn" onclick="handleAuth()">🔑 Login</button>
-        <a href="dashboard" class="btn" id="mySites" style="display:none;">📊 My Sites</a>
+        <a href="dashboard.html" class="btn" id="mySites" style="display:none;">📊 My Sites</a>
       </div>
     </header>
 
@@ -953,6 +949,68 @@
     };
 
     // ============================================================
+    // ===== VALIDATION FUNCTIONS =====
+    // ============================================================
+
+    // 1. Validate image URL
+    function validateImageUrl(url) {
+      if (!url) return true;
+      return url.startsWith('http://') || url.startsWith('https://');
+    }
+
+    // 2. Check site limit based on user's plan
+    async function checkSiteLimit(userId) {
+      try {
+        // Fetch plan from profiles table
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('plan')
+          .eq('id', userId)
+          .single();
+
+        if (profileError) {
+          console.error('Error fetching profile:', profileError);
+          return { allowed: false, message: 'Error checking your plan.' };
+        }
+
+        const plan = profile?.plan || 'free';
+
+        // Count published sites
+        const { count, error: countError } = await supabase
+          .from('sites')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', userId)
+          .eq('published', true);
+
+        if (countError) {
+          console.error('Error counting sites:', countError);
+          return { allowed: false, message: 'Error checking your sites.' };
+        }
+
+        const limits = {
+          free: 1,
+          pro: 5,
+          business: 50,
+        };
+
+        const maxSites = limits[plan] || 1;
+
+        if (count >= maxSites) {
+          return {
+            allowed: false,
+            message: `Your ${plan} plan allows only ${maxSites} published site${maxSites > 1 ? 's' : ''}. Please upgrade to publish more.`
+          };
+        }
+
+        return { allowed: true };
+
+      } catch (err) {
+        console.error('checkSiteLimit error:', err);
+        return { allowed: false, message: 'Error checking site limit.' };
+      }
+    }
+
+    // ============================================================
     // ===== PREVIEW =====
     // ============================================================
     async function openPreview(slug) {
@@ -967,7 +1025,6 @@
 
         previewTitle.textContent = `👁️ ${template.name}`;
 
-        // Render HTML with default values or placeholders
         let html = template.html || '<p>No content</p>';
         const fields = template.fields || {};
         for (const [key, config] of Object.entries(fields)) {
@@ -977,7 +1034,6 @@
 
         previewContent.innerHTML = html;
 
-        // Inject CSS if any
         if (template.css) {
           const style = document.createElement('style');
           style.id = 'preview-style';
@@ -1023,11 +1079,8 @@
         selectedTemplate = template;
         currentTemplateFields = template.fields || {};
 
-        // Build form
         buildSplitForm(template);
-
-        // Initial preview
-        updateLivePreview();
+        window.updateLivePreview();
 
         splitOverlay.classList.add('active');
 
@@ -1174,14 +1227,12 @@
         html = html.replace(new RegExp(`{{${key}}}`, 'g'), value || `[${key}]`);
       }
 
-      // Also replace slug
       const slugInput = document.getElementById('split-site-slug');
       const slug = slugInput?.value || 'my-site';
       html = html.replace(/\{\{site_slug\}\}/g, slug);
 
       livePreview.innerHTML = html;
 
-      // Inject CSS
       document.getElementById('split-style')?.remove();
       if (selectedTemplate.css) {
         const style = document.createElement('style');
@@ -1190,7 +1241,6 @@
         document.head.appendChild(style);
       }
 
-      // Execute JS (safe)
       if (selectedTemplate.js) {
         try {
           const fn = new Function(`const templateData = ${JSON.stringify(data)}; ${selectedTemplate.js}`);
@@ -1238,7 +1288,7 @@
       };
     };
 
-    // ===== Publish from Split =====
+    // ===== Publish from Split (with validations) =====
     async function publishFromSplit() {
       const slug = document.getElementById('split-site-slug').value.trim();
       if (!slug) {
@@ -1249,17 +1299,46 @@
       const fields = currentTemplateFields || {};
       const data = {};
 
-      for (const [key] of Object.entries(fields)) {
+      // ===== 1. Validate image fields =====
+      for (const [key, config] of Object.entries(fields)) {
+        if (config.type === 'image') {
+          const input = document.getElementById(`split-field-${key}`);
+          const url = input?.value?.trim() || '';
+          if (url && !validateImageUrl(url)) {
+            showPopup({
+              icon: '⚠️',
+              title: 'Invalid Image URL',
+              message: `The "${config.label}" field must be a valid image URL (starts with http:// or https://).`,
+              primaryText: 'OK'
+            });
+            return;
+          }
+        }
+        // Collect data
         const input = document.getElementById(`split-field-${key}`);
         if (input) data[key] = input.value.trim();
       }
 
+      // ===== 2. Check site limit =====
+      const limitCheck = await checkSiteLimit(currentUser.id);
+      if (!limitCheck.allowed) {
+        showPopup({
+          icon: '🔒',
+          title: 'Plan Limit Reached',
+          message: limitCheck.message,
+          primaryText: 'OK'
+        });
+        return;
+      }
+
+      // ===== 3. Generate HTML =====
       let html = selectedTemplate.html;
       for (const [key, value] of Object.entries(data)) {
         html = html.replace(new RegExp(`{{${key}}}`, 'g'), value);
       }
       html = html.replace(/\{\{site_slug\}\}/g, slug);
 
+      // ===== 4. Save to Supabase =====
       try {
         const { error: saveError } = await supabase
           .from('sites')
@@ -1390,7 +1469,6 @@
     // ============================================================
     // ===== INIT =====
     // ============================================================
-    // Expose functions to global scope
     window.openPreview = openPreview;
     window.openSplit = openSplit;
     window.closePreview = closePreview;
