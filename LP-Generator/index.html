@@ -792,7 +792,8 @@
       </div>
       <div class="header-actions" id="auth-section">
         <button class="btn" id="auth-btn" onclick="handleAuth()">🔑 Login</button>
-        <a href="dashboard.html" class="btn" id="mySites" style="display:none;">📊 My Sites</a>
+        <a href="dashboard" class="btn" id="mySites" style="display:none;">📊 My Sites</a>
+        <a href="plans" class="btn" id="plans">💳 Plans</a>
       </div>
     </header>
 
@@ -1410,10 +1411,12 @@
         const name = session.user.user_metadata?.full_name || session.user.email || 'User';
         authBtn.textContent = `👤 ${name.split('@')[0]}`;
         mySites.style.display = 'inline-flex';
+        document.getElementById("plans").style.display = 'inline-flex';
       } else {
         currentUser = null;
         authBtn.textContent = '🔑 Login';
         mySites.style.display = 'none';
+        document.getElementById("plans").style.display = 'none'
       }
     }
 
