@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>📊 Choose Your Plan</title>
+  <style>
+    /* ============================================================ */
+    /* ===== RESET & BASE ===== */
+    /* ============================================================ */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #1a1a2e);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      color: #f1f5f9;
+    }
+
+    @keyframes gradientBG {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    .container {
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* ============================================================ */
+    /* ===== HEADER ===== */
+    /* ============================================================ */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 40px;
+      padding: 20px 28px;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 60px;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+      transition: all 0.3s ease;
+    }
+
+    .header:hover {
+      background: rgba(255, 255, 255, 0.09);
+      border-color: rgba(255, 255, 255, 0.20);
+      box-shadow: 0 16px 56px rgba(0, 0, 0, 0.6);
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #f093fb, #f5576c, #4facfe);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(8px);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 10px 24px;
+      border-radius: 40px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      border: none;
+    }
+    .btn-primary:hover {
+      box-shadow: 0 8px 24px rgba(79, 172, 254, 0.3);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #f5576c, #f093fb);
+      border: none;
+    }
+    .btn-danger:hover {
+      box-shadow: 0 8px 24px rgba(245, 87, 108, 0.3);
+    }
+
+    /* ============================================================ */
+    /* ===== PLANS GRID ===== */
+    /* ============================================================ */
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 28px;
+      margin: 20px 0 40px;
+    }
+
+    .plan-card {
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 28px;
+      padding: 32px 28px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      transition: all 0.4s cubic-bezier(0.2, 0, 0, 1);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .plan-card:hover {
+      transform: translateY(-8px);
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(255, 255, 255, 0.12);
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.3);
+    }
+
+    .plan-card.popular {
+      border-color: rgba(79, 172, 254, 0.3);
+      background: rgba(79, 172, 254, 0.05);
+    }
+
+    .plan-card.popular::before {
+      content: '🔥 Most Popular';
+      position: absolute;
+      top: 16px;
+      right: -28px;
+      background: linear-gradient(135deg, #f093fb, #f5576c);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 4px 32px;
+      transform: rotate(45deg);
+      letter-spacing: 0.5px;
+    }
+
+    .plan-card .plan-name {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .plan-card .plan-price {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #fff;
+      margin: 12px 0 4px;
+    }
+
+    .plan-card .plan-price span {
+      font-size: 1rem;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .plan-card .plan-description {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+    }
+
+    .plan-card .plan-features {
+      list-style: none;
+      margin: 12px 0 24px;
+      flex: 1;
+    }
+
+    .plan-card .plan-features li {
+      padding: 8px 0;
+      color: rgba(255, 255, 255, 0.7);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    .plan-card .plan-features li:last-child {
+      border-bottom: none;
+    }
+
+    .plan-card .plan-features li .check {
+      color: #4ade80;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .plan-card .plan-features li .cross {
+      color: #f87171;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .plan-card .btn-plan {
+      width: 100%;
+      padding: 14px;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: none;
+      color: #fff;
+      text-align: center;
+    }
+
+    .plan-card .btn-plan.free {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+    }
+    .plan-card .btn-plan.free:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .plan-card .btn-plan.pro {
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+    }
+    .plan-card .btn-plan.pro:hover {
+      box-shadow: 0 8px 24px rgba(79, 172, 254, 0.3);
+    }
+
+    .plan-card .btn-plan.business {
+      background: linear-gradient(135deg, #f093fb, #f5576c);
+    }
+    .plan-card .btn-plan.business:hover {
+      box-shadow: 0 8px 24px rgba(245, 87, 108, 0.3);
+    }
+
+    .plan-card .btn-plan.current {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      cursor: default;
+      opacity: 0.6;
+    }
+
+    .plan-card .current-badge {
+      display: inline-block;
+      background: rgba(34, 197, 94, 0.15);
+      color: #4ade80;
+      padding: 2px 12px;
+      border-radius: 40px;
+      font-size: 0.7rem;
+      font-weight: 500;
+      margin-top: 8px;
+    }
+
+    /* ============================================================ */
+    /* ===== POPUP ===== */
+    /* ============================================================ */
+    .popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 3000;
+      padding: 24px;
+    }
+    .popup-overlay.active {
+      display: flex;
+    }
+    .popup {
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(24px);
+      border-radius: 32px;
+      max-width: 480px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+      padding: 32px 36px;
+      text-align: center;
+      animation: popupFade 0.3s ease;
+    }
+    @keyframes popupFade {
+      0% {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+    .popup .popup-icon {
+      font-size: 3rem;
+      margin-bottom: 12px;
+    }
+    .popup h3 {
+      color: #fff;
+      font-size: 1.3rem;
+      margin-bottom: 8px;
+    }
+    .popup p {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+    }
+    .popup .popup-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .popup .popup-btn {
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      border: none;
+      color: #fff;
+      padding: 10px 28px;
+      border-radius: 40px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .popup .popup-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 24px rgba(79, 172, 254, 0.3);
+    }
+    .popup .popup-btn-secondary {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      color: #fff;
+      padding: 10px 28px;
+      border-radius: 40px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .popup .popup-btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    /* ============================================================ */
+    /* ===== RESPONSIVE ===== */
+    /* ============================================================ */
+    @media (max-width: 768px) {
+      body {
+        padding: 16px;
+      }
+      .header {
+        padding: 16px 20px;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .header h1 {
+        font-size: 1.5rem;
+      }
+      .header-actions {
+        width: 100%;
+      }
+      .header-actions .btn {
+        flex: 1;
+        justify-content: center;
+      }
+      .plans-grid {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .plan-card.popular::before {
+        top: 12px;
+        right: -20px;
+        font-size: 0.6rem;
+        padding: 3px 24px;
+      }
+      .popup {
+        padding: 24px 20px;
+        margin: 12px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .plan-card {
+        padding: 24px 20px;
+      }
+      .plan-card .plan-price {
+        font-size: 2rem;
+      }
+    }
+
+    /* ============================================================ */
+    /* ===== SCROLLBAR ===== */
+    /* ============================================================ */
+    .popup::-webkit-scrollbar {
+      width: 6px;
+    }
+    .popup::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 10px;
+    }
+    .popup::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+    }
+    .popup::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- ===== HEADER ===== -->
+    <header class="header">
+      <h1>💳 Choose Your Plan</h1>
+      <div class="header-actions">
+        <a href="index.html" class="btn">🏠 Home</a>
+        <a href="dashboard.html" class="btn">📊 My Sites</a>
+        <button class="btn" id="auth-btn" onclick="handleAuth()">🔑 Login</button>
+      </div>
+    </header>
+
+    <!-- ===== PLANS ===== -->
+    <div class="plans-grid" id="plans-grid">
+      <!-- Free Plan -->
+      <div class="plan-card" id="plan-free">
+        <div class="plan-name">Free</div>
+        <div class="plan-price">$0 <span>/ forever</span></div>
+        <div class="plan-description">Perfect for getting started</div>
+        <ul class="plan-features">
+          <li><span class="check">✓</span> 1 published site</li>
+          <li><span class="check">✓</span> Basic templates</li>
+          <li><span class="check">✓</span> Live preview</li>
+          <li><span class="cross">✗</span> Custom domain</li>
+          <li><span class="cross">✗</span> Priority support</li>
+        </ul>
+        <button class="btn-plan free" id="btn-free" onclick="selectPlan('free')">Current Plan</button>
+      </div>
+
+      <!-- Pro Plan -->
+      <div class="plan-card popular" id="plan-pro">
+        <div class="plan-name">Pro</div>
+        <div class="plan-price">$9 <span>/ month</span></div>
+        <div class="plan-description">For professionals and creators</div>
+        <ul class="plan-features">
+          <li><span class="check">✓</span> 5 published sites</li>
+          <li><span class="check">✓</span> All templates</li>
+          <li><span class="check">✓</span> Live preview</li>
+          <li><span class="check">✓</span> Custom domain</li>
+          <li><span class="cross">✗</span> Priority support</li>
+        </ul>
+        <button class="btn-plan pro" id="btn-pro" onclick="selectPlan('pro')">Upgrade to Pro</button>
+      </div>
+
+      <!-- Business Plan -->
+      <div class="plan-card" id="plan-business">
+        <div class="plan-name">Business</div>
+        <div class="plan-price">$29 <span>/ month</span></div>
+        <div class="plan-description">For agencies and teams</div>
+        <ul class="plan-features">
+          <li><span class="check">✓</span> 50 published sites</li>
+          <li><span class="check">✓</span> All templates</li>
+          <li><span class="check">✓</span> Live preview</li>
+          <li><span class="check">✓</span> Custom domain</li>
+          <li><span class="check">✓</span> Priority support</li>
+        </ul>
+        <button class="btn-plan business" id="btn-business" onclick="selectPlan('business')">Upgrade to Business</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- ===== POPUP ===== -->
+  <!-- ============================================================ -->
+  <div id="popup" class="popup-overlay" onclick="if(event.target===this) closePopup()">
+    <div class="popup">
+      <div class="popup-icon" id="popup-icon">✅</div>
+      <h3 id="popup-title">Success!</h3>
+      <p id="popup-message">Your plan has been updated.</p>
+      <div class="popup-actions">
+        <button class="popup-btn" id="popup-btn-primary" onclick="closePopup()">OK</button>
+        <button class="popup-btn-secondary" id="popup-btn-secondary" style="display:none;" onclick="closePopup()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- ===== SUPABASE ===== -->
+  <!-- ============================================================ -->
+  <script type="importmap">
+    {
+      "imports": {
+        "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import { createClient } from '@supabase/supabase-js';
+
+    // ============================================================
+    // ===== CONFIG =====
+    // ============================================================
+    const supabaseUrl = 'https://fhgszopuwnrnijxvghku.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZoZ3N6b3B1d25ybmlqeHZnaGt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMzQ1MTUsImV4cCI6MjA5OTYxMDUxNX0.K2WVDxjRh6JC51nZHdJpR2l8kjS1jhXJ9EkmQ5ElPtQ';
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const SITE_URL = window.location.origin + window.location.pathname;
+
+    // ============================================================
+    // ===== DOM REFS =====
+    // ============================================================
+    const authBtn = document.getElementById('auth-btn');
+    const popup = document.getElementById('popup');
+    const popupIcon = document.getElementById('popup-icon');
+    const popupTitle = document.getElementById('popup-title');
+    const popupMessage = document.getElementById('popup-message');
+    const popupBtnPrimary = document.getElementById('popup-btn-primary');
+    const popupBtnSecondary = document.getElementById('popup-btn-secondary');
+
+    let currentUser = null;
+    let currentPlan = 'free';
+
+    // ============================================================
+    // ===== POPUP =====
+    // ============================================================
+    window.showPopup = function({
+      icon = '✅',
+      title = 'Success!',
+      message = 'Operation completed.',
+      primaryText = 'OK',
+      primaryAction = null,
+      secondaryText = null,
+      secondaryAction = null
+    } = {}) {
+      popupIcon.textContent = icon;
+      popupTitle.textContent = title;
+      popupMessage.textContent = message;
+      popupBtnPrimary.textContent = primaryText;
+
+      popupBtnPrimary.onclick = () => {
+        closePopup();
+        if (primaryAction) primaryAction();
+      };
+
+      if (secondaryText && secondaryAction) {
+        popupBtnSecondary.style.display = 'inline-block';
+        popupBtnSecondary.textContent = secondaryText;
+        popupBtnSecondary.onclick = () => {
+          closePopup();
+          if (secondaryAction) secondaryAction();
+        };
+      } else {
+        popupBtnSecondary.style.display = 'none';
+      }
+
+      popup.classList.add('active');
+    };
+
+    window.closePopup = function() {
+      popup.classList.remove('active');
+    };
+
+    // ============================================================
+    // ===== AUTH =====
+    // ============================================================
+    window.handleAuth = async function() {
+      if (currentUser) {
+        await supabase.auth.signOut();
+        location.reload();
+        return;
+      }
+
+      const email = prompt('Enter your email:');
+      if (!email) return;
+
+      const { error } = await supabase.auth.signInWithOtp({
+        email: email,
+        options: { emailRedirectTo: SITE_URL }
+      });
+
+      if (error) {
+        showPopup({ icon: '❌', title: 'Error', message: error.message, primaryText: 'OK' });
+      } else {
+        showPopup({ icon: '✅', title: 'Magic Link Sent!', message: 'Check your email.', primaryText: 'OK' });
+      }
+    };
+
+    async function checkAuth() {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (session) {
+        currentUser = session.user;
+        const name = session.user.user_metadata?.full_name || session.user.email || 'User';
+        authBtn.textContent = `👤 ${name.split('@')[0]}`;
+        await loadUserPlan();
+      } else {
+        currentUser = null;
+        authBtn.textContent = '🔑 Login';
+        // Show plans as read-only
+        document.querySelectorAll('.btn-plan').forEach(btn => {
+          btn.textContent = 'Sign in to upgrade';
+          btn.onclick = () => handleAuth();
+        });
+      }
+    }
+
+    // ============================================================
+    // ===== LOAD USER PLAN =====
+    // ============================================================
+    async function loadUserPlan() {
+      if (!currentUser) return;
+
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('plan')
+          .eq('id', currentUser.id)
+          .maybeSingle();
+
+        if (error) {
+          console.error('Error loading plan:', error);
+          return;
+        }
+
+        currentPlan = data?.plan || 'free';
+        updateUI();
+
+      } catch (err) {
+        console.error('loadUserPlan error:', err);
+      }
+    }
+
+    // ============================================================
+    // ===== UPDATE UI =====
+    // ============================================================
+    function updateUI() {
+      const plans = ['free', 'pro', 'business'];
+      const planNames = {
+        free: 'Free',
+        pro: 'Pro',
+        business: 'Business'
+      };
+
+      plans.forEach(plan => {
+        const btn = document.getElementById(`btn-${plan}`);
+        const card = document.getElementById(`plan-${plan}`);
+
+        if (plan === currentPlan) {
+          btn.textContent = '✅ Current Plan';
+          btn.className = `btn-plan current`;
+          btn.onclick = null;
+        } else {
+          btn.textContent = `Upgrade to ${planNames[plan]}`;
+          btn.className = `btn-plan ${plan}`;
+          btn.onclick = () => selectPlan(plan);
+        }
+      });
+    }
+
+    // ============================================================
+    // ===== SELECT PLAN =====
+    // ============================================================
+    window.selectPlan = async function(plan) {
+      if (!currentUser) {
+        showPopup({
+          icon: '🔒',
+          title: 'Please Sign In',
+          message: 'You need to sign in to change your plan.',
+          primaryText: 'Sign In',
+          primaryAction: () => handleAuth()
+        });
+        return;
+      }
+
+      if (plan === currentPlan) {
+        showPopup({
+          icon: 'ℹ️',
+          title: 'Already on this plan',
+          message: `You are already on the ${plan} plan.`,
+          primaryText: 'OK'
+        });
+        return;
+      }
+
+      // Confirm upgrade
+      const planNames = { free: 'Free', pro: 'Pro', business: 'Business' };
+      const confirmMsg = `Are you sure you want to upgrade to ${planNames[plan]} plan?`;
+      if (!confirm(confirmMsg)) return;
+
+      try {
+        const { error } = await supabase
+          .from('profiles')
+          .update({ plan: plan, updated_at: new Date().toISOString() })
+          .eq('id', currentUser.id);
+
+        if (error) throw error;
+
+        currentPlan = plan;
+        updateUI();
+
+        showPopup({
+          icon: '🎉',
+          title: 'Plan Updated!',
+          message: `You are now on the ${planNames[plan]} plan.`,
+          primaryText: 'OK'
+        });
+
+      } catch (err) {
+        showPopup({
+          icon: '❌',
+          title: 'Error',
+          message: err.message,
+          primaryText: 'OK'
+        });
+        console.error('selectPlan error:', err);
+      }
+    };
+
+    // ============================================================
+    // ===== INIT =====
+    // ============================================================
+    window.handleAuth = handleAuth;
+    window.selectPlan = selectPlan;
+    window.showPopup = showPopup;
+    window.closePopup = closePopup;
+
+    await checkAuth();
+  </script>
+</body>
+</html>
