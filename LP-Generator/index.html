@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🚀 Build Your Site</title>
+  <title>Yossef DEV - LP Generator</title>
   <style>
     /* ===== RESET & BASE ===== */
     *,
@@ -803,11 +803,11 @@
         currentUser = session.user;
         const name = session.user.user_metadata?.full_name || session.user.email || 'User';
         authBtn.textContent = `${name.split('@')[0]}`;
-        mySite.removeAttribute("disabled");
+        mySite.style.display = 'flex-inline';
       } else {
         currentUser = null;
         authBtn.textContent = '🔑 Login';
-        mySite.setAttribute("disabled", "disabled");
+        mySite.style.display = 'none';
       }
     }
 
