@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Yossef DEV - LP Generator</title>
+  <title>🚀 Build Your Site</title>
   <style>
+    /* ============================================================ */
     /* ===== RESET & BASE ===== */
+    /* ============================================================ */
     *,
     *::before,
     *::after {
@@ -45,7 +47,9 @@
       margin: 0 auto;
     }
 
+    /* ============================================================ */
     /* ===== HEADER ===== */
+    /* ============================================================ */
     .header {
       display: flex;
       justify-content: space-between;
@@ -121,7 +125,9 @@
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     }
 
-    /* ===== GRID ===== */
+    /* ============================================================ */
+    /* ===== TEMPLATES GRID ===== */
+    /* ============================================================ */
     .templates-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
@@ -129,7 +135,9 @@
       margin: 28px 0 40px;
     }
 
-    /* ===== CARD ===== */
+    /* ============================================================ */
+    /* ===== TEMPLATE CARD ===== */
+    /* ============================================================ */
     .template-card {
       background: rgba(255, 255, 255, 0.05);
       backdrop-filter: blur(12px);
@@ -197,24 +205,42 @@
       border: 1px solid rgba(255, 255, 255, 0.06);
     }
 
-    .template-card .info .btn-use {
+    .template-card .info .card-actions {
+      display: flex;
+      gap: 10px;
       margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .template-card .info .card-actions .btn {
+      flex: 1;
+      justify-content: center;
+      padding: 8px 16px;
+      font-size: 0.8rem;
+      min-width: 80px;
+    }
+
+    .btn-preview {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.10);
+    }
+    .btn-preview:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-use {
       background: linear-gradient(135deg, #4facfe, #00f2fe);
       border: none;
-      color: #fff;
-      padding: 8px 24px;
-      border-radius: 40px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
     }
-    .template-card .info .btn-use:hover {
-      transform: scale(1.05);
+    .btn-use:hover {
       box-shadow: 0 8px 24px rgba(79, 172, 254, 0.4);
     }
 
-    /* ===== MODAL (Customization) ===== */
-    .modal-overlay {
+    /* ============================================================ */
+    /* ===== PREVIEW POPUP ===== */
+    /* ============================================================ */
+    .preview-overlay {
       position: fixed;
       top: 0;
       left: 0;
@@ -226,37 +252,37 @@
       display: none;
       align-items: center;
       justify-content: center;
-      z-index: 1000;
+      z-index: 1500;
       padding: 24px;
     }
-    .modal-overlay.active {
+    .preview-overlay.active {
       display: flex;
     }
-    .modal {
+    .preview-popup {
       background: rgba(255, 255, 255, 0.06);
       backdrop-filter: blur(24px);
       -webkit-backdrop-filter: blur(24px);
       border-radius: 32px;
-      max-width: 700px;
+      max-width: 820px;
       width: 100%;
       max-height: 90vh;
       overflow-y: auto;
       border: 1px solid rgba(255, 255, 255, 0.10);
       box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
       padding: 32px 36px;
-      animation: modalSlideUp 0.35s ease;
+      animation: popupFade 0.35s ease;
     }
-    @keyframes modalSlideUp {
+    @keyframes popupFade {
       0% {
         opacity: 0;
-        transform: translateY(40px) scale(0.96);
+        transform: scale(0.9) translateY(20px);
       }
       100% {
         opacity: 1;
-        transform: translateY(0) scale(1);
+        transform: scale(1) translateY(0);
       }
     }
-    .modal-header {
+    .preview-popup .preview-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -264,11 +290,11 @@
       padding-bottom: 18px;
       margin-bottom: 24px;
     }
-    .modal-header h2 {
+    .preview-popup .preview-header h2 {
       color: #fff;
       font-size: 1.5rem;
     }
-    .modal-close {
+    .preview-popup .preview-header .btn-close {
       background: rgba(255, 255, 255, 0.06);
       color: #fca5a5;
       border: 1px solid rgba(255, 255, 255, 0.08);
@@ -277,25 +303,90 @@
       cursor: pointer;
       transition: all 0.25s;
     }
-    .modal-close:hover {
+    .preview-popup .preview-header .btn-close:hover {
       background: rgba(239, 68, 68, 0.2);
     }
-    .modal-body {
+    .preview-popup .preview-body {
       color: #e2e8f0;
     }
+    .preview-popup .preview-body .template-display {
+      background: rgba(0, 0, 0, 0.15);
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
 
-    .form-group {
+    /* ============================================================ */
+    /* ===== SPLIT SCREEN (Use Template) ===== */
+    /* ============================================================ */
+    .split-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #0a0a1a;
+      display: none;
+      z-index: 2000;
+      overflow: hidden;
+    }
+    .split-overlay.active {
+      display: flex;
+    }
+
+    .split-container {
+      display: flex;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ===== LEFT SIDE: Form ===== */
+    .split-left {
+      width: 50%;
+      height: 100%;
+      overflow-y: auto;
+      padding: 32px 36px;
+      background: rgba(255, 255, 255, 0.02);
+      border-right: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .split-left .split-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .split-left .split-header h2 {
+      color: #fff;
+      font-size: 1.5rem;
+    }
+
+    .split-left .split-header .btn-close-split {
+      background: rgba(255, 255, 255, 0.06);
+      color: #fca5a5;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 8px 20px;
+      border-radius: 40px;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .split-left .split-header .btn-close-split:hover {
+      background: rgba(239, 68, 68, 0.2);
+    }
+
+    .split-left .form-group {
       margin-bottom: 18px;
     }
-    .form-group label {
+    .split-left .form-group label {
       display: block;
       font-weight: 500;
       margin-bottom: 6px;
       color: rgba(255, 255, 255, 0.8);
     }
-    .form-group input,
-    .form-group textarea,
-    .form-group select {
+    .split-left .form-group input,
+    .split-left .form-group textarea,
+    .split-left .form-group select {
       width: 100%;
       padding: 12px 16px;
       background: rgba(255, 255, 255, 0.06);
@@ -305,34 +396,33 @@
       font-size: 1rem;
       transition: border 0.3s;
     }
-    .form-group input:focus,
-    .form-group textarea:focus,
-    .form-group select:focus {
+    .split-left .form-group input:focus,
+    .split-left .form-group textarea:focus,
+    .split-left .form-group select:focus {
       outline: none;
       border-color: #4facfe;
     }
-    .form-group textarea {
-      min-height: 100px;
+    .split-left .form-group textarea {
+      min-height: 80px;
       font-family: inherit;
     }
-    .form-group select option {
+    .split-left .form-group select option {
       background: #1a1a2e;
     }
-    .form-group small {
+    .split-left .form-group small {
       color: rgba(255, 255, 255, 0.4);
       display: block;
       margin-top: 4px;
     }
 
-    /* ===== Image Upload ===== */
-    .image-upload-wrapper {
+    .split-left .image-upload-wrapper {
       display: flex;
       gap: 8px;
     }
-    .image-upload-wrapper input {
+    .split-left .image-upload-wrapper input {
       flex: 1;
     }
-    .btn-upload {
+    .split-left .btn-upload {
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid rgba(255, 255, 255, 0.10);
       border-radius: 12px;
@@ -342,21 +432,21 @@
       transition: all 0.3s;
       white-space: nowrap;
     }
-    .btn-upload:hover {
+    .split-left .btn-upload:hover {
       background: rgba(255, 255, 255, 0.15);
     }
-    .image-preview {
+    .split-left .image-preview {
       margin-top: 8px;
       max-width: 100%;
-      max-height: 150px;
+      max-height: 120px;
       border-radius: 8px;
       display: none;
     }
-    .image-preview.visible {
+    .split-left .image-preview.visible {
       display: block;
     }
 
-    .btn-primary {
+    .split-left .btn-publish {
       background: linear-gradient(135deg, #f093fb, #f5576c);
       border: none;
       color: #fff;
@@ -367,14 +457,42 @@
       cursor: pointer;
       transition: all 0.3s;
       width: 100%;
-      justify-content: center;
+      margin-top: 8px;
     }
-    .btn-primary:hover {
+    .split-left .btn-publish:hover {
       transform: scale(1.02);
       box-shadow: 0 8px 32px rgba(245, 87, 108, 0.4);
     }
 
-    /* ===== POPUP ===== */
+    /* ===== RIGHT SIDE: Live Preview ===== */
+    .split-right {
+      width: 50%;
+      height: 100%;
+      overflow-y: auto;
+      padding: 32px 36px;
+      background: rgba(0, 0, 0, 0.15);
+    }
+
+    .split-right .preview-label {
+      color: rgba(255, 255, 255, 0.3);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+
+    .split-right .live-preview {
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      min-height: 200px;
+      color: #e2e8f0;
+    }
+
+    /* ============================================================ */
+    /* ===== POPUP (Notifications) ===== */
+    /* ============================================================ */
     .popup-overlay {
       position: fixed;
       top: 0;
@@ -387,7 +505,7 @@
       display: none;
       align-items: center;
       justify-content: center;
-      z-index: 2000;
+      z-index: 3000;
       padding: 24px;
     }
     .popup-overlay.active {
@@ -400,21 +518,13 @@
       border-radius: 32px;
       max-width: 480px;
       width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
       border: 1px solid rgba(255, 255, 255, 0.10);
       box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
       padding: 32px 36px;
       animation: popupFade 0.35s ease;
       text-align: center;
-    }
-    @keyframes popupFade {
-      0% {
-        opacity: 0;
-        transform: scale(0.9) translateY(20px);
-      }
-      100% {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-      }
     }
     .popup-icon {
       font-size: 3rem;
@@ -467,7 +577,9 @@
       gap: 12px;
     }
 
+    /* ============================================================ */
     /* ===== LOADING & EMPTY ===== */
+    /* ============================================================ */
     .loading {
       text-align: center;
       padding: 60px 20px;
@@ -518,7 +630,58 @@
       color: #f5576c;
     }
 
+    /* ============================================================ */
+    /* ===== SCROLLBAR ===== */
+    /* ============================================================ */
+    .modal::-webkit-scrollbar,
+    .split-left::-webkit-scrollbar,
+    .split-right::-webkit-scrollbar,
+    .preview-popup::-webkit-scrollbar {
+      width: 6px;
+    }
+    .modal::-webkit-scrollbar-track,
+    .split-left::-webkit-scrollbar-track,
+    .split-right::-webkit-scrollbar-track,
+    .preview-popup::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 10px;
+    }
+    .modal::-webkit-scrollbar-thumb,
+    .split-left::-webkit-scrollbar-thumb,
+    .split-right::-webkit-scrollbar-thumb,
+    .preview-popup::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+    }
+    .modal::-webkit-scrollbar-thumb:hover,
+    .split-left::-webkit-scrollbar-thumb:hover,
+    .split-right::-webkit-scrollbar-thumb:hover,
+    .preview-popup::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    /* ============================================================ */
     /* ===== RESPONSIVE ===== */
+    /* ============================================================ */
+    @media (max-width: 1024px) {
+      .split-container {
+        flex-direction: column;
+      }
+      .split-left,
+      .split-right {
+        width: 100%;
+        height: 50%;
+        padding: 20px;
+      }
+      .split-left {
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      }
+      .split-right .live-preview {
+        min-height: 100px;
+      }
+    }
+
     @media (max-width: 768px) {
       body {
         padding: 16px;
@@ -539,11 +702,11 @@
         grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
         gap: 18px;
       }
-      .modal {
+      .preview-popup {
         padding: 20px 18px;
         margin: 12px;
       }
-      .modal-header h2 {
+      .preview-popup .preview-header h2 {
         font-size: 1.2rem;
       }
       .header-actions {
@@ -555,6 +718,16 @@
         padding: 8px 16px;
         font-size: 0.8rem;
       }
+      .split-left,
+      .split-right {
+        padding: 16px;
+        height: 50%;
+      }
+      .split-left .form-group input,
+      .split-left .form-group textarea,
+      .split-left .form-group select {
+        font-size: 0.9rem;
+      }
       .popup {
         padding: 24px 20px;
       }
@@ -564,14 +737,15 @@
       .popup .popup-btn-secondary {
         margin-left: 0;
       }
-      .image-upload-wrapper {
+      .split-left .image-upload-wrapper {
         flex-wrap: wrap;
       }
-      .btn-upload {
+      .split-left .btn-upload {
         width: 100%;
         padding: 10px;
       }
     }
+
     @media (max-width: 480px) {
       .templates-grid {
         grid-template-columns: 1fr 1fr;
@@ -586,32 +760,29 @@
       .template-card .info h3 {
         font-size: 1rem;
       }
+      .template-card .info .card-actions {
+        flex-direction: column;
+      }
+      .template-card .info .card-actions .btn {
+        flex: 1 1 100%;
+      }
       .header-actions {
         flex-wrap: wrap;
       }
       .btn {
         flex: 1 1 100%;
       }
+      .split-left,
+      .split-right {
+        height: 50%;
+        padding: 12px;
+      }
     }
+
     @media (max-width: 380px) {
       .templates-grid {
         grid-template-columns: 1fr;
       }
-    }
-
-    .modal::-webkit-scrollbar {
-      width: 6px;
-    }
-    .modal::-webkit-scrollbar-track {
-      background: rgba(255, 255, 255, 0.04);
-      border-radius: 10px;
-    }
-    .modal::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.15);
-      border-radius: 10px;
-    }
-    .modal::-webkit-scrollbar-thumb:hover {
-      background: rgba(255, 255, 255, 0.25);
     }
   </style>
 </head>
@@ -625,7 +796,7 @@
       </div>
       <div class="header-actions" id="auth-section">
         <button class="btn" id="auth-btn" onclick="handleAuth()">🔑 Login</button>
-        <a href="dashboard" class="btn" id="mySites">📊 My Sites</a>
+        <a href="dashboard.html" class="btn" id="mySites" style="display:none;">📊 My Sites</a>
       </div>
     </header>
 
@@ -635,25 +806,57 @@
     </div>
   </div>
 
-  <!-- ===== MODAL: Customize Template ===== -->
-  <div id="customize-modal" class="modal-overlay" onclick="if(event.target===this) closeCustomizeModal()">
-    <div class="modal">
-      <div class="modal-header">
-        <h2 id="modal-title">✏️ Customize Your Site</h2>
-        <button class="modal-close" onclick="closeCustomizeModal()">✕ Close</button>
+  <!-- ============================================================ -->
+  <!-- ===== PREVIEW POPUP ===== -->
+  <!-- ============================================================ -->
+  <div id="preview-overlay" class="preview-overlay" onclick="if(event.target===this) closePreview()">
+    <div class="preview-popup">
+      <div class="preview-header">
+        <h2 id="preview-title">👁️ Preview</h2>
+        <button class="btn-close" onclick="closePreview()">✕ Close</button>
       </div>
-      <div class="modal-body" id="modal-body">
-        <!-- يتم تعبئته ديناميكياً -->
+      <div class="preview-body">
+        <div class="template-display" id="preview-content">
+          <p style="color:rgba(255,255,255,0.3);">Loading preview...</p>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- ===== POPUP ===== -->
+  <!-- ============================================================ -->
+  <!-- ===== SPLIT SCREEN (Use Template) ===== -->
+  <!-- ============================================================ -->
+  <div id="split-overlay" class="split-overlay">
+    <div class="split-container">
+      <!-- LEFT: Form -->
+      <div class="split-left">
+        <div class="split-header">
+          <h2>✏️ Customize Your Site</h2>
+          <button class="btn-close-split" onclick="closeSplit()">✕ Close</button>
+        </div>
+        <div id="split-form">
+          <p style="color:rgba(255,255,255,0.3);">Loading form...</p>
+        </div>
+      </div>
+
+      <!-- RIGHT: Live Preview -->
+      <div class="split-right">
+        <div class="preview-label">🔮 Live Preview</div>
+        <div class="live-preview" id="live-preview">
+          <p style="color:rgba(255,255,255,0.3);">Your template will appear here as you type...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- ===== POPUP (Notifications) ===== -->
+  <!-- ============================================================ -->
   <div id="popup" class="popup-overlay" onclick="if(event.target===this) closePopup()">
     <div class="popup">
       <div class="popup-icon" id="popup-icon">✅</div>
       <h3 id="popup-title">Success!</h3>
-      <p id="popup-message">Your site has been published.</p>
+      <p id="popup-message">Operation completed.</p>
       <div class="popup-actions">
         <button class="popup-btn" id="popup-btn-primary" onclick="closePopup()">OK</button>
         <button class="popup-btn-secondary" id="popup-btn-secondary" style="display:none;" onclick="closePopup()">Cancel</button>
@@ -682,7 +885,6 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZoZ3N6b3B1d25ybmlqeHZnaGt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMzQ1MTUsImV4cCI6MjA5OTYxMDUxNX0.K2WVDxjRh6JC51nZHdJpR2l8kjS1jhXJ9EkmQ5ElPtQ';
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // ===== Site URL =====
     const SITE_URL = window.location.origin + window.location.pathname;
 
     // ============================================================
@@ -690,24 +892,29 @@
     // ============================================================
     const grid = document.getElementById('templates-grid');
     const authBtn = document.getElementById('auth-btn');
-    const modalOverlay = document.getElementById('customize-modal');
-    const modalBody = document.getElementById('modal-body');
-    const modalTitle = document.getElementById('modal-title');
+    const mySites = document.getElementById('mySites');
     const popup = document.getElementById('popup');
     const popupIcon = document.getElementById('popup-icon');
     const popupTitle = document.getElementById('popup-title');
     const popupMessage = document.getElementById('popup-message');
     const popupBtnPrimary = document.getElementById('popup-btn-primary');
     const popupBtnSecondary = document.getElementById('popup-btn-secondary');
-    const mySite = document.getElementById('mySite');
+
+    const previewOverlay = document.getElementById('preview-overlay');
+    const previewTitle = document.getElementById('preview-title');
+    const previewContent = document.getElementById('preview-content');
+
+    const splitOverlay = document.getElementById('split-overlay');
+    const splitForm = document.getElementById('split-form');
+    const livePreview = document.getElementById('live-preview');
 
     let currentUser = null;
     let selectedTemplate = null;
+    let currentTemplateFields = null;
 
     // ============================================================
-    // ===== POPUP FUNCTIONS =====
+    // ===== POPUP =====
     // ============================================================
-
     window.showPopup = function({
       icon = '✅',
       title = 'Success!',
@@ -724,9 +931,7 @@
 
       popupBtnPrimary.onclick = () => {
         closePopup();
-        if (primaryAction && typeof primaryAction === 'function') {
-          primaryAction();
-        }
+        if (primaryAction) primaryAction();
       };
 
       if (secondaryText && secondaryAction) {
@@ -734,9 +939,7 @@
         popupBtnSecondary.textContent = secondaryText;
         popupBtnSecondary.onclick = () => {
           closePopup();
-          if (secondaryAction && typeof secondaryAction === 'function') {
-            secondaryAction();
-          }
+          if (secondaryAction) secondaryAction();
         };
       } else {
         popupBtnSecondary.style.display = 'none';
@@ -750,77 +953,107 @@
     };
 
     // ============================================================
-    // ===== AUTH FUNCTIONS =====
+    // ===== PREVIEW =====
     // ============================================================
+    async function openPreview(slug) {
+      try {
+        const { data: template, error } = await supabase
+          .from('templates')
+          .select('*')
+          .eq('slug', slug)
+          .single();
 
-    window.handleAuth = async function() {
-      if (currentUser) {
-        await supabase.auth.signOut();
-        location.reload();
-        return;
-      }
+        if (error) throw error;
 
-      showPopup({
-        icon: '📧',
-        title: 'Sign in with Email',
-        message: 'Enter your email to receive a magic link:',
-        primaryText: 'Send Magic Link ✨',
-        primaryAction: async () => {
-          const email = prompt('Enter your email:');
-          if (!email) return;
+        previewTitle.textContent = `👁️ ${template.name}`;
 
-          const { error } = await supabase.auth.signInWithOtp({
-            email: email,
-            options: {
-              emailRedirectTo: SITE_URL
-            }
-          });
-
-          if (error) {
-            showPopup({
-              icon: '❌',
-              title: 'Error',
-              message: error.message,
-              primaryText: 'Try Again'
-            });
-          } else {
-            showPopup({
-              icon: '✅',
-              title: 'Magic Link Sent!',
-              message: 'Check your email for the magic link.',
-              primaryText: 'OK'
-            });
-          }
+        // Render HTML with default values or placeholders
+        let html = template.html || '<p>No content</p>';
+        const fields = template.fields || {};
+        for (const [key, config] of Object.entries(fields)) {
+          const value = config.default || `[${key}]`;
+          html = html.replace(new RegExp(`{{${key}}}`, 'g'), value);
         }
-      });
-    };
 
-    // ===== Check Auth =====
-    async function checkAuth() {
-      const { data: { session } } = await supabase.auth.getSession();
+        previewContent.innerHTML = html;
 
-      if (session) {
-        currentUser = session.user;
-        const name = session.user.user_metadata?.full_name || session.user.email || 'User';
-        authBtn.textContent = `${name.split('@')[0]}`;
-        mySite.style.display = 'flex-inline';
-      } else {
-        currentUser = null;
-        authBtn.textContent = 'Login';
-        mySite.style.display = 'none';
+        // Inject CSS if any
+        if (template.css) {
+          const style = document.createElement('style');
+          style.id = 'preview-style';
+          style.textContent = template.css;
+          document.head.appendChild(style);
+        }
+
+        previewOverlay.classList.add('active');
+
+      } catch (err) {
+        showPopup({ icon: '❌', title: 'Error', message: err.message, primaryText: 'OK' });
       }
     }
 
-    // ============================================================
-    // ===== BUILD FORM FROM FIELDS =====
-    // ============================================================
+    window.closePreview = function() {
+      previewOverlay.classList.remove('active');
+      document.getElementById('preview-style')?.remove();
+    };
 
-    function buildFormFromFields(fields) {
-      if (!fields || typeof fields !== 'object') {
-        return '<p style="color:rgba(255,255,255,0.4);">No customization fields available.</p>';
+    // ============================================================
+    // ===== SPLIT SCREEN (Use Template) =====
+    // ============================================================
+    window.openSplit = async function(slug) {
+      if (!currentUser) {
+        showPopup({
+          icon: '🔒',
+          title: 'Please Sign In',
+          message: 'You need to sign in first to create your site.',
+          primaryText: 'Sign In',
+          primaryAction: () => handleAuth()
+        });
+        return;
       }
 
-      let html = '';
+      try {
+        const { data: template, error } = await supabase
+          .from('templates')
+          .select('*')
+          .eq('slug', slug)
+          .single();
+
+        if (error) throw error;
+        selectedTemplate = template;
+        currentTemplateFields = template.fields || {};
+
+        // Build form
+        buildSplitForm(template);
+
+        // Initial preview
+        updateLivePreview();
+
+        splitOverlay.classList.add('active');
+
+      } catch (err) {
+        showPopup({ icon: '❌', title: 'Error', message: err.message, primaryText: 'OK' });
+      }
+    };
+
+    window.closeSplit = function() {
+      splitOverlay.classList.remove('active');
+      document.getElementById('split-style')?.remove();
+    };
+
+    // ===== Build Split Form =====
+    function buildSplitForm(template) {
+      const fields = template.fields || {};
+      let html = `
+        <form id="split-site-form">
+          <div class="form-group">
+            <label>Your Site Name (username)</label>
+            <input type="text" id="split-site-slug" 
+                   value="${currentUser?.user_metadata?.username || currentUser?.email?.split('@')[0] || 'my-site'}" 
+                   placeholder="my-site" required />
+            <small>This will be your site URL: <span id="split-slug-preview">my-site</span>.html</small>
+          </div>
+      `;
 
       for (const [key, config] of Object.entries(fields)) {
         const { type, label, default: defaultValue, placeholder, required, options } = config;
@@ -833,10 +1066,11 @@
               <div class="form-group">
                 <label>${label} ${required ? '*' : ''}</label>
                 <input type="${type === 'url' ? 'url' : type === 'color' ? 'color' : 'text'}" 
-                       id="field-${key}" 
+                       id="split-field-${key}" 
                        value="${defaultValue || ''}" 
                        placeholder="${placeholder || ''}" 
-                       ${required ? 'required' : ''} />
+                       ${required ? 'required' : ''}
+                       oninput="window.updateLivePreview()" />
               </div>
             `;
             break;
@@ -845,9 +1079,10 @@
             html += `
               <div class="form-group">
                 <label>${label} ${required ? '*' : ''}</label>
-                <textarea id="field-${key}" 
+                <textarea id="split-field-${key}" 
                           placeholder="${placeholder || ''}" 
-                          ${required ? 'required' : ''}>${defaultValue || ''}</textarea>
+                          ${required ? 'required' : ''}
+                          oninput="window.updateLivePreview()">${defaultValue || ''}</textarea>
               </div>
             `;
             break;
@@ -856,7 +1091,9 @@
             html += `
               <div class="form-group">
                 <label>${label} ${required ? '*' : ''}</label>
-                <select id="field-${key}" ${required ? 'required' : ''}>
+                <select id="split-field-${key}" 
+                        ${required ? 'required' : ''}
+                        onchange="window.updateLivePreview()">
                   ${options.map(opt => `
                     <option value="${opt}" ${opt === defaultValue ? 'selected' : ''}>${opt}</option>
                   `).join('')}
@@ -870,13 +1107,14 @@
               <div class="form-group">
                 <label>${label} ${required ? '*' : ''}</label>
                 <div class="image-upload-wrapper">
-                  <input type="text" id="field-${key}" 
+                  <input type="text" id="split-field-${key}" 
                          value="${defaultValue || ''}" 
                          placeholder="${placeholder || 'https://...'}" 
-                         ${required ? 'required' : ''} />
-                  <button type="button" class="btn-upload" onclick="window.uploadImage('${key}')">📤 Upload</button>
+                         ${required ? 'required' : ''}
+                         oninput="window.updateLivePreview()" />
+                  <button type="button" class="btn-upload" onclick="window.uploadSplitImage('${key}')">📤 Upload</button>
                 </div>
-                <img id="preview-${key}" class="image-preview ${defaultValue ? 'visible' : ''}" 
+                <img id="split-preview-${key}" class="image-preview ${defaultValue ? 'visible' : ''}" 
                      src="${defaultValue || ''}" alt="Preview" />
               </div>
             `;
@@ -886,47 +1124,105 @@
             html += `
               <div class="form-group">
                 <label>${label} ${required ? '*' : ''}</label>
-                <input type="text" id="field-${key}" value="${defaultValue || ''}" placeholder="${placeholder || ''}" />
+                <input type="text" id="split-field-${key}" 
+                       value="${defaultValue || ''}" 
+                       placeholder="${placeholder || ''}"
+                       oninput="window.updateLivePreview()" />
               </div>
             `;
         }
       }
 
-      return html;
+      html += `
+          <button type="submit" class="btn-publish">🚀 Publish My Site</button>
+        </form>
+      `;
+
+      splitForm.innerHTML = html;
+
+      // Slug preview
+      const slugInput = document.getElementById('split-site-slug');
+      const slugPreview = document.getElementById('split-slug-preview');
+      slugInput?.addEventListener('input', () => {
+        slugPreview.textContent = slugInput.value || 'my-site';
+        window.updateLivePreview();
+      });
+
+      // Form submit
+      document.getElementById('split-site-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await publishFromSplit();
+      });
     }
 
-    // ============================================================
-    // ===== UPLOAD IMAGE =====
-    // ============================================================
+    // ===== Live Preview Update =====
+    window.updateLivePreview = function() {
+      if (!selectedTemplate) return;
 
-    window.uploadImage = async function(fieldKey) {
-      // Create a file input dynamically
+      const fields = currentTemplateFields || {};
+      const data = {};
+
+      for (const [key] of Object.entries(fields)) {
+        const input = document.getElementById(`split-field-${key}`);
+        if (input) {
+          data[key] = input.value.trim();
+        }
+      }
+
+      let html = selectedTemplate.html || '<p>No content</p>';
+      for (const [key, value] of Object.entries(data)) {
+        html = html.replace(new RegExp(`{{${key}}}`, 'g'), value || `[${key}]`);
+      }
+
+      // Also replace slug
+      const slugInput = document.getElementById('split-site-slug');
+      const slug = slugInput?.value || 'my-site';
+      html = html.replace(/\{\{site_slug\}\}/g, slug);
+
+      livePreview.innerHTML = html;
+
+      // Inject CSS
+      document.getElementById('split-style')?.remove();
+      if (selectedTemplate.css) {
+        const style = document.createElement('style');
+        style.id = 'split-style';
+        style.textContent = selectedTemplate.css;
+        document.head.appendChild(style);
+      }
+
+      // Execute JS (safe)
+      if (selectedTemplate.js) {
+        try {
+          const fn = new Function(`const templateData = ${JSON.stringify(data)}; ${selectedTemplate.js}`);
+          fn();
+        } catch (e) {
+          console.warn('JS execution error:', e);
+        }
+      }
+    };
+
+    // ===== Upload Image in Split =====
+    window.uploadSplitImage = async function(fieldKey) {
       const fileInput = document.createElement('input');
       fileInput.type = 'file';
       fileInput.accept = 'image/*';
       fileInput.style.display = 'none';
       document.body.appendChild(fileInput);
-
       fileInput.click();
 
       fileInput.onchange = async function() {
         const file = this.files[0];
         if (!file) return;
 
-        const fieldInput = document.getElementById(`field-${fieldKey}`);
-        const preview = document.getElementById(`preview-${fieldKey}`);
+        const fieldInput = document.getElementById(`split-field-${fieldKey}`);
+        const preview = document.getElementById(`split-preview-${fieldKey}`);
 
         const { data, error } = await supabase.storage
           .from('templates-images')
           .upload(`${Date.now()}-${file.name}`, file);
 
         if (error) {
-          showPopup({
-            icon: '❌',
-            title: 'Upload Failed',
-            message: error.message,
-            primaryText: 'OK'
-          });
+          showPopup({ icon: '❌', title: 'Upload Failed', message: error.message, primaryText: 'OK' });
           return;
         }
 
@@ -937,32 +1233,109 @@
         fieldInput.value = urlData.publicUrl;
         preview.src = urlData.publicUrl;
         preview.classList.add('visible');
-
         document.body.removeChild(fileInput);
+        window.updateLivePreview();
       };
     };
 
-    // ============================================================
-    // ===== COLLECT FIELD DATA =====
-    // ============================================================
-
-    function collectFieldData(fields) {
-      const data = {};
-
-      for (const [key, config] of Object.entries(fields)) {
-        const { type } = config;
-        const input = document.getElementById(`field-${key}`);
-
-        if (!input) continue;
-
-        if (type === 'select') {
-          data[key] = input.value;
-        } else {
-          data[key] = input.value.trim();
-        }
+    // ===== Publish from Split =====
+    async function publishFromSplit() {
+      const slug = document.getElementById('split-site-slug').value.trim();
+      if (!slug) {
+        showPopup({ icon: '⚠️', title: 'Missing Name', message: 'Please enter a site name.', primaryText: 'OK' });
+        return;
       }
 
-      return data;
+      const fields = currentTemplateFields || {};
+      const data = {};
+
+      for (const [key] of Object.entries(fields)) {
+        const input = document.getElementById(`split-field-${key}`);
+        if (input) data[key] = input.value.trim();
+      }
+
+      let html = selectedTemplate.html;
+      for (const [key, value] of Object.entries(data)) {
+        html = html.replace(new RegExp(`{{${key}}}`, 'g'), value);
+      }
+      html = html.replace(/\{\{site_slug\}\}/g, slug);
+
+      try {
+        const { error: saveError } = await supabase
+          .from('sites')
+          .upsert({
+            user_id: currentUser.id,
+            template_id: selectedTemplate.id,
+            slug: slug,
+            title: data.title || slug,
+            data: data,
+            html: html,
+            published: true,
+            published_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }, {
+            onConflict: 'user_id, template_id'
+          });
+
+        if (saveError) throw saveError;
+
+        const siteUrl = `${SITE_URL}site.html?slug=${slug}`;
+
+        showPopup({
+          icon: '🎉',
+          title: 'Site Published!',
+          message: `Your site is live at:\n${siteUrl}`,
+          primaryText: '🔗 Open Site',
+          primaryAction: () => window.open(siteUrl, '_blank'),
+          secondaryText: 'OK',
+          secondaryAction: () => {}
+        });
+
+        closeSplit();
+
+      } catch (err) {
+        showPopup({ icon: '❌', title: 'Publish Error', message: err.message, primaryText: 'OK' });
+      }
+    }
+
+    // ============================================================
+    // ===== AUTH =====
+    // ============================================================
+    window.handleAuth = async function() {
+      if (currentUser) {
+        await supabase.auth.signOut();
+        location.reload();
+        return;
+      }
+
+      const email = prompt('Enter your email:');
+      if (!email) return;
+
+      const { error } = await supabase.auth.signInWithOtp({
+        email: email,
+        options: { emailRedirectTo: SITE_URL }
+      });
+
+      if (error) {
+        showPopup({ icon: '❌', title: 'Error', message: error.message, primaryText: 'OK' });
+      } else {
+        showPopup({ icon: '✅', title: 'Magic Link Sent!', message: 'Check your email.', primaryText: 'OK' });
+      }
+    };
+
+    async function checkAuth() {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (session) {
+        currentUser = session.user;
+        const name = session.user.user_metadata?.full_name || session.user.email || 'User';
+        authBtn.textContent = `👤 ${name.split('@')[0]}`;
+        mySites.style.display = 'inline-flex';
+      } else {
+        currentUser = null;
+        authBtn.textContent = '🔑 Login';
+        mySites.style.display = 'none';
+      }
     }
 
     // ============================================================
@@ -998,9 +1371,10 @@
               <div class="info">
                 <h3>${tpl.name}</h3>
                 <span class="id-badge">#${tpl.slug}</span>
-                <button class="btn-use" onclick="window.useTemplate('${tpl.slug}')">
-                  ✨ Use this template
-                </button>
+                <div class="card-actions">
+                  <button class="btn btn-preview" onclick="openPreview('${tpl.slug}')">👁️ Preview</button>
+                  <button class="btn btn-use" onclick="openSplit('${tpl.slug}')">🚀 Use Template</button>
+                </div>
               </div>
             </div>
           `;
@@ -1014,151 +1388,19 @@
     }
 
     // ============================================================
-    // ===== USE TEMPLATE (Open Modal) =====
-    // ============================================================
-    window.useTemplate = async function(slug) {
-      if (!currentUser) {
-        showPopup({
-          icon: '🔒',
-          title: 'Please Sign In',
-          message: 'You need to sign in first to create your site.',
-          primaryText: 'Sign In',
-          primaryAction: () => {
-            window.handleAuth();
-          }
-        });
-        return;
-      }
-
-      try {
-        const { data: template, error } = await supabase
-          .from('templates')
-          .select('*')
-          .eq('slug', slug)
-          .single();
-
-        if (error) throw error;
-        selectedTemplate = template;
-
-        const fields = template.fields || {};
-
-        let formHtml = `
-          <form id="site-form">
-            <div class="form-group">
-              <label>Your Site Name (username)</label>
-              <input type="text" id="site-slug" 
-                     value="${currentUser.user_metadata?.username || currentUser.email.split('@')[0]}" 
-                     placeholder="my-site" required />
-              <small>This will be your site URL: <span id="slug-preview">your-site</span>.html</small>
-            </div>
-            ${buildFormFromFields(fields)}
-            <button type="submit" class="btn-primary">🚀 Publish My Site</button>
-          </form>
-        `;
-
-        modalBody.innerHTML = formHtml;
-        modalTitle.textContent = `✏️ ${template.name}`;
-        modalOverlay.classList.add('active');
-
-        const slugInput = document.getElementById('site-slug');
-        const slugPreview = document.getElementById('slug-preview');
-        slugInput?.addEventListener('input', () => {
-          slugPreview.textContent = slugInput.value || 'your-site';
-        });
-        slugPreview.textContent = slugInput?.value || 'your-site';
-
-        document.getElementById('site-form').addEventListener('submit', async (e) => {
-          e.preventDefault();
-          await publishSite(template);
-        });
-
-      } catch (err) {
-        console.error(err);
-        showPopup({
-          icon: '❌',
-          title: 'Error',
-          message: err.message,
-          primaryText: 'OK'
-        });
-      }
-    };
-
-    window.closeCustomizeModal = function() {
-      modalOverlay.classList.remove('active');
-    };
-
-    // ============================================================
-    // ===== PUBLISH SITE =====
-    // ============================================================
-    async function publishSite(template) {
-      const slug = document.getElementById('site-slug').value.trim();
-      if (!slug) {
-        showPopup({
-          icon: '⚠️',
-          title: 'Missing Name',
-          message: 'Please enter a site name.',
-          primaryText: 'OK'
-        });
-        return;
-      }
-
-      const fields = template.fields || {};
-      const data = collectFieldData(fields);
-
-      let html = template.html;
-      for (const [key, value] of Object.entries(data)) {
-        html = html.replace(new RegExp(`{{${key}}}`, 'g'), value);
-      }
-
-      try {
-        const { error: saveError } = await supabase
-          .from('sites')
-          .upsert({
-            user_id: currentUser.id,
-            template_id: template.id,
-            slug: slug,
-            title: data.title || slug,
-            data: data,
-            html: html,
-            published: true,
-            published_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }, {
-            onConflict: 'user_id, template_id'
-          });
-
-        if (saveError) throw saveError;
-
-        const siteUrl = `${SITE_URL}site.html?slug=${slug}`;
-
-        showPopup({
-          icon: '🎉',
-          title: 'Site Published!',
-          message: `Your site is live at:\n${siteUrl}`,
-          primaryText: '🔗 Open Site',
-          primaryAction: () => {
-            window.open(siteUrl, '_blank');
-          },
-          secondaryText: 'OK',
-          secondaryAction: () => {}
-        });
-
-        closeCustomizeModal();
-
-      } catch (err) {
-        console.error(err);
-        showPopup({
-          icon: '❌',
-          title: 'Publish Error',
-          message: err.message,
-          primaryText: 'OK'
-        });
-      }
-    }
-
-    // ============================================================
     // ===== INIT =====
     // ============================================================
+    // Expose functions to global scope
+    window.openPreview = openPreview;
+    window.openSplit = openSplit;
+    window.closePreview = closePreview;
+    window.closeSplit = closeSplit;
+    window.handleAuth = handleAuth;
+    window.updateLivePreview = updateLivePreview;
+    window.uploadSplitImage = uploadSplitImage;
+    window.showPopup = showPopup;
+    window.closePopup = closePopup;
+
     await checkAuth();
     await loadTemplates();
   </script>
