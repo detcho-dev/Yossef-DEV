@@ -701,62 +701,92 @@
     // ============================================================
     // ===== SELECT PLAN =====
     // ============================================================
-    window.selectPlan = async function(plan) {
-      if (!currentUser) {
-        showPopup({
-          icon: '🔒',
-          title: 'Please Sign In',
-          message: 'You need to sign in to change your plan.',
-          primaryText: 'Sign In',
-          primaryAction: () => handleAuth()
-        });
-        return;
+    // ===== SELECT PLAN (مع Stripe) =====
+window.selectPlan = async function(plan) {
+  if (!currentUser) {
+    showPopup({
+      icon: '🔒',
+      title: 'Please Sign In',
+      message: 'You need to sign in to change your plan.',
+      primaryText: 'Sign In',
+      primaryAction: () => handleAuth()
+    });
+    return;
+  }
+
+  if (plan === currentPlan) {
+    showPopup({
+      icon: 'ℹ️',
+      title: 'Already on this plan',
+      message: `You are already on the ${plan} plan.`,
+      primaryText: 'OK'
+    });
+    return;
+  }
+
+  // ===== خطة Free =====
+  if (plan === 'free') {
+    // الرجوع للخطة المجانية (بدون دفع)
+    if (!confirm('Are you sure you want to downgrade to Free?')) return;
+
+    try {
+      await supabase
+        .from('profiles')
+        .update({ plan: 'free', updated_at: new Date().toISOString() })
+        .eq('id', currentUser.id);
+
+      currentPlan = 'free';
+      updateUI();
+
+      showPopup({
+        icon: '✅',
+        title: 'Plan Updated',
+        message: 'You are now on the Free plan.',
+        primaryText: 'OK'
+      });
+    } catch (err) {
+      showPopup({ icon: '❌', title: 'Error', message: err.message, primaryText: 'OK' });
+    }
+    return;
+  }
+
+  // ===== خطة مدفوعة (Pro / Business) =====
+  try {
+    const response = await fetch(
+      'https://fhgszopuwnrnijxvghku.supabase.co/functions/v1/create-checkout-session',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabaseKey}`
+        },
+        body: JSON.stringify({
+          plan: plan,
+          user_id: currentUser.id,
+          email: currentUser.email
+        })
       }
+    );
 
-      if (plan === currentPlan) {
-        showPopup({
-          icon: 'ℹ️',
-          title: 'Already on this plan',
-          message: `You are already on the ${plan} plan.`,
-          primaryText: 'OK'
-        });
-        return;
-      }
+    const result = await response.json();
 
-      // Confirm upgrade
-      const planNames = { free: 'Free', pro: 'Pro', business: 'Business' };
-      const confirmMsg = `Are you sure you want to upgrade to ${planNames[plan]} plan?`;
-      if (!confirm(confirmMsg)) return;
+    if (result.url) {
+      // توجيه المستخدم لصفحة الدفع
+      window.location.href = result.url;
+    } else {
+      throw new Error('No checkout URL returned');
+    }
 
-      try {
-        const { error } = await supabase
-          .from('profiles')
-          .update({ plan: plan, updated_at: new Date().toISOString() })
-          .eq('id', currentUser.id);
-
-        if (error) throw error;
-
-        currentPlan = plan;
-        updateUI();
-
-        showPopup({
-          icon: '🎉',
-          title: 'Plan Updated!',
-          message: `You are now on the ${planNames[plan]} plan.`,
-          primaryText: 'OK'
-        });
-
-      } catch (err) {
-        showPopup({
-          icon: '❌',
-          title: 'Error',
-          message: err.message,
-          primaryText: 'OK'
-        });
-        console.error('selectPlan error:', err);
-      }
-    };
-
+  } catch (err) {
+    showPopup({
+      icon: '❌',
+      title: 'Payment Error',
+      message: err.message,
+      primaryText: 'OK'
+    });
+    console.error('Stripe error:', err);
+  }
+};
     // ============================================================
     // ===== INIT =====
     // ============================================================
