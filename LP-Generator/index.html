@@ -625,6 +625,7 @@
       </div>
       <div class="header-actions" id="auth-section">
         <button class="btn" id="auth-btn" onclick="handleAuth()">🔑 Login</button>
+        <a href="dashboard.html" class="btn" id="mySites">📊 My Sites</a>
       </div>
     </header>
 
@@ -698,6 +699,7 @@
     const popupMessage = document.getElementById('popup-message');
     const popupBtnPrimary = document.getElementById('popup-btn-primary');
     const popupBtnSecondary = document.getElementById('popup-btn-secondary');
+    const mySite = document.getElementById('mySite');
 
     let currentUser = null;
     let selectedTemplate = null;
@@ -800,10 +802,12 @@
       if (session) {
         currentUser = session.user;
         const name = session.user.user_metadata?.full_name || session.user.email || 'User';
-        authBtn.textContent = `👤 ${name.split('@')[0]}`;
+        authBtn.textContent = `${name.split('@')[0]}`;
+        mySite.removeAttribute("disabled");
       } else {
         currentUser = null;
         authBtn.textContent = '🔑 Login';
+        mySite.setAttribute("disabled", "disabled");
       }
     }
 
