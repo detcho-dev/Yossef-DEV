@@ -702,6 +702,79 @@
     // ===== SELECT PLAN =====
     // ============================================================
     // ===== SELECT PLAN (مع Stripe) =====
+    // ===== تعريف الدالة في النطاق العام =====
+window.handleStripeReturn = async function() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const success = urlParams.get('success');
+  const sessionId = urlParams.get('session_id');
+  const canceled = urlParams.get('canceled');
+
+  console.log('🔍 URL Params:', { success, sessionId, canceled });
+
+  if (canceled) {
+    showPopup({
+      icon: 'ℹ️',
+      title: 'Payment Canceled',
+      message: 'You canceled the payment. You can try again anytime.',
+      primaryText: 'OK'
+    });
+    window.history.replaceState({}, '', window.location.pathname);
+    return;
+  }
+
+  if (success && sessionId) {
+    try {
+      const response = await fetch(`https://api.stripe.com/v1/checkout/sessions/${sessionId}`, {
+        headers: {
+          'Authorization': `Bearer sk_test_...` // استخدم الـ Secret Key
+        }
+      });
+      const session = await response.json();
+
+      const user_id = session.metadata?.user_id;
+      const plan = session.metadata?.plan;
+
+      if (user_id && plan) {
+        const { error } = await supabase
+          .from('profiles')
+          .update({
+            plan: plan,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', user_id);
+
+        if (error) throw error;
+
+        currentPlan = plan;
+        updateUI();
+
+        showPopup({
+          icon: '🎉',
+          title: 'Payment Successful!',
+          message: `You are now on the ${plan} plan.`,
+          primaryText: 'OK'
+        });
+      }
+
+      window.history.replaceState({}, '', window.location.pathname);
+
+    } catch (err) {
+      console.error('Error verifying payment:', err);
+      showPopup({
+        icon: '❌',
+        title: 'Error',
+        message: 'Could not verify payment. Please contact support.',
+        primaryText: 'OK'
+      });
+    }
+  }
+};
+
+// ===== في window.onload =====
+window.onload = function() {
+  checkAuth();
+  window.handleStripeReturn();
+};
 window.selectPlan = async function(plan) {
   if (!currentUser) {
     showPopup({
