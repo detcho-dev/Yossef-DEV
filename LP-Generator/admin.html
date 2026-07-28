@@ -110,6 +110,14 @@
       box-shadow: 0 8px 24px rgba(79, 172, 254, 0.3);
     }
 
+    .btn-success {
+      background: linear-gradient(135deg, #4ade80, #22c55e);
+      border: none;
+    }
+    .btn-success:hover {
+      box-shadow: 0 8px 24px rgba(74, 222, 128, 0.3);
+    }
+
     .btn-sm {
       padding: 6px 16px;
       font-size: 0.8rem;
@@ -217,6 +225,16 @@
     }
 
     .badge-free {
+      background: rgba(74, 222, 128, 0.10);
+      color: #4ade80;
+    }
+
+    .badge-paid {
+      background: rgba(251, 191, 36, 0.15);
+      color: #fbbf24;
+    }
+
+    .badge-free-plan {
       background: rgba(255, 255, 255, 0.06);
       color: rgba(255, 255, 255, 0.4);
     }
@@ -326,6 +344,12 @@
       gap: 14px;
     }
 
+    .form-row-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 14px;
+    }
+
     /* ===== POPUP ===== */
     .popup-overlay {
       position: fixed;
@@ -432,7 +456,8 @@
         flex: 1;
         justify-content: center;
       }
-      .form-row {
+      .form-row,
+      .form-row-3 {
         grid-template-columns: 1fr;
       }
       .tab-btn {
@@ -512,12 +537,28 @@
               <textarea id="tpl-js" placeholder="console.log('Hello');" style="min-height:80px;"></textarea>
             </div>
           </div>
-          <div class="form-group">
-            <label>Status</label>
-            <select id="tpl-active">
-              <option value="true">✅ Active</option>
-              <option value="false">❌ Inactive</option>
-            </select>
+          <div class="form-row-3">
+            <div class="form-group">
+              <label>Status</label>
+              <select id="tpl-active">
+                <option value="true">✅ Active</option>
+                <option value="false">❌ Inactive</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Plan Type</label>
+              <select id="tpl-free">
+                <option value="true">🆓 Free</option>
+                <option value="false">💎 Paid</option>
+              </select>
+            </div>
+            <div class="form-group" id="paid-plan-group">
+              <label>Required Plan (if Paid)</label>
+              <select id="tpl-required-plan">
+                <option value="pro">Pro</option>
+                <option value="business">Business</option>
+              </select>
+            </div>
           </div>
           <button type="submit" class="btn btn-primary">💾 Save Template</button>
         </form>
@@ -530,13 +571,14 @@
             <tr>
               <th>Name</th>
               <th>Slug</th>
+              <th>Type</th>
               <th>Fields</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody id="templates-tbody">
-            <tr><td colspan="5" class="loading">Loading templates...</td></tr>
+            <tr><td colspan="6" class="loading">Loading templates...</td></tr>
           </tbody>
         </table>
       </div>
@@ -662,7 +704,7 @@
 
     // ===== Load Templates =====
     async function loadTemplates() {
-      templatesTbody.innerHTML = '<tr><td colspan="5" class="loading">Loading templates...</td></tr>';
+      templatesTbody.innerHTML = '<tr><td colspan="6" class="loading">Loading templates...</td></tr>';
 
       try {
         const { data, error } = await supabase
@@ -673,7 +715,7 @@
         if (error) throw error;
 
         if (!data || data.length === 0) {
-          templatesTbody.innerHTML = '<tr><td colspan="5" class="empty-state">No templates found.</td></tr>';
+          templatesTbody.innerHTML = '<tr><td colspan="6" class="empty-state">No templates found.</td></tr>';
           return;
         }
 
@@ -683,16 +725,23 @@
           var statusBadge = tpl.is_active ? 'badge-active' : 'badge-inactive';
           var statusText = tpl.is_active ? 'Active' : 'Inactive';
 
+          var typeBadge = tpl.is_free ? 'badge-free' : 'badge-paid';
+          var typeText = tpl.is_free ? '🆓 Free' : '💎 Paid';
+
           html += `
             <tr>
               <td><strong>${tpl.name}</strong></td>
               <td><code style="color:rgba(255,255,255,0.5);">${tpl.slug}</code></td>
+              <td><span class="badge ${typeBadge}">${typeText}</span></td>
               <td>${fieldsCount} fields</td>
               <td><span class="badge ${statusBadge}">${statusText}</span></td>
               <td>
                 <div class="actions-cell">
                   <button class="btn btn-sm btn-warning" onclick="window.toggleTemplate('${tpl.id}', ${!tpl.is_active})">
                     ${tpl.is_active ? '🔴 Deactivate' : '🟢 Activate'}
+                  </button>
+                  <button class="btn btn-sm btn-success" onclick="window.toggleFree('${tpl.id}', ${!tpl.is_free})">
+                    ${tpl.is_free ? '💎 Make Paid' : '🆓 Make Free'}
                   </button>
                   <button class="btn btn-sm btn-danger" onclick="window.deleteTemplate('${tpl.id}')">🗑️</button>
                 </div>
@@ -705,7 +754,7 @@
 
       } catch (err) {
         console.error('Error loading templates:', err);
-        templatesTbody.innerHTML = `<tr><td colspan="5" style="color:#f87171;text-align:center;">❌ Error: ${err.message}</td></tr>`;
+        templatesTbody.innerHTML = `<tr><td colspan="6" style="color:#f87171;text-align:center;">❌ Error: ${err.message}</td></tr>`;
       }
     }
 
@@ -720,6 +769,7 @@
       var css = document.getElementById('tpl-css').value.trim();
       var js = document.getElementById('tpl-js').value.trim();
       var is_active = document.getElementById('tpl-active').value === 'true';
+      var is_free = document.getElementById('tpl-free').value === 'true';
 
       if (!name || !slug || !html) {
         showPopup({ icon: '⚠️', title: 'Missing Fields', message: 'Name, Slug, and HTML are required.', primaryText: 'OK' });
@@ -751,7 +801,8 @@
             css: css,
             js: js,
             fields: fields,
-            is_active: is_active
+            is_active: is_active,
+            is_free: is_free
           }]);
 
         if (error) throw error;
@@ -773,7 +824,7 @@
       }
     });
 
-    // ===== Toggle Template =====
+    // ===== Toggle Template Status =====
     window.toggleTemplate = async function(id, newStatus) {
       try {
         var { error } = await supabase
@@ -794,6 +845,30 @@
       } catch (err) {
         showPopup({ icon: '❌', title: 'Error', message: err.message, primaryText: 'OK' });
         console.error('Toggle template error:', err);
+      }
+    };
+
+    // ===== Toggle Free/Paid =====
+    window.toggleFree = async function(id, newFreeStatus) {
+      try {
+        var { error } = await supabase
+          .from('templates')
+          .update({ is_free: newFreeStatus })
+          .eq('id', id);
+
+        if (error) throw error;
+
+        loadTemplates();
+        showPopup({
+          icon: '✅',
+          title: 'Template Updated',
+          message: 'Template pricing type changed successfully.',
+          primaryText: 'OK'
+        });
+
+      } catch (err) {
+        showPopup({ icon: '❌', title: 'Error', message: err.message, primaryText: 'OK' });
+        console.error('Toggle free error:', err);
       }
     };
 
