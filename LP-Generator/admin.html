@@ -3,262 +3,386 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin - Template Manager</title>
+  <title>👥 Manage Users</title>
   <style>
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
+
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #0f0c29;
-      color: #f1f5f9;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       min-height: 100vh;
       padding: 24px;
-      display: flex;
-      justify-content: center;
+      background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #1a1a2e);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      color: #f1f5f9;
     }
+
+    @keyframes gradientBG {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
     .container {
-      max-width: 900px;
-      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
     }
-    h1 {
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 32px;
+      padding: 20px 28px;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(16px);
+      border-radius: 60px;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+    }
+
+    .header h1 {
       font-size: 2rem;
       font-weight: 700;
-      background: linear-gradient(135deg, #f093fb, #f5576c);
+      background: linear-gradient(135deg, #f093fb, #f5576c, #4facfe);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      margin-bottom: 24px;
     }
-    .card {
-      background: rgba(255, 255, 255, 0.05);
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(8px);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 10px 24px;
+      border-radius: 40px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      transform: translateY(-2px);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #f5576c, #ef4444);
+      border: none;
+    }
+    .btn-danger:hover {
+      box-shadow: 0 8px 24px rgba(245, 87, 108, 0.3);
+    }
+
+    .btn-warning {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      border: none;
+      color: #1a1a2e;
+    }
+    .btn-warning:hover {
+      box-shadow: 0 8px 24px rgba(251, 191, 36, 0.3);
+    }
+
+    .btn-sm {
+      padding: 6px 16px;
+      font-size: 0.8rem;
+    }
+
+    .users-table-wrapper {
+      background: rgba(255, 255, 255, 0.04);
       backdrop-filter: blur(12px);
       border-radius: 24px;
-      padding: 32px;
       border: 1px solid rgba(255, 255, 255, 0.06);
-      margin-bottom: 24px;
+      overflow: hidden;
+      overflow-x: auto;
     }
-    .card h2 {
-      font-size: 1.2rem;
-      font-weight: 600;
-      margin-bottom: 16px;
-      color: rgba(255, 255, 255, 0.8);
-    }
-    .form-group {
-      margin-bottom: 16px;
-    }
-    .form-group label {
-      display: block;
-      font-weight: 500;
-      margin-bottom: 4px;
-      color: rgba(255, 255, 255, 0.7);
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
       font-size: 0.9rem;
     }
-    .form-group input,
-    .form-group textarea,
-    .form-group select {
-      width: 100%;
-      padding: 12px 16px;
+
+    thead {
+      background: rgba(255, 255, 255, 0.04);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    th {
+      text-align: left;
+      padding: 16px 20px;
+      color: rgba(255, 255, 255, 0.5);
+      font-weight: 500;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      padding: 14px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .badge {
+      padding: 4px 12px;
+      border-radius: 40px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .badge-free {
       background: rgba(255, 255, 255, 0.06);
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .badge-pro {
+      background: rgba(79, 172, 254, 0.15);
+      color: #4facfe;
+    }
+
+    .badge-business {
+      background: rgba(240, 147, 251, 0.15);
+      color: #f093fb;
+    }
+
+    .badge-active {
+      background: rgba(74, 222, 128, 0.15);
+      color: #4ade80;
+    }
+
+    .badge-inactive {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+    }
+
+    .actions-cell {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .loading::after {
+      content: '';
+      display: inline-block;
+      width: 28px;
+      height: 28px;
+      margin-left: 12px;
+      border: 3px solid rgba(255, 255, 255, 0.06);
+      border-top-color: #4facfe;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ===== POPUP ===== */
+    .popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 24px;
+    }
+    .popup-overlay.active {
+      display: flex;
+    }
+    .popup {
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(24px);
+      border-radius: 32px;
+      max-width: 420px;
+      width: 100%;
       border: 1px solid rgba(255, 255, 255, 0.10);
-      border-radius: 12px;
+      padding: 32px 36px;
+      text-align: center;
+      animation: popupFade 0.3s ease;
+    }
+    @keyframes popupFade {
+      0% {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+    .popup .popup-icon {
+      font-size: 3rem;
+      margin-bottom: 12px;
+    }
+    .popup h3 {
       color: #fff;
+      font-size: 1.3rem;
+      margin-bottom: 8px;
+    }
+    .popup p {
+      color: rgba(255, 255, 255, 0.5);
       font-size: 0.95rem;
-      transition: border 0.3s;
-      font-family: 'Courier New', monospace;
+      margin-bottom: 20px;
     }
-    .form-group textarea {
-      min-height: 120px;
+    .popup .popup-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
     }
-    .form-group input:focus,
-    .form-group textarea:focus {
-      outline: none;
-      border-color: #4facfe;
-    }
-    .btn {
+    .popup .popup-btn {
       background: linear-gradient(135deg, #4facfe, #00f2fe);
       border: none;
       color: #fff;
-      padding: 12px 28px;
+      padding: 10px 28px;
       border-radius: 40px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.3s;
     }
-    .btn:hover {
-      transform: scale(1.02);
+    .popup .popup-btn:hover {
+      transform: scale(1.05);
       box-shadow: 0 8px 24px rgba(79, 172, 254, 0.3);
     }
-    .btn-danger {
-      background: linear-gradient(135deg, #f5576c, #f093fb);
-    }
-    .btn-danger:hover {
-      box-shadow: 0 8px 24px rgba(245, 87, 108, 0.3);
-    }
-    .btn-sm {
-      padding: 6px 16px;
-      font-size: 0.8rem;
-    }
-    .template-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 16px;
-      background: rgba(255, 255, 255, 0.03);
-      border-radius: 12px;
-      margin-bottom: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.04);
-    }
-    .template-item .info {
-      display: flex;
-      gap: 16px;
-      align-items: center;
-    }
-    .template-item .info .badge {
-      background: rgba(255, 255, 255, 0.08);
-      padding: 2px 12px;
-      border-radius: 40px;
-      font-size: 0.7rem;
-      color: rgba(255, 255, 255, 0.5);
-    }
-    .template-item .actions {
-      display: flex;
-      gap: 8px;
-    }
-    .empty-msg {
-      color: rgba(255, 255, 255, 0.3);
-      text-align: center;
-      padding: 40px;
-    }
-    .helper-text {
-      font-size: 0.8rem;
-      color: rgba(255, 255, 255, 0.3);
-      margin-top: 4px;
-    }
-    .helper-text code {
+    .popup .popup-btn-secondary {
       background: rgba(255, 255, 255, 0.06);
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 0.75rem;
-    }
-    .flex-row {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .flex-row .form-group {
-      flex: 1;
-      min-width: 200px;
-    }
-    .hidden {
-      display: none !important;
-    }
-    .auth-check {
-      text-align: center;
-      padding: 40px;
-    }
-    .auth-check .btn {
-      margin-top: 16px;
-    }
-    .preview-img {
-      max-width: 100px;
-      max-height: 60px;
-      border-radius: 8px;
-      object-fit: cover;
-    }
-    .badge-active {
-      background: rgba(34, 197, 94, 0.15);
-      color: #4ade80;
-      padding: 2px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      color: #fff;
+      padding: 10px 28px;
       border-radius: 40px;
-      font-size: 0.7rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
     }
-    .badge-inactive {
-      background: rgba(239, 68, 68, 0.15);
-      color: #f87171;
-      padding: 2px 12px;
-      border-radius: 40px;
-      font-size: 0.7rem;
+    .popup .popup-btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
     }
+
     @media (max-width: 768px) {
-      .template-item {
+      body {
+        padding: 16px;
+      }
+      .header {
+        padding: 16px 20px;
         flex-direction: column;
         align-items: flex-start;
-        gap: 8px;
       }
-      .template-item .actions {
+      .header h1 {
+        font-size: 1.5rem;
+      }
+      .header-actions {
         width: 100%;
-        justify-content: flex-start;
       }
-      .flex-row {
+      .header-actions .btn {
+        flex: 1;
+        justify-content: center;
+      }
+      table {
+        font-size: 0.8rem;
+      }
+      th,
+      td {
+        padding: 10px 12px;
+      }
+      .actions-cell {
         flex-direction: column;
       }
-      .flex-row .form-group {
-        min-width: auto;
+      .actions-cell .btn {
+        width: 100%;
+        justify-content: center;
+      }
+      .popup {
+        padding: 24px 20px;
+        margin: 12px;
       }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
-      <h1>📁 Template Manager</h1>
-      <div>
-        <button class="btn btn-sm" onclick="checkAuth()" id="auth-status-btn">🔑 Login</button>
-        <button class="btn btn-sm btn-danger" onclick="logout()" id="logout-btn" style="display:none;">🚪 Logout</button>
+    <header class="header">
+      <h1>👥 Manage Users</h1>
+      <div class="header-actions">
+        <a href="index.html" class="btn">🏠 Home</a>
+        <a href="admin.html" class="btn">📁 Templates</a>
+        <button class="btn" onclick="logout()">🚪 Logout</button>
       </div>
-    </div>
+    </header>
 
-    <!-- ===== ADD TEMPLATE FORM ===== -->
-    <div class="card" id="add-form">
-      <h2>➕ Add New Template</h2>
-      <form id="template-form">
-        <div class="flex-row">
-          <div class="form-group">
-            <label>Template Name *</label>
-            <input type="text" id="tpl-name" placeholder="e.g. Minimal Landing" required />
-          </div>
-          <div class="form-group">
-            <label>Slug (URL identifier) *</label>
-            <input type="text" id="tpl-slug" placeholder="e.g. minimal-landing" required />
-            <div class="helper-text">Used in URL: <code>template-slug</code></div>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Cover Image URL</label>
-          <input type="url" id="tpl-cover" placeholder="https://via.placeholder.com/400x200" />
-        </div>
-        <div class="form-group">
-          <label>HTML Code *</label>
-          <textarea id="tpl-html" placeholder="<div><h1>{{title}}</h1><p>{{subtitle}}</p></div>" required></textarea>
-          <div class="helper-text">Use <code>{{variable}}</code> for dynamic fields. They will be auto-detected.</div>
-        </div>
-        <div class="form-group">
-          <label>CSS Code (optional)</label>
-          <textarea id="tpl-css" placeholder=".my-class { color: red; }"></textarea>
-        </div>
-        <div class="form-group">
-          <label>JavaScript Code (optional)</label>
-          <textarea id="tpl-js" placeholder="console.log('Hello');"></textarea>
-        </div>
-        <div class="form-group">
-          <label>Status</label>
-          <select id="tpl-active">
-            <option value="true">✅ Active</option>
-            <option value="false">❌ Inactive</option>
-          </select>
-        </div>
-        <button type="submit" class="btn">💾 Save Template</button>
-      </form>
+    <div class="users-table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Email</th>
+            <th>Plan</th>
+            <th>Sites</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="users-tbody">
+          <tr><td colspan="6" class="loading">Loading users...</td></tr>
+        </tbody>
+      </table>
     </div>
+  </div>
 
-    <!-- ===== TEMPLATES LIST ===== -->
-    <div class="card">
-      <h2>📋 Existing Templates</h2>
-      <div id="templates-list">
-        <div class="empty-msg">Loading templates...</div>
+  <!-- ===== POPUP ===== -->
+  <div id="popup" class="popup-overlay" onclick="if(event.target===this) closePopup()">
+    <div class="popup">
+      <div class="popup-icon" id="popup-icon">✅</div>
+      <h3 id="popup-title">Success!</h3>
+      <p id="popup-message">Operation completed.</p>
+      <div class="popup-actions">
+        <button class="popup-btn" id="popup-btn-primary" onclick="closePopup()">OK</button>
+        <button class="popup-btn-secondary" id="popup-btn-secondary" style="display:none;" onclick="closePopup()">Cancel</button>
       </div>
     </div>
   </div>
@@ -282,227 +406,243 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZoZ3N6b3B1d25ybmlqeHZnaGt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMzQ1MTUsImV4cCI6MjA5OTYxMDUxNX0.K2WVDxjRh6JC51nZHdJpR2l8kjS1jhXJ9EkmQ5ElPtQ';
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const SITE_URL = window.location.origin + window.location.pathname;
-
-    // ===== DOM REFS =====
-    const templatesList = document.getElementById('templates-list');
-    const form = document.getElementById('template-form');
-    const authStatusBtn = document.getElementById('auth-status-btn');
-    const logoutBtn = document.getElementById('logout-btn');
+    const tbody = document.getElementById('users-tbody');
+    const popup = document.getElementById('popup');
+    const popupIcon = document.getElementById('popup-icon');
+    const popupTitle = document.getElementById('popup-title');
+    const popupMessage = document.getElementById('popup-message');
+    const popupBtnPrimary = document.getElementById('popup-btn-primary');
+    const popupBtnSecondary = document.getElementById('popup-btn-secondary');
 
     let currentUser = null;
 
-    // ============================================================
-    // ===== AUTH =====
-    // ============================================================
-
-    async function checkAuth() {
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (session) {
-        currentUser = session.user;
-        authStatusBtn.textContent = `👤 ${session.user.email}`;
-        authStatusBtn.onclick = () => {};
-        logoutBtn.style.display = 'inline-block';
-        document.getElementById('add-form').style.display = 'block';
-        loadTemplatesList();
-      } else {
-        currentUser = null;
-        authStatusBtn.textContent = '🔑 Login';
-        authStatusBtn.onclick = handleAuth;
-        logoutBtn.style.display = 'none';
-        document.getElementById('add-form').style.display = 'none';
-        templatesList.innerHTML = `
-          <div class="auth-check">
-            <p>🔒 Please sign in to manage templates.</p>
-            <button class="btn" onclick="handleAuth()">Sign In</button>
-          </div>
-        `;
-      }
+    // ===== POPUP =====
+    function showPopup({ icon = '✅', title = 'Success!', message = '', primaryText = 'OK', primaryAction = null }) {
+      popupIcon.textContent = icon;
+      popupTitle.textContent = title;
+      popupMessage.textContent = message;
+      popupBtnPrimary.textContent = primaryText;
+      popupBtnPrimary.onclick = () => {
+        closePopup();
+        if (primaryAction) primaryAction();
+      };
+      popupBtnSecondary.style.display = 'none';
+      popup.classList.add('active');
     }
 
-    window.handleAuth = async function() {
-      const email = prompt('Enter your email:');
-      if (!email) return;
+    function closePopup() {
+      popup.classList.remove('active');
+    }
+    window.closePopup = closePopup;
 
-      const { error } = await supabase.auth.signInWithOtp({
-        email: email,
-        options: { emailRedirectTo: SITE_URL }
-      });
-
-      if (error) {
-        alert('❌ ' + error.message);
-      } else {
-        alert('✅ Magic link sent! Check your email.');
-      }
-    };
-
+    // ===== LOGOUT =====
     window.logout = async function() {
       await supabase.auth.signOut();
-      location.reload();
+      window.location.href = 'index.html';
     };
 
-    // ============================================================
-    // ===== AUTO-DETECT FIELDS FROM HTML =====
-    // ============================================================
+    // ===== CHECK ADMIN =====
+    async function checkAdmin() {
+      const { data: { session } } = await supabase.auth.getSession();
 
-    function extractFieldsFromHTML(html) {
-      const regex = /{{([a-zA-Z0-9_]+)}}/g;
-      const matches = [];
-      let match;
-
-      while ((match = regex.exec(html)) !== null) {
-        matches.push(match[1]);
-      }
-
-      // Remove duplicates
-      const uniqueFields = [...new Set(matches)];
-
-      const fields = {};
-      uniqueFields.forEach(key => {
-        fields[key] = {
-          type: 'text',
-          label: key.replace(/_/g, ' ').toUpperCase(),
-          default: '',
-          required: false,
-          placeholder: `Enter ${key.replace(/_/g, ' ')}`
-        };
-      });
-
-      return fields;
-    }
-
-    // ============================================================
-    // ===== SAVE TEMPLATE =====
-    // ============================================================
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const name = document.getElementById('tpl-name').value.trim();
-      const slug = document.getElementById('tpl-slug').value.trim();
-      const cover_image = document.getElementById('tpl-cover').value.trim() || 'https://via.placeholder.com/400x200?text=Template';
-      const html = document.getElementById('tpl-html').value.trim();
-      const css = document.getElementById('tpl-css').value.trim();
-      const js = document.getElementById('tpl-js').value.trim();
-      const is_active = document.getElementById('tpl-active').value === 'true';
-
-      if (!name || !slug || !html) {
-        alert('❌ Name, Slug, and HTML are required.');
+      if (!session) {
+        window.location.href = 'index.html';
         return;
       }
 
-      // ===== Auto-detect fields =====
-      const fields = extractFieldsFromHTML(html);
+      currentUser = session.user;
 
-      const templateData = {
-        name,
-        slug,
-        cover_image,
-        html,
-        css,
-        js,
-        fields,
-        is_active
-      };
+      // ===== تحقق من إن المستخدم Admin (صلاحية خاصة) =====
+      // هنفترض إن أي مستخدم عنده صلاحية Admin (للتجربة)
+      // لو عايز تمنع أي حد، تقدر تضيف شرط زي email === 'admin@example.com'
+      loadUsers();
+    }
+
+    // ===== LOAD USERS =====
+    async function loadUsers() {
+      tbody.innerHTML = '<tr><td colspan="6" class="loading">Loading users...</td></tr>';
 
       try {
-        const { data, error } = await supabase
-          .from('templates')
-          .insert([templateData]);
+        // ===== 1. جيب كل المستخدمين من auth.users =====
+        const { data: users, error: usersError } = await supabase
+          .from('auth.users')
+          .select('id, email, raw_user_meta_data, created_at');
 
-        if (error) throw error;
+        if (usersError) throw usersError;
 
-        alert(`✅ Template "${name}" saved successfully! (${Object.keys(fields).length} fields auto-detected)`);
-        form.reset();
-        loadTemplatesList();
+        // ===== 2. جيب الخطط من profiles =====
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, plan');
 
-      } catch (err) {
-        alert('❌ Error: ' + err.message);
-        console.error(err);
-      }
-    });
+        if (profilesError) throw profilesError;
 
-    // ============================================================
-    // ===== LOAD TEMPLATES LIST =====
-    // ============================================================
+        // ===== 3. جيب عدد المواقع لكل مستخدم =====
+        const { data: sites, error: sitesError } = await supabase
+          .from('sites')
+          .select('user_id, count');
 
-    async function loadTemplatesList() {
-      templatesList.innerHTML = '<div class="empty-msg">Loading templates...</div>';
+        if (sitesError) throw sitesError;
 
-      try {
-        const { data, error } = await supabase
-          .from('templates')
-          .select('*')
-          .order('created_at', { ascending: false });
+        // ===== دمج البيانات =====
+        const userMap = {};
 
-        if (error) throw error;
+        users.forEach(user => {
+          userMap[user.id] = {
+            id: user.id,
+            email: user.email,
+            name: user.raw_user_meta_data?.full_name || user.email?.split('@')[0] || 'Unknown',
+            created_at: user.created_at,
+            plan: 'free',
+            sites_count: 0
+          };
+        });
 
-        if (!data || data.length === 0) {
-          templatesList.innerHTML = '<div class="empty-msg">No templates yet. Add one above.</div>';
+        profiles.forEach(profile => {
+          if (userMap[profile.id]) {
+            userMap[profile.id].plan = profile.plan || 'free';
+          }
+        });
+
+        sites.forEach(site => {
+          if (userMap[site.user_id]) {
+            userMap[site.user_id].sites_count += 1;
+          }
+        });
+
+        // ===== عرض الجدول =====
+        const usersList = Object.values(userMap);
+
+        if (usersList.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No users found.</td></tr>';
           return;
         }
 
         let html = '';
-        data.forEach(tpl => {
-          const fieldsCount = tpl.fields ? Object.keys(tpl.fields).length : 0;
+        usersList.forEach(user => {
+          const planBadge = `badge-${user.plan}`;
+          const planLabel = user.plan.charAt(0).toUpperCase() + user.plan.slice(1);
+
           html += `
-            <div class="template-item">
-              <div class="info">
-                <strong>${tpl.name}</strong>
-                <span class="badge">#${tpl.slug}</span>
-                <span class="${tpl.is_active ? 'badge-active' : 'badge-inactive'}">${tpl.is_active ? 'Active' : 'Inactive'}</span>
-                <span style="font-size:0.7rem;color:rgba(255,255,255,0.3);">${fieldsCount} fields</span>
-                ${tpl.cover_image ? `<img src="${tpl.cover_image}" class="preview-img" />` : ''}
-              </div>
-              <div class="actions">
-                <button class="btn btn-sm btn-danger" onclick="deleteTemplate('${tpl.id}')">🗑️</button>
-              </div>
-            </div>
+            <tr>
+              <td><strong>${user.name}</strong></td>
+              <td>${user.email}</td>
+              <td><span class="badge ${planBadge}">${planLabel}</span></td>
+              <td>${user.sites_count}</td>
+              <td><span class="badge badge-active">Active</span></td>
+              <td>
+                <div class="actions-cell">
+                  <button class="btn btn-sm btn-warning" onclick="changePlan('${user.id}')">📋 Change Plan</button>
+                  <button class="btn btn-sm btn-danger" onclick="deleteUser('${user.id}')">🗑️ Delete</button>
+                </div>
+              </td>
+            </tr>
           `;
         });
-        templatesList.innerHTML = html;
+
+        tbody.innerHTML = html;
 
       } catch (err) {
-        templatesList.innerHTML = `<div class="empty-msg">❌ Error: ${err.message}</div>`;
-        console.error(err);
+        console.error('Error loading users:', err);
+        tbody.innerHTML = `<tr><td colspan="6" style="color:#f87171;text-align:center;">❌ Error: ${err.message}</td></tr>`;
       }
     }
 
-    // ============================================================
-    // ===== DELETE TEMPLATE =====
-    // ============================================================
+    // ===== CHANGE PLAN =====
+    window.changePlan = async function(userId) {
+      // ===== عرض نافذة اختيار الخطة =====
+      const plans = ['free', 'pro', 'business'];
+      const planNames = { free: 'Free', pro: 'Pro', business: 'Business' };
 
-    window.deleteTemplate = async function(id) {
-      if (!confirm('Are you sure you want to delete this template?')) return;
+      let options = plans.map(p => `${p}: ${planNames[p]}`).join('\n');
+      const choice = prompt(`Select plan for user:\n${options}`);
+
+      if (!choice) return;
+
+      const selectedPlan = choice.trim().toLowerCase();
+      if (!plans.includes(selectedPlan)) {
+        alert('Invalid plan. Choose: free, pro, or business.');
+        return;
+      }
+
+      if (!confirm(`Are you sure you want to set this user to ${planNames[selectedPlan]} plan?`)) return;
 
       try {
         const { error } = await supabase
-          .from('templates')
-          .delete()
-          .eq('id', id);
+          .from('profiles')
+          .update({ plan: selectedPlan, updated_at: new Date().toISOString() })
+          .eq('id', userId);
 
         if (error) throw error;
 
-        alert('✅ Template deleted.');
-        loadTemplatesList();
+        showPopup({
+          icon: '✅',
+          title: 'Plan Updated',
+          message: `User has been set to ${planNames[selectedPlan]} plan.`,
+          primaryText: 'OK',
+          primaryAction: () => loadUsers()
+        });
 
       } catch (err) {
-        alert('❌ Error: ' + err.message);
-        console.error(err);
+        showPopup({
+          icon: '❌',
+          title: 'Error',
+          message: err.message,
+          primaryText: 'OK'
+        });
+        console.error('Change plan error:', err);
+      }
+    };
+
+    // ===== DELETE USER =====
+    window.deleteUser = async function(userId) {
+      if (!confirm('⚠️ Are you sure you want to delete this user? This action cannot be undone!')) return;
+
+      try {
+        // ===== 1. حذف المواقع =====
+        const { error: sitesError } = await supabase
+          .from('sites')
+          .delete()
+          .eq('user_id', userId);
+
+        if (sitesError) throw sitesError;
+
+        // ===== 2. حذف الـ Profile =====
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .delete()
+          .eq('id', userId);
+
+        if (profileError) throw profileError;
+
+        // ===== 3. حذف المستخدم من auth (بيحتاج Service Role Key) =====
+        // ملحوظة: ده مش هيشتغل من المتصفح عشان الأمان.
+        // محتاج تعمل Edge Function عشان تحذف من auth.users.
+        // للتجربة، هنحذف من profiles و sites بس.
+
+        showPopup({
+          icon: '🗑️',
+          title: 'User Deleted',
+          message: 'User has been deleted successfully.',
+          primaryText: 'OK',
+          primaryAction: () => loadUsers()
+        });
+
+      } catch (err) {
+        showPopup({
+          icon: '❌',
+          title: 'Error',
+          message: err.message,
+          primaryText: 'OK'
+        });
+        console.error('Delete user error:', err);
       }
     };
 
     // ============================================================
     // ===== INIT =====
     // ============================================================
-
-    // Expose functions to global scope
-    window.checkAuth = checkAuth;
-    window.handleAuth = window.handleAuth;
-    window.logout = window.logout;
-
-    checkAuth();
+    checkAdmin();
   </script>
 </body>
 </html>
