@@ -1032,6 +1032,66 @@ async function checkSiteLimit(userId) {
 }
 
     // ============================================================
+// ===== CHECK PUBLISH PERMISSION =====
+// ============================================================
+async function checkPublishPermission(userId) {
+  try {
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('plan')
+      .eq('id', userId)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error fetching profile:', error);
+      return { allowed: false, message: 'Error checking your plan.' };
+    }
+
+    const plan = profile?.plan || 'free';
+
+    // ===== الخطط المدفوعة بس هي اللي تسمح بالنشر =====
+    if (plan === 'free') {
+      return {
+        allowed: false,
+        message: '📢 Publishing is a premium feature. Please upgrade to Pro or Business plan to publish your site.'
+      };
+    }
+
+    // ===== للمستخدمين المدفوعين، تحقق من الحد الأقصى =====
+    const { count, error: countError } = await supabase
+      .from('sites')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('published', true);
+
+    if (countError) {
+      console.error('Error counting sites:', countError);
+      return { allowed: false, message: 'Error checking your sites.' };
+    }
+
+    const limits = {
+      pro: 5,
+      business: 50,
+    };
+
+    const maxSites = limits[plan] || 1;
+
+    if (count >= maxSites) {
+      return {
+        allowed: false,
+        message: `Your ${plan} plan allows only ${maxSites} published site${maxSites > 1 ? 's' : ''}. Please upgrade to publish more.`
+      };
+    }
+
+    return { allowed: true };
+
+  } catch (err) {
+    console.error('checkPublishPermission error:', err);
+    return { allowed: false, message: 'Error checking permission.' };
+  }
+}
+
+    // ============================================================
     // ===== PREVIEW =====
     // ============================================================
     async function openPreview(slug) {
