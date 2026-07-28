@@ -126,7 +126,36 @@
     }
 
     /* ============================================================ */
-    /* ===== TEMPLATES GRID ===== */
+    /* ===== BADGE ===== */
+    /* ============================================================ */
+    .badge-free {
+      background: rgba(74, 222, 128, 0.15);
+      color: #4ade80;
+      padding: 2px 12px;
+      border-radius: 40px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      border: 1px solid rgba(74, 222, 128, 0.15);
+      white-space: nowrap;
+    }
+
+    .badge-paid {
+      background: rgba(251, 191, 36, 0.15);
+      color: #fbbf24;
+      padding: 2px 12px;
+      border-radius: 40px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      border: 1px solid rgba(251, 191, 36, 0.15);
+      white-space: nowrap;
+    }
+
+    /* ============================================================ */
+    /* ===== GRID ===== */
     /* ============================================================ */
     .templates-grid {
       display: grid;
@@ -182,13 +211,21 @@
       flex-direction: column;
     }
 
-    .template-card .info h3 {
+    .template-card .info .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      gap: 8px;
+    }
+
+    .template-card .info .header-row h3 {
       font-size: 1.25rem;
       font-weight: 600;
       color: #fff;
-      margin-bottom: 6px;
       line-height: 1.3;
       text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      flex: 1;
     }
 
     .template-card .info .id-badge {
@@ -340,7 +377,6 @@
       height: 100%;
     }
 
-    /* ===== LEFT SIDE: Form ===== */
     .split-left {
       width: 50%;
       height: 100%;
@@ -464,7 +500,6 @@
       box-shadow: 0 8px 32px rgba(245, 87, 108, 0.4);
     }
 
-    /* ===== RIGHT SIDE: Live Preview ===== */
     .split-right {
       width: 50%;
       height: 100%;
@@ -491,7 +526,7 @@
     }
 
     /* ============================================================ */
-    /* ===== POPUP (Notifications) ===== */
+    /* ===== POPUP ===== */
     /* ============================================================ */
     .popup-overlay {
       position: fixed;
@@ -525,6 +560,16 @@
       padding: 32px 36px;
       animation: popupFade 0.35s ease;
       text-align: center;
+    }
+    @keyframes popupFade {
+      0% {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
     }
     .popup-icon {
       font-size: 3rem;
@@ -727,7 +772,7 @@
       .template-card .info {
         padding: 14px 14px 18px;
       }
-      .template-card .info h3 {
+      .template-card .info .header-row h3 {
         font-size: 1rem;
       }
       .template-card .info .card-actions {
@@ -780,31 +825,6 @@
     .split-right::-webkit-scrollbar-thumb:hover {
       background: rgba(255, 255, 255, 0.25);
     }
-
-    /* ===== BADGE ===== */
-.badge-free {
-  background: rgba(74, 222, 128, 0.15);
-  color: #4ade80;
-  padding: 2px 12px;
-  border-radius: 40px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  border: 1px solid rgba(74, 222, 128, 0.15);
-}
-
-.badge-paid {
-  background: rgba(251, 191, 36, 0.15);
-  color: #fbbf24;
-  padding: 2px 12px;
-  border-radius: 40px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  border: 1px solid rgba(251, 191, 36, 0.15);
-}
   </style>
 </head>
 <body>
@@ -817,8 +837,8 @@
       </div>
       <div class="header-actions" id="auth-section">
         <button class="btn" id="auth-btn" onclick="handleAuth()">🔑 Login</button>
-        <a href="dashboard" class="btn" id="mySites" style="display:none;">📊 My Sites</a>
-        <a href="plans" class="btn" id="plans">💳 Plans</a>
+        <a href="dashboard.html" class="btn" id="mySites" style="display:none;">📊 My Sites</a>
+        <a href="plans.html" class="btn" id="plansBtn">💳 Plans</a>
       </div>
     </header>
 
@@ -846,11 +866,10 @@
   </div>
 
   <!-- ============================================================ -->
-  <!-- ===== SPLIT SCREEN (Use Template) ===== -->
+  <!-- ===== SPLIT SCREEN ===== -->
   <!-- ============================================================ -->
   <div id="split-overlay" class="split-overlay">
     <div class="split-container">
-      <!-- LEFT: Form -->
       <div class="split-left">
         <div class="split-header">
           <h2>✏️ Customize Your Site</h2>
@@ -860,8 +879,6 @@
           <p style="color:rgba(255,255,255,0.3);">Loading form...</p>
         </div>
       </div>
-
-      <!-- RIGHT: Live Preview -->
       <div class="split-right">
         <div class="preview-label">🔮 Live Preview</div>
         <div class="live-preview" id="live-preview">
@@ -872,7 +889,7 @@
   </div>
 
   <!-- ============================================================ -->
-  <!-- ===== POPUP (Notifications) ===== -->
+  <!-- ===== POPUP ===== -->
   <!-- ============================================================ -->
   <div id="popup" class="popup-overlay" onclick="if(event.target===this) closePopup()">
     <div class="popup">
@@ -975,146 +992,114 @@
     };
 
     // ============================================================
-    // ===== VALIDATION FUNCTIONS =====
+    // ===== VALIDATION =====
     // ============================================================
-
-    // 1. Validate image URL
     function validateImageUrl(url) {
       if (!url) return true;
       return url.startsWith('http://') || url.startsWith('https://');
     }
 
-    // 2. Check site limit based on user's plan
-    // ============================================================
-// ===== CHECK SITE LIMIT (حسب الخطة) =====
-// ============================================================
-async function checkSiteLimit(userId) {
-  try {
-    // ===== 1. جيب الخطة من جدول profiles =====
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('plan')
-      .eq('id', userId)
-      .maybeSingle();
+    async function checkSiteLimit(userId) {
+      try {
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('plan')
+          .eq('id', userId)
+          .maybeSingle();
 
-    if (profileError) {
-      console.error('Error fetching profile:', profileError);
-      return { allowed: false, message: 'Error checking your plan.' };
+        if (profileError) {
+          console.error('Error fetching profile:', profileError);
+          return { allowed: false, message: 'Error checking your plan.' };
+        }
+
+        if (!profile) {
+          const { data: userData } = await supabase.auth.getUser();
+          const user = userData.user;
+          await supabase
+            .from('profiles')
+            .insert({
+              id: userId,
+              email: user.email,
+              plan: 'free'
+            });
+          return { allowed: true };
+        }
+
+        const plan = profile?.plan || 'free';
+
+        const { count, error: countError } = await supabase
+          .from('sites')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', userId)
+          .eq('published', true);
+
+        if (countError) {
+          console.error('Error counting sites:', countError);
+          return { allowed: false, message: 'Error checking your sites.' };
+        }
+
+        const limits = {
+          free: 1,
+          pro: 5,
+          business: 50,
+        };
+
+        const maxSites = limits[plan] || 1;
+
+        if (count >= maxSites) {
+          return {
+            allowed: false,
+            message: `Your ${plan} plan allows only ${maxSites} published site${maxSites > 1 ? 's' : ''}. Please upgrade to publish more.`
+          };
+        }
+
+        return { allowed: true };
+
+      } catch (err) {
+        console.error('checkSiteLimit error:', err);
+        return { allowed: false, message: 'Error checking site limit.' };
+      }
     }
-
-    // لو مفيش بروفايل، اعمل واحد
-    if (!profile) {
-      const { data: userData } = await supabase.auth.getUser();
-      const user = userData.user;
-      
-      await supabase
-        .from('profiles')
-        .insert({
-          id: userId,
-          email: user.email,
-          plan: 'free'
-        });
-
-      return { allowed: true };
-    }
-
-    const plan = profile?.plan || 'free';
-
-    // ===== 2. جيب عدد المواقع المنشورة =====
-    const { count, error: countError } = await supabase
-      .from('sites')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .eq('published', true);
-
-    if (countError) {
-      console.error('Error counting sites:', countError);
-      return { allowed: false, message: 'Error checking your sites.' };
-    }
-
-    // ===== 3. الحدود حسب الخطة =====
-    const limits = {
-      free: 1,
-      pro: 5,
-      business: 50,
-    };
-
-    const maxSites = limits[plan] || 1;
-
-    if (count >= maxSites) {
-      return {
-        allowed: false,
-        message: `Your ${plan} plan allows only ${maxSites} published site${maxSites > 1 ? 's' : ''}. Please upgrade to publish more.`
-      };
-    }
-
-    return { allowed: true };
-
-  } catch (err) {
-    console.error('checkSiteLimit error:', err);
-    return { allowed: false, message: 'Error checking site limit.' };
-  }
-}
 
     // ============================================================
-// ===== CHECK PUBLISH PERMISSION =====
-// ============================================================
-async function checkPublishPermission(userId) {
-  try {
-    const { data: profile, error } = await supabase
-      .from('profiles')
-      .select('plan')
-      .eq('id', userId)
-      .maybeSingle();
+    // ===== AUTH =====
+    // ============================================================
+    window.handleAuth = async function() {
+      if (currentUser) {
+        await supabase.auth.signOut();
+        location.reload();
+        return;
+      }
 
-    if (error) {
-      console.error('Error fetching profile:', error);
-      return { allowed: false, message: 'Error checking your plan.' };
-    }
+      const email = prompt('Enter your email:');
+      if (!email) return;
 
-    const plan = profile?.plan || 'free';
+      const { error } = await supabase.auth.signInWithOtp({
+        email: email,
+        options: { emailRedirectTo: SITE_URL }
+      });
 
-    // ===== الخطط المدفوعة بس هي اللي تسمح بالنشر =====
-    if (plan === 'free') {
-      return {
-        allowed: false,
-        message: '📢 Publishing is a premium feature. Please upgrade to Pro or Business plan to publish your site.'
-      };
-    }
-
-    // ===== للمستخدمين المدفوعين، تحقق من الحد الأقصى =====
-    const { count, error: countError } = await supabase
-      .from('sites')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .eq('published', true);
-
-    if (countError) {
-      console.error('Error counting sites:', countError);
-      return { allowed: false, message: 'Error checking your sites.' };
-    }
-
-    const limits = {
-      pro: 5,
-      business: 50,
+      if (error) {
+        showPopup({ icon: '❌', title: 'Error', message: error.message, primaryText: 'OK' });
+      } else {
+        showPopup({ icon: '✅', title: 'Magic Link Sent!', message: 'Check your email.', primaryText: 'OK' });
+      }
     };
 
-    const maxSites = limits[plan] || 1;
+    async function checkAuth() {
+      const { data: { session } } = await supabase.auth.getSession();
 
-    if (count >= maxSites) {
-      return {
-        allowed: false,
-        message: `Your ${plan} plan allows only ${maxSites} published site${maxSites > 1 ? 's' : ''}. Please upgrade to publish more.`
-      };
+      if (session) {
+        currentUser = session.user;
+        const name = session.user.user_metadata?.full_name || session.user.email || 'User';
+        authBtn.textContent = `👤 ${name.split('@')[0]}`;
+        mySites.style.display = 'inline-flex';
+      } else {
+        currentUser = null;
+        authBtn.textContent = '🔑 Login';
+        mySites.style.display = 'none';
+      }
     }
-
-    return { allowed: true };
-
-  } catch (err) {
-    console.error('checkPublishPermission error:', err);
-    return { allowed: false, message: 'Error checking permission.' };
-  }
-}
 
     // ============================================================
     // ===== PREVIEW =====
@@ -1160,7 +1145,7 @@ async function checkPublishPermission(userId) {
     };
 
     // ============================================================
-    // ===== SPLIT SCREEN (Use Template) =====
+    // ===== SPLIT SCREEN =====
     // ============================================================
     window.openSplit = async function(slug) {
       if (!currentUser) {
@@ -1200,7 +1185,6 @@ async function checkPublishPermission(userId) {
       document.getElementById('split-style')?.remove();
     };
 
-    // ===== Build Split Form =====
     function buildSplitForm(template) {
       const fields = template.fields || {};
       let html = `
@@ -1299,7 +1283,6 @@ async function checkPublishPermission(userId) {
 
       splitForm.innerHTML = html;
 
-      // Slug preview
       const slugInput = document.getElementById('split-site-slug');
       const slugPreview = document.getElementById('split-slug-preview');
       slugInput?.addEventListener('input', () => {
@@ -1307,14 +1290,13 @@ async function checkPublishPermission(userId) {
         window.updateLivePreview();
       });
 
-      // Form submit
       document.getElementById('split-site-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         await publishFromSplit();
       });
     }
 
-    // ===== Live Preview Update =====
+    // ===== Live Preview =====
     window.updateLivePreview = function() {
       if (!selectedTemplate) return;
 
@@ -1394,7 +1376,7 @@ async function checkPublishPermission(userId) {
       };
     };
 
-    // ===== Publish from Split (with validations) =====
+    // ===== Publish =====
     async function publishFromSplit() {
       const slug = document.getElementById('split-site-slug').value.trim();
       if (!slug) {
@@ -1405,7 +1387,6 @@ async function checkPublishPermission(userId) {
       const fields = currentTemplateFields || {};
       const data = {};
 
-      // ===== 1. Validate image fields =====
       for (const [key, config] of Object.entries(fields)) {
         if (config.type === 'image') {
           const input = document.getElementById(`split-field-${key}`);
@@ -1414,55 +1395,33 @@ async function checkPublishPermission(userId) {
             showPopup({
               icon: '⚠️',
               title: 'Invalid Image URL',
-              message: `The "${config.label}" field must be a valid image URL (starts with http:// or https://).`,
+              message: `The "${config.label}" field must be a valid image URL.`,
               primaryText: 'OK'
             });
             return;
           }
         }
-        // Collect data
         const input = document.getElementById(`split-field-${key}`);
         if (input) data[key] = input.value.trim();
       }
 
-      // 1. التحقق من الصورة
-const fields = currentTemplateFields || {};
-for (const [key, config] of Object.entries(fields)) {
-  if (config.type === 'image') {
-    const input = document.getElementById(`split-field-${key}`);
-    const url = input?.value?.trim() || '';
-    if (url && !validateImageUrl(url)) {
-      showPopup({
-        icon: '⚠️',
-        title: 'Invalid Image URL',
-        message: `The "${config.label}" field must be a valid image URL.`,
-        primaryText: 'OK'
-      });
-      return;
-    }
-  }
-}
+      const limitCheck = await checkSiteLimit(currentUser.id);
+      if (!limitCheck.allowed) {
+        showPopup({
+          icon: '🔒',
+          title: 'Plan Limit Reached',
+          message: limitCheck.message,
+          primaryText: 'OK'
+        });
+        return;
+      }
 
-// ===== 2. التحقق من عدد المواقع =====
-const limitCheck = await checkSiteLimit(currentUser.id);
-if (!limitCheck.allowed) {
-  showPopup({
-    icon: '🔒',
-    title: 'Plan Limit Reached',
-    message: limitCheck.message,
-    primaryText: 'OK'
-  });
-  return;
-}
-
-      // ===== 3. Generate HTML =====
       let html = selectedTemplate.html;
       for (const [key, value] of Object.entries(data)) {
         html = html.replace(new RegExp(`{{${key}}}`, 'g'), value);
       }
       html = html.replace(/\{\{site_slug\}\}/g, slug);
 
-      // ===== 4. Save to Supabase =====
       try {
         const { error: saveError } = await supabase
           .from('sites')
@@ -1502,104 +1461,64 @@ if (!limitCheck.allowed) {
     }
 
     // ============================================================
-    // ===== AUTH =====
-    // ============================================================
-    window.handleAuth = async function() {
-      if (currentUser) {
-        await supabase.auth.signOut();
-        location.reload();
-        return;
-      }
-
-      const email = prompt('Enter your email:');
-      if (!email) return;
-
-      const { error } = await supabase.auth.signInWithOtp({
-        email: email,
-        options: { emailRedirectTo: SITE_URL }
-      });
-
-      if (error) {
-        showPopup({ icon: '❌', title: 'Error', message: error.message, primaryText: 'OK' });
-      } else {
-        showPopup({ icon: '✅', title: 'Magic Link Sent!', message: 'Check your email.', primaryText: 'OK' });
-      }
-    };
-
-    async function checkAuth() {
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (session) {
-        currentUser = session.user;
-        const name = session.user.user_metadata?.full_name || session.user.email || 'User';
-        authBtn.textContent = `👤 ${name.split('@')[0]}`;
-        mySites.style.display = 'inline-flex';
-        document.getElementById("plans").style.display = 'inline-flex';
-      } else {
-        currentUser = null;
-        authBtn.textContent = '🔑 Login';
-        mySites.style.display = 'none';
-        document.getElementById("plans").style.display = 'none'
-      }
-    }
-
     // ===== LOAD TEMPLATES =====
-async function loadTemplates() {
-  grid.innerHTML = '<div class="loading">Loading templates...</div>';
+    // ============================================================
+    async function loadTemplates() {
+      grid.innerHTML = '<div class="loading">Loading templates...</div>';
 
-  try {
-    const { data, error } = await supabase
-      .from('templates')
-      .select('*')
-      .eq('is_active', true)
-      .order('created_at', { ascending: false });
+      try {
+        const { data, error } = await supabase
+          .from('templates')
+          .select('*')
+          .eq('is_active', true)
+          .order('created_at', { ascending: false });
 
-    if (error) throw error;
+        if (error) throw error;
 
-    if (!data || data.length === 0) {
-      grid.innerHTML = `
-        <div class="empty-state" style="grid-column:1/-1;">
-          <p>✨ No templates yet. <br>Add one via the admin panel.</p>
-        </div>
-      `;
-      return;
+        if (!data || data.length === 0) {
+          grid.innerHTML = `
+            <div class="empty-state" style="grid-column:1/-1;">
+              <p>✨ No templates yet. <br>Add one via the admin panel.</p>
+            </div>
+          `;
+          return;
+        }
+
+        let html = '';
+        data.forEach(tpl => {
+          var badgeHtml = '';
+          if (tpl.is_free) {
+            badgeHtml = `<span class="badge-free">🆓 Free</span>`;
+          } else {
+            badgeHtml = `<span class="badge-paid">💎 Paid</span>`;
+          }
+
+          html += `
+            <div class="template-card">
+              <img src="${tpl.cover_image || 'https://via.placeholder.com/400x200?text=Template'}" 
+                   alt="${tpl.name}" loading="lazy" />
+              <div class="info">
+                <div class="header-row">
+                  <h3>${tpl.name}</h3>
+                  ${badgeHtml}
+                </div>
+                <span class="id-badge">#${tpl.slug}</span>
+                <div class="card-actions">
+                  <button class="btn btn-preview" onclick="openPreview('${tpl.slug}')">👁️ Preview</button>
+                  <button class="btn btn-use" onclick="openSplit('${tpl.slug}')">🚀 Use Template</button>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        grid.innerHTML = html;
+
+      } catch (err) {
+        console.error(err);
+        grid.innerHTML = `<div class="error-msg">❌ Error: ${err.message}</div>`;
+      }
     }
 
-    let html = '';
-    data.forEach(tpl => {
-      // ===== Badge =====
-      var badgeHtml = '';
-      if (tpl.is_free) {
-        badgeHtml = `<span class="badge-free">🆓 Free</span>`;
-      } else {
-        badgeHtml = `<span class="badge-paid">💎 Paid</span>`;
-      }
-
-      html += `
-        <div class="template-card">
-          <img src="${tpl.cover_image || 'https://via.placeholder.com/400x200?text=Template'}" 
-               alt="${tpl.name}" loading="lazy" />
-          <div class="info">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-              <h3>${tpl.name}</h3>
-              ${badgeHtml}
-            </div>
-            <span class="id-badge">#${tpl.slug}</span>
-            <div class="card-actions">
-              <button class="btn btn-preview" onclick="openPreview('${tpl.slug}')">👁️ Preview</button>
-              <button class="btn btn-use" onclick="openSplit('${tpl.slug}')">🚀 Use Template</button>
-            </div>
-          </div>
-        </div>
-      `;
-    });
-    grid.innerHTML = html;
-
-  } catch (err) {
-    console.error(err);
-    grid.innerHTML = `<div class="error-msg">❌ Error: ${err.message}</div>`;
-  }
-}
     // ============================================================
     // ===== INIT =====
     // ============================================================
