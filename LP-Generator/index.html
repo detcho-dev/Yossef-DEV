@@ -155,48 +155,6 @@
     }
 
     /* ============================================================ */
-    /* ===== CUSTOM SLUG ===== */
-    /* ============================================================ */
-    .custom-slug-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(255, 255, 255, 0.04);
-      border-radius: 12px;
-      padding: 4px 12px;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      transition: border 0.3s;
-    }
-
-    .custom-slug-wrapper:focus-within {
-      border-color: #4facfe;
-    }
-
-    .custom-slug-wrapper .slug-prefix {
-      color: rgba(255, 255, 255, 0.3);
-      font-size: 0.85rem;
-    }
-
-    .custom-slug-wrapper .slug-domain {
-      color: rgba(255, 255, 255, 0.2);
-      font-size: 0.75rem;
-    }
-
-    .custom-slug-wrapper input {
-      border: none;
-      background: transparent;
-      color: #fff;
-      padding: 10px 0;
-      width: 100%;
-      outline: none;
-      font-size: 0.95rem;
-    }
-
-    .custom-slug-wrapper input::placeholder {
-      color: rgba(255, 255, 255, 0.2);
-    }
-
-    /* ============================================================ */
     /* ===== GRID ===== */
     /* ============================================================ */
     .templates-grid {
@@ -1150,30 +1108,18 @@
     }
 
     // ============================================================
-    // ===== CHECK CUSTOM SLUG =====
+    // ===== GENERATE UNIQUE SLUG =====
     // ============================================================
-    async function canUseCustomSlug() {
-      if (!currentUser) return false;
-
-      try {
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('plan')
-          .eq('id', currentUser.id)
-          .maybeSingle();
-
-        if (error) {
-          console.error('Error fetching profile:', error);
-          return false;
-        }
-
-        const plan = profile?.plan || 'free';
-        return plan === 'business';
-
-      } catch (err) {
-        console.error('canUseCustomSlug error:', err);
-        return false;
-      }
+    function generateUniqueSlug(email) {
+      // خذ الجزء الأول من الإيميل
+      const base = email.split('@')[0].toLowerCase()
+        .replace(/[^a-z0-9]/g, '') // شيل أي حروف خاصة
+        .substring(0, 15); // خذ أول 15 حرف
+  
+      // أضف رقم عشوائي مكون من 4 أرقام
+      const random = Math.floor(1000 + Math.random() * 9000);
+  
+      return `${base}-${random}`;
     }
 
     // ============================================================
@@ -1315,7 +1261,7 @@
         selectedTemplate = template;
         currentTemplateFields = template.fields || {};
 
-        await buildSplitForm(template);
+        buildSplitForm(template);
         window.updateLivePreview();
 
         splitOverlay.classList.add('active');
@@ -1333,48 +1279,37 @@
     // ============================================================
     // ===== BUILD SPLIT FORM =====
     // ============================================================
-    async function buildSplitForm(template) {
+    function buildSplitForm(template) {
       const fields = template.fields || {};
+      const isBusiness = currentUser?.plan === 'business';
+
+      // ===== توليد Slug فريد =====
+      let slugValue = '';
+      if (isBusiness) {
+        // Business: المستخدم يقدر يكتب الـ Slug اللي يحبه
+        slugValue = currentUser?.user_metadata?.username || currentUser?.email?.split('@')[0] || 'my-site';
+      } else {
+        // Free / Pro: يتولد Slug فريد تلقائياً
+        slugValue = generateUniqueSlug(currentUser?.email || 'user');
+      }
+
       let html = `
         <form id="split-site-form">
           <div class="form-group">
             <label>Your Site Name (username)</label>
             <input type="text" id="split-site-slug" 
-                   value="${currentUser?.user_metadata?.username || currentUser?.email?.split('@')[0] || 'my-site'}" 
-                   placeholder="my-site" required />
-            <small>This will be your site URL: <span id="split-slug-preview">my-site</span>.html</small>
+                   value="${slugValue}" 
+                   placeholder="my-site" 
+                   ${isBusiness ? '' : 'readonly'} 
+                   required />
+            <small>
+              ${isBusiness 
+                ? 'You can customize your site URL.' 
+                : '🔒 Custom Site Name is a <a href="plans.html" style="color:#4facfe;text-decoration:underline;">Business</a> feature. A unique name has been generated for you.'}
+            </small>
           </div>
       `;
 
-      // ===== Custom Slug (Business فقط) =====
-      const canCustomSlug = await canUseCustomSlug();
-
-      if (canCustomSlug) {
-        html += `
-          <div class="form-group">
-            <label>Custom Slug (URL)</label>
-            <div class="custom-slug-wrapper">
-              <span class="slug-prefix">🔗</span>
-              <input type="text" id="split-custom-slug" 
-                     value="" 
-                     placeholder="Enter custom slug (e.g. my-awesome-site)" />
-              <span class="slug-domain">.yourdomain.com</span>
-            </div>
-            <small>✨ Custom slug lets you choose any URL for your site. Available on <strong>Business</strong> plan.</small>
-          </div>
-        `;
-      } else {
-        html += `
-          <div style="background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.1);border-radius:12px;padding:12px 16px;margin-bottom:16px;text-align:center;">
-            <p style="color:rgba(255,255,255,0.4);font-size:0.85rem;">
-              🔒 <strong>Custom Slug</strong> is a <a href="plans.html" style="color:#4facfe;text-decoration:underline;">Business</a> feature.<br>
-              Upgrade to Business to choose a custom URL for your site.
-            </p>
-          </div>
-        `;
-      }
-
-      // ===== باقي الحقول =====
       for (const [key, config] of Object.entries(fields)) {
         const { type, label, default: defaultValue, placeholder, required, options } = config;
 
@@ -1460,23 +1395,17 @@
 
       splitForm.innerHTML = html;
 
-      // ===== تحديث المعاينة =====
       const slugInput = document.getElementById('split-site-slug');
       const slugPreview = document.getElementById('split-slug-preview');
       slugInput?.addEventListener('input', () => {
-        slugPreview.textContent = slugInput.value || 'my-site';
-        window.updateLivePreview();
-      });
-
-      // ===== Custom Slug Preview =====
-      const customSlugInput = document.getElementById('split-custom-slug');
-      customSlugInput?.addEventListener('input', () => {
-        if (customSlugInput.value.trim()) {
-          slugPreview.textContent = customSlugInput.value.trim();
-        } else {
-          slugPreview.textContent = slugInput.value || 'my-site';
+        if (isBusiness) {
+          slugPreview.textContent = slugInput.value || 'your-site';
+          window.updateLivePreview();
         }
       });
+      if (slugPreview) {
+        slugPreview.textContent = slugInput?.value || 'my-site';
+      }
 
       document.getElementById('split-site-form').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -1506,13 +1435,7 @@
       }
 
       const slugInput = document.getElementById('split-site-slug');
-      let slug = slugInput?.value || 'my-site';
-
-      const customSlugInput = document.getElementById('split-custom-slug');
-      if (customSlugInput && customSlugInput.value.trim()) {
-        slug = customSlugInput.value.trim();
-      }
-
+      const slug = slugInput?.value || 'my-site';
       html = html.replace(/\{\{site_slug\}\}/g, slug);
 
       livePreview.innerHTML = html;
@@ -1578,33 +1501,12 @@
     // ===== PUBLISH =====
     // ============================================================
     async function publishFromSplit() {
-      let slug = document.getElementById('split-site-slug').value.trim();
+      const slugInput = document.getElementById('split-site-slug');
+      const slug = slugInput?.value.trim() || '';
+
       if (!slug) {
         showPopup({ icon: '⚠️', title: 'Missing Name', message: 'Please enter a site name.', primaryText: 'OK' });
         return;
-      }
-
-      // ===== جيب الـ Custom Slug (لو موجود) =====
-      const customSlugInput = document.getElementById('split-custom-slug');
-      let finalSlug = slug;
-
-      if (customSlugInput) {
-        const customSlug = customSlugInput.value.trim();
-        if (customSlug) {
-          const canCustomSlug = await canUseCustomSlug();
-          if (canCustomSlug) {
-            finalSlug = customSlug;
-          } else {
-            showPopup({
-              icon: '🔒',
-              title: 'Custom Slug Unavailable',
-              message: 'Custom slug is only available on Business plan. Upgrade to use this feature.',
-              primaryText: 'Upgrade Now',
-              primaryAction: () => { window.location.href = 'plans.html'; }
-            });
-            return;
-          }
-        }
       }
 
       const fields = currentTemplateFields || {};
@@ -1643,7 +1545,7 @@
       for (const [key, value] of Object.entries(data)) {
         html = html.replace(new RegExp(`{{${key}}}`, 'g'), value);
       }
-      html = html.replace(/\{\{site_slug\}\}/g, finalSlug);
+      html = html.replace(/\{\{site_slug\}\}/g, slug);
 
       try {
         const { error: saveError } = await supabase
@@ -1651,8 +1553,8 @@
           .upsert({
             user_id: currentUser.id,
             template_id: selectedTemplate.id,
-            slug: finalSlug,
-            title: data.title || finalSlug,
+            slug: slug,
+            title: data.title || slug,
             data: data,
             html: html,
             published: true,
@@ -1664,7 +1566,7 @@
 
         if (saveError) throw saveError;
 
-        const siteUrl = `${SITE_URL}site.html?slug=${finalSlug}`;
+        const siteUrl = `${SITE_URL}site.html?slug=${slug}`;
 
         showPopup({
           icon: '🎉',
