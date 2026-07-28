@@ -457,96 +457,145 @@
       // لو عايز تمنع أي حد، تقدر تضيف شرط زي email === 'admin@example.com'
       loadUsers();
     }
+// ===== LOAD USERS (via Edge Function) =====
+async function loadUsers() {
+  tbody.innerHTML = '<tr><td colspan="6" class="loading">Loading users...</td></tr>';
 
-    // ===== LOAD USERS =====
-    async function loadUsers() {
-      tbody.innerHTML = '<tr><td colspan="6" class="loading">Loading users...</td></tr>';
-
-      try {
-        // ===== 1. جيب كل المستخدمين من auth.users =====
-        const { data: users, error: usersError } = await supabase
-          .from('auth.users')
-          .select('id, email, raw_user_meta_data, created_at');
-
-        if (usersError) throw usersError;
-
-        // ===== 2. جيب الخطط من profiles =====
-        const { data: profiles, error: profilesError } = await supabase
-          .from('profiles')
-          .select('id, plan');
-
-        if (profilesError) throw profilesError;
-
-        // ===== 3. جيب عدد المواقع لكل مستخدم =====
-        const { data: sites, error: sitesError } = await supabase
-          .from('sites')
-          .select('user_id, count');
-
-        if (sitesError) throw sitesError;
-
-        // ===== دمج البيانات =====
-        const userMap = {};
-
-        users.forEach(user => {
-          userMap[user.id] = {
-            id: user.id,
-            email: user.email,
-            name: user.raw_user_meta_data?.full_name || user.email?.split('@')[0] || 'Unknown',
-            created_at: user.created_at,
-            plan: 'free',
-            sites_count: 0
-          };
-        });
-
-        profiles.forEach(profile => {
-          if (userMap[profile.id]) {
-            userMap[profile.id].plan = profile.plan || 'free';
-          }
-        });
-
-        sites.forEach(site => {
-          if (userMap[site.user_id]) {
-            userMap[site.user_id].sites_count += 1;
-          }
-        });
-
-        // ===== عرض الجدول =====
-        const usersList = Object.values(userMap);
-
-        if (usersList.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No users found.</td></tr>';
-          return;
+  try {
+    const response = await fetch(
+      'https://fhgszopuwnrnijxvghku.supabase.co/functions/v1/get-users',
+      {
+        headers: {
+          'Authorization': `Bearer ${supabaseKey}`
         }
-
-        let html = '';
-        usersList.forEach(user => {
-          const planBadge = `badge-${user.plan}`;
-          const planLabel = user.plan.charAt(0).toUpperCase() + user.plan.slice(1);
-
-          html += `
-            <tr>
-              <td><strong>${user.name}</strong></td>
-              <td>${user.email}</td>
-              <td><span class="badge ${planBadge}">${planLabel}</span></td>
-              <td>${user.sites_count}</td>
-              <td><span class="badge badge-active">Active</span></td>
-              <td>
-                <div class="actions-cell">
-                  <button class="btn btn-sm btn-warning" onclick="changePlan('${user.id}')">📋 Change Plan</button>
-                  <button class="btn btn-sm btn-danger" onclick="deleteUser('${user.id}')">🗑️ Delete</button>
-                </div>
-              </td>
-            </tr>
-          `;
-        });
-
-        tbody.innerHTML = html;
-
-      } catch (err) {
-        console.error('Error loading users:', err);
-        tbody.innerHTML = `<tr><td colspan="6" style="color:#f87171;text-align:center;">❌ Error: ${err.message}</td></tr>`;
       }
+    );
+
+    const result = await response.json();
+
+    if (result.error) throw new Error(result.error);
+
+    const usersList = result.users;
+
+    if (!usersList || usersList.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No users found.</td></tr>';
+      return;
     }
+
+    let html = '';
+    usersList.forEach((user: any) => {
+      const planBadge = `badge-${user.plan}`;
+      const planLabel = user.plan.charAt(0).toUpperCase() + user.plan.slice(1);
+
+      html += `
+        <tr>
+          <td><strong>${user.name}</strong></td>
+          <td>${user.email}</td>
+          <td><span class="badge ${planBadge}">${planLabel}</span></td>
+          <td>${user.sites_count}</td>
+          <td><span class="badge ${user.confirmed ? 'badge-active' : 'badge-inactive'}">${user.confirmed ? 'Confirmed' : 'Pending'}</span></td>
+          <td>
+            <div class="actions-cell">
+              <button class="btn btn-sm btn-warning" onclick="changePlan('${user.id}')">📋 Change Plan</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteUser('${user.id}')">🗑️ Delete</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    });
+
+    tbody.innerHTML = html;
+
+  } catch (err) {
+    console.error('Error loading users:', err);
+    tbody.innerHTML = `<tr><td colspan="6" style="color:#f87171;text-align:center;">❌ Error: ${err.message}</td></tr>`;
+  }
+}
+
+// ===== CHANGE PLAN =====
+window.changePlan = async function(userId) {
+  const plans = ['free', 'pro', 'business'];
+  const planNames = { free: 'Free', pro: 'Pro', business: 'Business' };
+
+  let options = plans.map(p => `${p}: ${planNames[p]}`).join('\n');
+  const choice = prompt(`Select plan for user:\n${options}`);
+
+  if (!choice) return;
+
+  const selectedPlan = choice.trim().toLowerCase();
+  if (!plans.includes(selectedPlan)) {
+    alert('Invalid plan. Choose: free, pro, or business.');
+    return;
+  }
+
+  if (!confirm(`Are you sure you want to set this user to ${planNames[selectedPlan]} plan?`)) return;
+
+  try {
+    const { error } = await supabase
+      .from('profiles')
+      .update({ plan: selectedPlan, updated_at: new Date().toISOString() })
+      .eq('id', userId);
+
+    if (error) throw error;
+
+    showPopup({
+      icon: '✅',
+      title: 'Plan Updated',
+      message: `User has been set to ${planNames[selectedPlan]} plan.`,
+      primaryText: 'OK',
+      primaryAction: () => loadUsers()
+    });
+
+  } catch (err) {
+    showPopup({
+      icon: '❌',
+      title: 'Error',
+      message: err.message,
+      primaryText: 'OK'
+    });
+    console.error('Change plan error:', err);
+  }
+};
+
+// ===== DELETE USER =====
+window.deleteUser = async function(userId) {
+  if (!confirm('⚠️ Are you sure you want to delete this user? This action cannot be undone!')) return;
+
+  try {
+    const response = await fetch(
+      'https://fhgszopuwnrnijxvghku.supabase.co/functions/v1/delete-user',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabaseKey}`
+        },
+        body: JSON.stringify({ user_id: userId })
+      }
+    );
+
+    const result = await response.json();
+
+    if (result.error) throw new Error(result.error);
+
+    showPopup({
+      icon: '🗑️',
+      title: 'User Deleted',
+      message: 'User has been deleted successfully.',
+      primaryText: 'OK',
+      primaryAction: () => loadUsers()
+    });
+
+  } catch (err) {
+    showPopup({
+      icon: '❌',
+      title: 'Error',
+      message: err.message,
+      primaryText: 'OK'
+    });
+    console.error('Delete user error:', err);
+  }
+};
 
     // ===== CHANGE PLAN =====
     window.changePlan = async function(userId) {
