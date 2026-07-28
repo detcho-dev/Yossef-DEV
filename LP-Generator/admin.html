@@ -455,18 +455,16 @@
       loadUsers();
     }
 
-    // ===== LOAD USERS (via Edge Function) =====
-    // ===== LOAD USERS (باستخدام Service Role Key) =====
+    // ===== LOAD USERS =====
 async function loadUsers() {
   tbody.innerHTML = '<tr><td colspan="6" class="loading">Loading users...</td></tr>';
 
   try {
-    // ===== 1. جيب المستخدمين من auth.users باستخدام Service Role Key =====
     const response = await fetch(
-      'https://fhgszopuwnrnijxvghku.supabase.co/auth/v1/admin/users',
+      'https://fhgszopuwnrnijxvghku.supabase.co/functions/v1/get-users',
       {
         headers: {
-          'Authorization': 'Bearer ' + supabaseServiceKey
+          'Authorization': 'Bearer ' + supabaseKey
         }
       }
     );
@@ -475,62 +473,14 @@ async function loadUsers() {
 
     if (result.error) throw new Error(result.error);
 
-    const users = result.users || [];
+    const usersList = result.users;
 
-    // ===== 2. جيب الخطط من profiles =====
-    const { data: profiles, error: profilesError } = await supabase
-      .from('profiles')
-      .select('id, plan');
-
-    if (profilesError) throw profilesError;
-
-    // ===== 3. جيب عدد المواقع لكل مستخدم =====
-    const { data: sites, error: sitesError } = await supabase
-      .from('sites')
-      .select('user_id');
-
-    if (sitesError) throw sitesError;
-
-    // ===== دمج البيانات =====
-    const userMap = {};
-
-    users.forEach(function(user) {
-      userMap[user.id] = {
-        id: user.id,
-        email: user.email,
-        name: user.raw_user_meta_data?.full_name || user.email?.split('@')[0] || 'Unknown',
-        created_at: user.created_at,
-        confirmed: user.confirmed_at ? true : false,
-        plan: 'free',
-        sites_count: 0
-      };
-    });
-
-    profiles.forEach(function(profile) {
-      if (userMap[profile.id]) {
-        userMap[profile.id].plan = profile.plan || 'free';
-      }
-    });
-
-    var siteCount = {};
-    sites.forEach(function(site) {
-      siteCount[site.user_id] = (siteCount[site.user_id] || 0) + 1;
-    });
-
-    Object.keys(siteCount).forEach(function(userId) {
-      if (userMap[userId]) {
-        userMap[userId].sites_count = siteCount[userId];
-      }
-    });
-
-    var usersList = Object.values(userMap);
-
-    if (usersList.length === 0) {
+    if (!usersList || usersList.length === 0) {
       tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No users found.</td></tr>';
       return;
     }
 
-    var html = '';
+    let html = '';
     usersList.forEach(function(user) {
       var planBadge = 'badge-' + user.plan;
       var planLabel = user.plan.charAt(0).toUpperCase() + user.plan.slice(1);
