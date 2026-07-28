@@ -1100,7 +1100,55 @@
         mySites.style.display = 'none';
       }
     }
+// ============================================================
+// ===== CHECK IF USER CAN ACCESS TEMPLATE =====
+// ============================================================
+async function canAccessTemplate(templateId) {
+  if (!currentUser) {
+    return { allowed: false, message: 'Please sign in to use this template.' };
+  }
 
+  try {
+    // ===== 1. جيب بيانات القالب =====
+    const { data: template, error } = await supabase
+      .from('templates')
+      .select('is_free')
+      .eq('id', templateId)
+      .single();
+
+    if (error) throw error;
+
+    // ===== 2. لو القالب مجاني =====
+    if (template.is_free) {
+      return { allowed: true };
+    }
+
+    // ===== 3. القالب مدفوع → تحقق من خطة المستخدم =====
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('plan')
+      .eq('id', currentUser.id)
+      .maybeSingle();
+
+    if (profileError) throw profileError;
+
+    const plan = profile?.plan || 'free';
+
+    // ===== 4. أي خطة مدفوعة (Pro أو Business) =====
+    if (plan === 'pro' || plan === 'business') {
+      return { allowed: true };
+    }
+
+    return {
+      allowed: false,
+      message: '💎 This template is for paid users only. Please upgrade to Pro or Business plan.'
+    };
+
+  } catch (err) {
+    console.error('canAccessTemplate error:', err);
+    return { allowed: false, message: 'Error checking access.' };
+  }
+}
     // ============================================================
     // ===== PREVIEW =====
     // ============================================================
