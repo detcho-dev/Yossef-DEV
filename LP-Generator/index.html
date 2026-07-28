@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+[<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -10,7 +10,7 @@
     /* ============================================================ */
     *,
     *::before,
-    *::after {
+    *::after 
       box-sizing: border-box;
       margin: 0;
       padding: 0;
@@ -1150,20 +1150,37 @@ window.currentUser = currentUser;
       }
     };
 
-    async function checkAuth() {
-      const { data: { session } } = await supabase.auth.getSession();
+    // ===== CHECK AUTH =====
+async function checkAuth() {
+  const { data: { session } } = await supabase.auth.getSession();
 
-      if (session) {
-        currentUser = session.user;
-        const name = session.user.user_metadata?.full_name || session.user.email || 'User';
-        authBtn.textContent = `👤 ${name.split('@')[0]}`;
-        mySites.style.display = 'inline-flex';
-      } else {
-        currentUser = null;
-        authBtn.textContent = '🔑 Login';
-        mySites.style.display = 'none';
-      }
+  if (session) {
+    currentUser = session.user;
+    const name = session.user.user_metadata?.full_name || session.user.email || 'User';
+    authBtn.textContent = `👤 ${name.split('@')[0]}`;
+    mySites.style.display = 'inline-flex';
+
+    // ===== جيب الخطة من profiles =====
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('plan')
+      .eq('id', currentUser.id)
+      .maybeSingle();
+
+    if (!error && profile) {
+      currentUser.plan = profile.plan; // أضف الخطة للمستخدم
     }
+
+    // ===== جعل المتغيرات متاحة في Console =====
+    window.supabase = supabase;
+    window.currentUser = currentUser;
+
+  } else {
+    currentUser = null;
+    authBtn.textContent = '🔑 Login';
+    mySites.style.display = 'none';
+  }
+}
 
     // ============================================================
     // ===== PREVIEW =====
@@ -1243,7 +1260,10 @@ window.currentUser = currentUser;
           .eq('slug', slug)
           .single();
 
-        if (error) throw error;
+        if (!error && profile) {
+    currentUser.plan = profile.plan;
+  }
+
 
         const access = await canAccessTemplate(template.id);
         if (!access.allowed) {
