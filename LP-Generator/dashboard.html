@@ -663,29 +663,28 @@
     }
 
     // ============================================================
-    // ===== LOAD USER PLAN =====
-    // ============================================================
-    async function loadUserPlan() {
-      try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('plan')
-          .eq('id', currentUser.id)
-          .maybeSingle();
+// ===== LOAD USER PLAN =====
+// ============================================================
+async function loadUserPlan() {
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('plan')
+      .eq('id', currentUser.id)
+      .maybeSingle();
 
-        if (error) {
-          console.error('Error loading plan:', error);
-          return;
-        }
-
-        currentPlan = data?.plan || 'free';
-        updatePlanUI();
-
-      } catch (err) {
-        console.error('loadUserPlan error:', err);
-      }
+    if (error) {
+      console.error('Error loading plan:', error);
+      return;
     }
 
+    currentPlan = data?.plan || 'free';
+    updatePlanUI();
+
+  } catch (err) {
+    console.error('loadUserPlan error:', err);
+  }
+}
     // ============================================================
     // ===== UPDATE PLAN UI =====
     // ============================================================
