@@ -16,7 +16,7 @@ serve(async (req: Request) => {
   }
 
   try {
-    const { plan, user_id, email } = await req.json();
+    const { plan, user_id, email, subscription_id } = await req.json();
 
     const priceIds = {
       pro: Deno.env.get('STRIPE_PRICE_PRO') || '',
@@ -26,18 +26,42 @@ serve(async (req: Request) => {
     const priceId = priceIds[plan];
     if (!priceId) throw new Error('Invalid plan');
 
-    const body = new URLSearchParams({
-      'payment_method_types[]': 'card',
-      'line_items[0][price]': priceId,
-      'line_items[0][quantity]': '1',
-      'mode': 'subscription',
-      'success_url': `${Deno.env.get('SITE_URL')}plans.html?success=true&session_id={CHECKOUT_SESSION_ID}`,
-      'cancel_url': `${Deno.env.get('SITE_URL')}plans.html?canceled=true`,
-      'client_reference_id': user_id,
-      'metadata[user_id]': user_id,
-      'metadata[plan]': plan,
-      'customer_email': email,
-    });
+    // ===== بناء الـ Session =====
+    let sessionData: any = {
+      payment_method_types: ['card'],
+      line_items: [{ price: priceId, quantity: 1 }],
+      mode: 'subscription',
+      success_url: `${Deno.env.get('SITE_URL')}plans?success=true&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${Deno.env.get('SITE_URL')}plans?canceled=true`,
+      metadata: {
+        user_id: user_id,
+        plan: plan,
+      },
+      customer_email: email,
+    };
+
+    // ===== لو عنده اشتراك قديم، نلغي الاشتراك القديم ونضيف الجديد =====
+    if (subscription_id) {
+      // نلغي الاشتراك القديم في Stripe
+      await fetch(`${stripeApi}/subscriptions/${subscription_id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${stripeSecretKey}`,
+        },
+      });
+    }
+
+    // ===== إنشاء الـ Session =====
+    const body = new URLSearchParams();
+    body.append('payment_method_types[]', 'card');
+    body.append('line_items[0][price]', priceId);
+    body.append('line_items[0][quantity]', '1');
+    body.append('mode', 'subscription');
+    body.append('success_url', `${Deno.env.get('SITE_URL')}plans?success=true&session_id={CHECKOUT_SESSION_ID}`);
+    body.append('cancel_url', `${Deno.env.get('SITE_URL')}plans?canceled=true`);
+    body.append('metadata[user_id]', user_id);
+    body.append('metadata[plan]', plan);
+    body.append('customer_email', email);
 
     const response = await fetch(`${stripeApi}/checkout/sessions`, {
       method: 'POST',
