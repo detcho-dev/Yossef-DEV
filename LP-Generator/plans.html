@@ -761,92 +761,122 @@
     };
 
     // ============================================================
-    // ===== SELECT PLAN =====
-    // ============================================================
-    window.selectPlan = async function(plan) {
-      if (!currentUser) {
-        showPopup({
-          icon: '🔒',
-          title: 'Please Sign In',
-          message: 'You need to sign in to change your plan.',
-          primaryText: 'Sign In',
-          primaryAction: () => handleAuth()
-        });
-        return;
-      }
+// ===== SELECT PLAN (مع إدارة الاشتراكات) =====
+// ============================================================
+window.selectPlan = async function(plan) {
+  if (!currentUser) {
+    showPopup({
+      icon: '🔒',
+      title: 'Please Sign In',
+      message: 'You need to sign in to change your plan.',
+      primaryText: 'Sign In',
+      primaryAction: () => handleAuth()
+    });
+    return;
+  }
 
-      if (plan === currentPlan) {
-        showPopup({
-          icon: 'ℹ️',
-          title: 'Already on this plan',
-          message: `You are already on the ${plan} plan.`,
-          primaryText: 'OK'
-        });
-        return;
-      }
+  if (plan === currentPlan) {
+    showPopup({
+      icon: 'ℹ️',
+      title: 'Already on this plan',
+      message: `You are already on the ${plan} plan.`,
+      primaryText: 'OK'
+    });
+    return;
+  }
 
-      // ===== خطة Free =====
-      if (plan === 'free') {
-        if (!confirm('Are you sure you want to downgrade to Free?')) return;
+  // ===== خطة Free =====
+  if (plan === 'free') {
+    if (!confirm('Are you sure you want to downgrade to Free? You will lose access to premium features.')) return;
 
-        try {
-          await supabase
-            .from('profiles')
-            .update({ plan: 'free', updated_at: new Date().toISOString() })
-            .eq('id', currentUser.id);
+    try {
+      // ===== 1. جيب الـ Subscription ID من Stripe =====
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('stripe_subscription_id')
+        .eq('id', currentUser.id)
+        .single();
 
-          currentPlan = 'free';
-          updateUI();
-
-          showPopup({
-            icon: '✅',
-            title: 'Plan Updated',
-            message: 'You are now on the Free plan.',
-            primaryText: 'OK'
-          });
-        } catch (err) {
-          showPopup({ icon: '❌', title: 'Error', message: err.message, primaryText: 'OK' });
-        }
-        return;
-      }
-
-      // ===== خطة مدفوعة (Pro / Business) =====
-      try {
-        const response = await fetch(
-          'https://fhgszopuwnrnijxvghku.supabase.co/functions/v1/create-checkout-session',
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${supabaseKey}`
-            },
-            body: JSON.stringify({
-              plan: plan,
-              user_id: currentUser.id,
-              email: currentUser.email
-            })
+      // ===== 2. لو عنده اشتراك، ألغيه =====
+      if (profile?.stripe_subscription_id) {
+        await fetch(`https://api.stripe.com/v1/subscriptions/${profile.stripe_subscription_id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer sk_test_...` // حط الـ Secret Key بتاعك
           }
-        );
-
-        const result = await response.json();
-
-        if (result.url) {
-          window.location.href = result.url;
-        } else {
-          throw new Error('No checkout URL returned');
-        }
-
-      } catch (err) {
-        showPopup({
-          icon: '❌',
-          title: 'Payment Error',
-          message: err.message,
-          primaryText: 'OK'
         });
-        console.error('Stripe error:', err);
       }
-    };
 
+      // ===== 3. حدث الخطة في Supabase =====
+      await supabase
+        .from('profiles')
+        .update({
+          plan: 'free',
+          stripe_subscription_id: null,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', currentUser.id);
+
+      currentPlan = 'free';
+      updateUI();
+
+      showPopup({
+        icon: '✅',
+        title: 'Plan Updated',
+        message: 'You are now on the Free plan.',
+        primaryText: 'OK'
+      });
+
+    } catch (err) {
+      showPopup({ icon: '❌', title: 'Error', message: err.message, primaryText: 'OK' });
+    }
+    return;
+  }
+
+  // ===== خطة مدفوعة (Pro / Business) =====
+  try {
+    // ===== جيب الـ Subscription ID الحالي =====
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('stripe_subscription_id')
+      .eq('id', currentUser.id)
+      .single();
+
+    const response = await fetch(
+      'https://fhgszopuwnrnijxvghku.supabase.co/functions/v1/create-checkout-session',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabaseKey}`
+        },
+        body: JSON.stringify({
+          plan: plan,
+          user_id: currentUser.id,
+          email: currentUser.email,
+          subscription_id: profile?.stripe_subscription_id || null // نمرر الاشتراك القديم عشان يلغى
+        })
+      }
+    );
+
+    const result = await response.json();
+
+    if (result.url) {
+      window.location.href = result.url;
+    } else {
+      throw new Error('No checkout URL returned');
+    }
+
+  } catch (err) {
+    showPopup({
+      icon: '❌',
+      title: 'Payment Error',
+      message: err.message,
+      primaryText: 'OK'
+    });
+    console.error('Stripe error:', err);
+  }
+};
     // ============================================================
     // ===== INIT =====
     // ============================================================
