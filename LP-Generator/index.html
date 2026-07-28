@@ -1,4 +1,4 @@
-[<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -10,7 +10,7 @@
     /* ============================================================ */
     *,
     *::before,
-    *::after 
+    *::after {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
@@ -951,9 +951,6 @@
     let selectedTemplate = null;
     let currentTemplateFields = null;
 
-    window.supabase = supabase;
-window.currentUser = currentUser;
-
     // ============================================================
     // ===== POPUP =====
     // ============================================================
@@ -1150,37 +1147,39 @@ window.currentUser = currentUser;
       }
     };
 
+    // ============================================================
     // ===== CHECK AUTH =====
-async function checkAuth() {
-  const { data: { session } } = await supabase.auth.getSession();
+    // ============================================================
+    async function checkAuth() {
+      const { data: { session } } = await supabase.auth.getSession();
 
-  if (session) {
-    currentUser = session.user;
-    const name = session.user.user_metadata?.full_name || session.user.email || 'User';
-    authBtn.textContent = `👤 ${name.split('@')[0]}`;
-    mySites.style.display = 'inline-flex';
+      if (session) {
+        currentUser = session.user;
+        const name = session.user.user_metadata?.full_name || session.user.email || 'User';
+        authBtn.textContent = `👤 ${name.split('@')[0]}`;
+        mySites.style.display = 'inline-flex';
 
-    // ===== جيب الخطة من profiles =====
-    const { data: profile, error } = await supabase
-      .from('profiles')
-      .select('plan')
-      .eq('id', currentUser.id)
-      .maybeSingle();
+        // ===== جيب الخطة من profiles =====
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('plan')
+          .eq('id', currentUser.id)
+          .maybeSingle();
 
-    if (!error && profile) {
-      currentUser.plan = profile.plan; // أضف الخطة للمستخدم
+        if (!error && profile) {
+          currentUser.plan = profile.plan;
+        }
+
+        // ===== جعل المتغيرات متاحة في Console =====
+        window.supabase = supabase;
+        window.currentUser = currentUser;
+
+      } else {
+        currentUser = null;
+        authBtn.textContent = '🔑 Login';
+        mySites.style.display = 'none';
+      }
     }
-
-    // ===== جعل المتغيرات متاحة في Console =====
-    window.supabase = supabase;
-    window.currentUser = currentUser;
-
-  } else {
-    currentUser = null;
-    authBtn.textContent = '🔑 Login';
-    mySites.style.display = 'none';
-  }
-}
 
     // ============================================================
     // ===== PREVIEW =====
@@ -1260,10 +1259,7 @@ async function checkAuth() {
           .eq('slug', slug)
           .single();
 
-        if (!error && profile) {
-    currentUser.plan = profile.plan;
-  }
-
+        if (error) throw error;
 
         const access = await canAccessTemplate(template.id);
         if (!access.allowed) {
@@ -1283,6 +1279,17 @@ async function checkAuth() {
 
         selectedTemplate = template;
         currentTemplateFields = template.fields || {};
+
+        // ===== تأكد من تحميل الخطة تاني قبل فتح الـ Split =====
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('plan')
+          .eq('id', currentUser.id)
+          .maybeSingle();
+
+        if (!profileError && profile) {
+          currentUser.plan = profile.plan;
+        }
 
         buildSplitForm(template);
         window.updateLivePreview();
