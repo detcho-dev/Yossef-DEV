@@ -780,6 +780,31 @@
     .split-right::-webkit-scrollbar-thumb:hover {
       background: rgba(255, 255, 255, 0.25);
     }
+
+    /* ===== BADGE ===== */
+.badge-free {
+  background: rgba(74, 222, 128, 0.15);
+  color: #4ade80;
+  padding: 2px 12px;
+  border-radius: 40px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border: 1px solid rgba(74, 222, 128, 0.15);
+}
+
+.badge-paid {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+  padding: 2px 12px;
+  border-radius: 40px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border: 1px solid rgba(251, 191, 36, 0.15);
+}
   </style>
 </head>
 <body>
@@ -1518,55 +1543,63 @@ if (!limitCheck.allowed) {
       }
     }
 
-    // ============================================================
     // ===== LOAD TEMPLATES =====
-    // ============================================================
-    async function loadTemplates() {
-      grid.innerHTML = '<div class="loading">Loading templates...</div>';
+async function loadTemplates() {
+  grid.innerHTML = '<div class="loading">Loading templates...</div>';
 
-      try {
-        const { data, error } = await supabase
-          .from('templates')
-          .select('*')
-          .eq('is_active', true)
-          .order('created_at', { ascending: false });
+  try {
+    const { data, error } = await supabase
+      .from('templates')
+      .select('*')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false });
 
-        if (error) throw error;
+    if (error) throw error;
 
-        if (!data || data.length === 0) {
-          grid.innerHTML = `
-            <div class="empty-state" style="grid-column:1/-1;">
-              <p>✨ No templates yet. <br>Add one via the admin panel.</p>
-            </div>
-          `;
-          return;
-        }
-
-        let html = '';
-        data.forEach(tpl => {
-          html += `
-            <div class="template-card">
-              <img src="${tpl.cover_image || 'https://via.placeholder.com/400x200?text=Template'}" 
-                   alt="${tpl.name}" loading="lazy" />
-              <div class="info">
-                <h3>${tpl.name}</h3>
-                <span class="id-badge">#${tpl.slug}</span>
-                <div class="card-actions">
-                  <button class="btn btn-preview" onclick="openPreview('${tpl.slug}')">👁️ Preview</button>
-                  <button class="btn btn-use" onclick="openSplit('${tpl.slug}')">🚀 Use Template</button>
-                </div>
-              </div>
-            </div>
-          `;
-        });
-        grid.innerHTML = html;
-
-      } catch (err) {
-        console.error(err);
-        grid.innerHTML = `<div class="error-msg">❌ Error: ${err.message}</div>`;
-      }
+    if (!data || data.length === 0) {
+      grid.innerHTML = `
+        <div class="empty-state" style="grid-column:1/-1;">
+          <p>✨ No templates yet. <br>Add one via the admin panel.</p>
+        </div>
+      `;
+      return;
     }
 
+    let html = '';
+    data.forEach(tpl => {
+      // ===== Badge =====
+      var badgeHtml = '';
+      if (tpl.is_free) {
+        badgeHtml = `<span class="badge-free">🆓 Free</span>`;
+      } else {
+        badgeHtml = `<span class="badge-paid">💎 Paid</span>`;
+      }
+
+      html += `
+        <div class="template-card">
+          <img src="${tpl.cover_image || 'https://via.placeholder.com/400x200?text=Template'}" 
+               alt="${tpl.name}" loading="lazy" />
+          <div class="info">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+              <h3>${tpl.name}</h3>
+              ${badgeHtml}
+            </div>
+            <span class="id-badge">#${tpl.slug}</span>
+            <div class="card-actions">
+              <button class="btn btn-preview" onclick="openPreview('${tpl.slug}')">👁️ Preview</button>
+              <button class="btn btn-use" onclick="openSplit('${tpl.slug}')">🚀 Use Template</button>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+    grid.innerHTML = html;
+
+  } catch (err) {
+    console.error(err);
+    grid.innerHTML = `<div class="error-msg">❌ Error: ${err.message}</div>`;
+  }
+}
     // ============================================================
     // ===== INIT =====
     // ============================================================
