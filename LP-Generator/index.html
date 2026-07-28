@@ -354,7 +354,7 @@
     }
 
     /* ============================================================ */
-    /* ===== SPLIT SCREEN (Use Template) ===== */
+    /* ===== SPLIT SCREEN ===== */
     /* ============================================================ */
     .split-overlay {
       position: fixed;
@@ -1062,6 +1062,52 @@
     }
 
     // ============================================================
+    // ===== CHECK TEMPLATE ACCESS =====
+    // ============================================================
+    async function canAccessTemplate(templateId) {
+      if (!currentUser) {
+        return { allowed: false, message: 'Please sign in to use this template.' };
+      }
+
+      try {
+        const { data: template, error } = await supabase
+          .from('templates')
+          .select('is_free')
+          .eq('id', templateId)
+          .single();
+
+        if (error) throw error;
+
+        if (template.is_free) {
+          return { allowed: true };
+        }
+
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('plan')
+          .eq('id', currentUser.id)
+          .maybeSingle();
+
+        if (profileError) throw profileError;
+
+        const plan = profile?.plan || 'free';
+
+        if (plan === 'pro' || plan === 'business') {
+          return { allowed: true };
+        }
+
+        return {
+          allowed: false,
+          message: '💎 This template is for paid users only. Please upgrade to Pro or Business plan.'
+        };
+
+      } catch (err) {
+        console.error('canAccessTemplate error:', err);
+        return { allowed: false, message: 'Error checking access.' };
+      }
+    }
+
+    // ============================================================
     // ===== AUTH =====
     // ============================================================
     window.handleAuth = async function() {
@@ -1100,55 +1146,7 @@
         mySites.style.display = 'none';
       }
     }
-// ============================================================
-// ===== CHECK IF USER CAN ACCESS TEMPLATE =====
-// ============================================================
-async function canAccessTemplate(templateId) {
-  if (!currentUser) {
-    return { allowed: false, message: 'Please sign in to use this template.' };
-  }
 
-  try {
-    // ===== 1. جيب بيانات القالب =====
-    const { data: template, error } = await supabase
-      .from('templates')
-      .select('is_free')
-      .eq('id', templateId)
-      .single();
-
-    if (error) throw error;
-
-    // ===== 2. لو القالب مجاني =====
-    if (template.is_free) {
-      return { allowed: true };
-    }
-
-    // ===== 3. القالب مدفوع → تحقق من خطة المستخدم =====
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('plan')
-      .eq('id', currentUser.id)
-      .maybeSingle();
-
-    if (profileError) throw profileError;
-
-    const plan = profile?.plan || 'free';
-
-    // ===== 4. أي خطة مدفوعة (Pro أو Business) =====
-    if (plan === 'pro' || plan === 'business') {
-      return { allowed: true };
-    }
-
-    return {
-      allowed: false,
-      message: '💎 This template is for paid users only. Please upgrade to Pro or Business plan.'
-    };
-
-  } catch (err) {
-    console.error('canAccessTemplate error:', err);
-    return { allowed: false, message: 'Error checking access.' };
-  }
-}
     // ============================================================
     // ===== PREVIEW =====
     // ============================================================
@@ -1164,6 +1162,19 @@ async function canAccessTemplate(templateId) {
 
         previewTitle.textContent = `👁️ ${template.name}`;
 
+        let previewHtml = '';
+        if (!template.is_free) {
+          previewHtml = `
+            <div style="background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.2);border-radius:12px;padding:16px;margin-bottom:16px;text-align:center;">
+              <p style="color:#fbbf24;font-size:0.9rem;">
+                💎 <strong>Premium Template</strong><br>
+                This template is for paid users only. 
+                <a href="plans.html" style="color:#4facfe;text-decoration:underline;">Upgrade to Pro or Business</a> to use it.
+              </p>
+            </div>
+          `;
+        }
+
         let html = template.html || '<p>No content</p>';
         const fields = template.fields || {};
         for (const [key, config] of Object.entries(fields)) {
@@ -1171,7 +1182,7 @@ async function canAccessTemplate(templateId) {
           html = html.replace(new RegExp(`{{${key}}}`, 'g'), value);
         }
 
-        previewContent.innerHTML = html;
+        previewContent.innerHTML = previewHtml + html;
 
         if (template.css) {
           const style = document.createElement('style');
@@ -1193,60 +1204,337 @@ async function canAccessTemplate(templateId) {
     };
 
     // ============================================================
-// ===== OPEN SPLIT (Use Template) =====
-// ============================================================
-window.openSplit = async function(slug) {
-  if (!currentUser) {
-    showPopup({
-      icon: '🔒',
-      title: 'Please Sign In',
-      message: 'You need to sign in first to create your site.',
-      primaryText: 'Sign In',
-      primaryAction: () => handleAuth()
-    });
-    return;
-  }
+    // ===== SPLIT SCREEN =====
+    // ============================================================
+    window.openSplit = async function(slug) {
+      if (!currentUser) {
+        showPopup({
+          icon: '🔒',
+          title: 'Please Sign In',
+          message: 'You need to sign in first to create your site.',
+          primaryText: 'Sign In',
+          primaryAction: () => handleAuth()
+        });
+        return;
+      }
 
-  try {
-    // ===== 1. جيب بيانات القالب =====
-    const { data: template, error } = await supabase
-      .from('templates')
-      .select('*')
-      .eq('slug', slug)
-      .single();
+      try {
+        const { data: template, error } = await supabase
+          .from('templates')
+          .select('*')
+          .eq('slug', slug)
+          .single();
 
-    if (error) throw error;
+        if (error) throw error;
 
-    // ===== 2. تحقق من صلاحية المستخدم للقالب =====
-    const access = await canAccessTemplate(template.id);
-    if (!access.allowed) {
-      showPopup({
-        icon: '💎',
-        title: 'Premium Template',
-        message: access.message + '\n\nUpgrade to access all premium templates.',
-        primaryText: 'Upgrade Now',
-        primaryAction: () => {
-          window.location.href = 'plans.html';
-        },
-        secondaryText: 'OK',
-        secondaryAction: () => {}
+        const access = await canAccessTemplate(template.id);
+        if (!access.allowed) {
+          showPopup({
+            icon: '💎',
+            title: 'Premium Template',
+            message: access.message + '\n\nUpgrade to access all premium templates.',
+            primaryText: 'Upgrade Now',
+            primaryAction: () => {
+              window.location.href = 'plans.html';
+            },
+            secondaryText: 'OK',
+            secondaryAction: () => {}
+          });
+          return;
+        }
+
+        selectedTemplate = template;
+        currentTemplateFields = template.fields || {};
+
+        buildSplitForm(template);
+        window.updateLivePreview();
+
+        splitOverlay.classList.add('active');
+
+      } catch (err) {
+        showPopup({ icon: '❌', title: 'Error', message: err.message, primaryText: 'OK' });
+      }
+    };
+
+    window.closeSplit = function() {
+      splitOverlay.classList.remove('active');
+      document.getElementById('split-style')?.remove();
+    };
+
+    function buildSplitForm(template) {
+      const fields = template.fields || {};
+      let html = `
+        <form id="split-site-form">
+          <div class="form-group">
+            <label>Your Site Name (username)</label>
+            <input type="text" id="split-site-slug" 
+                   value="${currentUser?.user_metadata?.username || currentUser?.email?.split('@')[0] || 'my-site'}" 
+                   placeholder="my-site" required />
+            <small>This will be your site URL: <span id="split-slug-preview">my-site</span>.html</small>
+          </div>
+      `;
+
+      for (const [key, config] of Object.entries(fields)) {
+        const { type, label, default: defaultValue, placeholder, required, options } = config;
+
+        switch (type) {
+          case 'text':
+          case 'url':
+          case 'color':
+            html += `
+              <div class="form-group">
+                <label>${label} ${required ? '*' : ''}</label>
+                <input type="${type === 'url' ? 'url' : type === 'color' ? 'color' : 'text'}" 
+                       id="split-field-${key}" 
+                       value="${defaultValue || ''}" 
+                       placeholder="${placeholder || ''}" 
+                       ${required ? 'required' : ''}
+                       oninput="window.updateLivePreview()" />
+              </div>
+            `;
+            break;
+
+          case 'textarea':
+            html += `
+              <div class="form-group">
+                <label>${label} ${required ? '*' : ''}</label>
+                <textarea id="split-field-${key}" 
+                          placeholder="${placeholder || ''}" 
+                          ${required ? 'required' : ''}
+                          oninput="window.updateLivePreview()">${defaultValue || ''}</textarea>
+              </div>
+            `;
+            break;
+
+          case 'select':
+            html += `
+              <div class="form-group">
+                <label>${label} ${required ? '*' : ''}</label>
+                <select id="split-field-${key}" 
+                        ${required ? 'required' : ''}
+                        onchange="window.updateLivePreview()">
+                  ${options.map(opt => `
+                    <option value="${opt}" ${opt === defaultValue ? 'selected' : ''}>${opt}</option>
+                  `).join('')}
+                </select>
+              </div>
+            `;
+            break;
+
+          case 'image':
+            html += `
+              <div class="form-group">
+                <label>${label} ${required ? '*' : ''}</label>
+                <div class="image-upload-wrapper">
+                  <input type="text" id="split-field-${key}" 
+                         value="${defaultValue || ''}" 
+                         placeholder="${placeholder || 'https://...'}" 
+                         ${required ? 'required' : ''}
+                         oninput="window.updateLivePreview()" />
+                  <button type="button" class="btn-upload" onclick="window.uploadSplitImage('${key}')">📤 Upload</button>
+                </div>
+                <img id="split-preview-${key}" class="image-preview ${defaultValue ? 'visible' : ''}" 
+                     src="${defaultValue || ''}" alt="Preview" />
+              </div>
+            `;
+            break;
+
+          default:
+            html += `
+              <div class="form-group">
+                <label>${label} ${required ? '*' : ''}</label>
+                <input type="text" id="split-field-${key}" 
+                       value="${defaultValue || ''}" 
+                       placeholder="${placeholder || ''}"
+                       oninput="window.updateLivePreview()" />
+              </div>
+            `;
+        }
+      }
+
+      html += `
+          <button type="submit" class="btn-publish">🚀 Publish My Site</button>
+        </form>
+      `;
+
+      splitForm.innerHTML = html;
+
+      const slugInput = document.getElementById('split-site-slug');
+      const slugPreview = document.getElementById('split-slug-preview');
+      slugInput?.addEventListener('input', () => {
+        slugPreview.textContent = slugInput.value || 'my-site';
+        window.updateLivePreview();
       });
-      return;
+
+      document.getElementById('split-site-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await publishFromSplit();
+      });
     }
 
-    // ===== 3. استمر =====
-    selectedTemplate = template;
-    currentTemplateFields = template.fields || {};
+    // ===== Live Preview =====
+    window.updateLivePreview = function() {
+      if (!selectedTemplate) return;
 
-    buildSplitForm(template);
-    window.updateLivePreview();
+      const fields = currentTemplateFields || {};
+      const data = {};
 
-    splitOverlay.classList.add('active');
+      for (const [key] of Object.entries(fields)) {
+        const input = document.getElementById(`split-field-${key}`);
+        if (input) {
+          data[key] = input.value.trim();
+        }
+      }
 
-  } catch (err) {
-    showPopup({ icon: '❌', title: 'Error', message: err.message, primaryText: 'OK' });
-  }
-};
+      let html = selectedTemplate.html || '<p>No content</p>';
+      for (const [key, value] of Object.entries(data)) {
+        html = html.replace(new RegExp(`{{${key}}}`, 'g'), value || `[${key}]`);
+      }
+
+      const slugInput = document.getElementById('split-site-slug');
+      const slug = slugInput?.value || 'my-site';
+      html = html.replace(/\{\{site_slug\}\}/g, slug);
+
+      livePreview.innerHTML = html;
+
+      document.getElementById('split-style')?.remove();
+      if (selectedTemplate.css) {
+        const style = document.createElement('style');
+        style.id = 'split-style';
+        style.textContent = selectedTemplate.css;
+        document.head.appendChild(style);
+      }
+
+      if (selectedTemplate.js) {
+        try {
+          const fn = new Function(`const templateData = ${JSON.stringify(data)}; ${selectedTemplate.js}`);
+          fn();
+        } catch (e) {
+          console.warn('JS execution error:', e);
+        }
+      }
+    };
+
+    // ===== Upload Image in Split =====
+    window.uploadSplitImage = async function(fieldKey) {
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'image/*';
+      fileInput.style.display = 'none';
+      document.body.appendChild(fileInput);
+      fileInput.click();
+
+      fileInput.onchange = async function() {
+        const file = this.files[0];
+        if (!file) return;
+
+        const fieldInput = document.getElementById(`split-field-${fieldKey}`);
+        const preview = document.getElementById(`split-preview-${fieldKey}`);
+
+        const { data, error } = await supabase.storage
+          .from('templates-images')
+          .upload(`${Date.now()}-${file.name}`, file);
+
+        if (error) {
+          showPopup({ icon: '❌', title: 'Upload Failed', message: error.message, primaryText: 'OK' });
+          return;
+        }
+
+        const { data: urlData } = supabase.storage
+          .from('templates-images')
+          .getPublicUrl(data.path);
+
+        fieldInput.value = urlData.publicUrl;
+        preview.src = urlData.publicUrl;
+        preview.classList.add('visible');
+        document.body.removeChild(fileInput);
+        window.updateLivePreview();
+      };
+    };
+
+    // ===== Publish =====
+    async function publishFromSplit() {
+      const slug = document.getElementById('split-site-slug').value.trim();
+      if (!slug) {
+        showPopup({ icon: '⚠️', title: 'Missing Name', message: 'Please enter a site name.', primaryText: 'OK' });
+        return;
+      }
+
+      const fields = currentTemplateFields || {};
+      const data = {};
+
+      for (const [key, config] of Object.entries(fields)) {
+        if (config.type === 'image') {
+          const input = document.getElementById(`split-field-${key}`);
+          const url = input?.value?.trim() || '';
+          if (url && !validateImageUrl(url)) {
+            showPopup({
+              icon: '⚠️',
+              title: 'Invalid Image URL',
+              message: `The "${config.label}" field must be a valid image URL.`,
+              primaryText: 'OK'
+            });
+            return;
+          }
+        }
+        const input = document.getElementById(`split-field-${key}`);
+        if (input) data[key] = input.value.trim();
+      }
+
+      const limitCheck = await checkSiteLimit(currentUser.id);
+      if (!limitCheck.allowed) {
+        showPopup({
+          icon: '🔒',
+          title: 'Plan Limit Reached',
+          message: limitCheck.message,
+          primaryText: 'OK'
+        });
+        return;
+      }
+
+      let html = selectedTemplate.html;
+      for (const [key, value] of Object.entries(data)) {
+        html = html.replace(new RegExp(`{{${key}}}`, 'g'), value);
+      }
+      html = html.replace(/\{\{site_slug\}\}/g, slug);
+
+      try {
+        const { error: saveError } = await supabase
+          .from('sites')
+          .upsert({
+            user_id: currentUser.id,
+            template_id: selectedTemplate.id,
+            slug: slug,
+            title: data.title || slug,
+            data: data,
+            html: html,
+            published: true,
+            published_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }, {
+            onConflict: 'user_id, template_id'
+          });
+
+        if (saveError) throw saveError;
+
+        const siteUrl = `${SITE_URL}site.html?slug=${slug}`;
+
+        showPopup({
+          icon: '🎉',
+          title: 'Site Published!',
+          message: `Your site is live at:\n${siteUrl}`,
+          primaryText: '🔗 Open Site',
+          primaryAction: () => window.open(siteUrl, '_blank'),
+          secondaryText: 'OK',
+          secondaryAction: () => {}
+        });
+
+        closeSplit();
+
+      } catch (err) {
+        showPopup({ icon: '❌', title: 'Publish Error', message: err.message, primaryText: 'OK' });
+      }
+    }
 
     // ============================================================
     // ===== LOAD TEMPLATES =====
