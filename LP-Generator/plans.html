@@ -452,31 +452,56 @@
     <!-- ===== PLANS ===== -->
     <div class="plans-grid" id="plans-grid">
       <!-- Free Plan -->
-<ul class="plan-features">
-  <li><span class="check">✅</span> 1 published site</li>
-  <li><span class="check">✅</span> Free templates</li>
-  <li><span class="check">✅</span> Live preview</li>
-  <li><span class="cross">❌</span> Premium templates</li>
-  <li><span class="cross">❌</span> Custom Site Name</li>
-</ul>
+      <div class="plan-card" id="plan-free">
+        <div class="plan-name">Free</div>
+        <div class="plan-price">$0 <span>/ forever</span></div>
+        <div class="plan-description">Perfect for getting started</div>
+        <ul class="plan-features">
+          <li><span class="check">✅</span> 1 published site</li>
+          <li><span class="check">✅</span> Free templates</li>
+          <li><span class="check">✅</span> Live preview</li>
+          <li><span class="cross">❌</span> Premium templates</li>
+          <li><span class="cross">❌</span> Custom Site Name</li>
+          <li><span class="cross">❌</span> Edit after publish</li>
+          <li><span class="cross">❌</span> Priority support</li>
+        </ul>
+        <button class="btn-plan free" id="btn-free" onclick="selectPlan('free')">Current Plan</button>
+      </div>
 
-<!-- Pro Plan -->
-<ul class="plan-features">
-  <li><span class="check">✅</span> 5 published sites</li>
-  <li><span class="check">✅</span> All templates (Free + Premium)</li>
-  <li><span class="check">✅</span> Live preview</li>
-  <li><span class="check">✅</span> Premium templates</li>
-  <li><span class="cross">❌</span> Custom Site Name</li>
-</ul>
+      <!-- Pro Plan -->
+      <div class="plan-card popular" id="plan-pro">
+        <div class="plan-name">Pro</div>
+        <div class="plan-price">$19 <span>/ month</span></div>
+        <div class="plan-description">For professionals and creators</div>
+        <ul class="plan-features">
+          <li><span class="check">✅</span> 5 published sites</li>
+          <li><span class="check">✅</span> All templates (Free + Premium)</li>
+          <li><span class="check">✅</span> Live preview</li>
+          <li><span class="check">✅</span> Premium templates</li>
+          <li><span class="check">✅</span> Edit after publish</li>
+          <li><span class="cross">❌</span> Custom Site Name</li>
+          <li><span class="cross">❌</span> Priority support</li>
+        </ul>
+        <button class="btn-plan pro" id="btn-pro" onclick="selectPlan('pro')">Upgrade to Pro</button>
+      </div>
 
-<!-- Business Plan -->
-<ul class="plan-features">
-  <li><span class="check">✅</span> 50 published sites</li>
-  <li><span class="check">✅</span> All templates (Free + Premium)</li>
-  <li><span class="check">✅</span> Live preview</li>
-  <li><span class="check">✅</span> Premium templates</li>
-  <li><span class="check">✅</span> Custom Site Name</li>
-</ul>
+      <!-- Business Plan -->
+      <div class="plan-card" id="plan-business">
+        <div class="plan-name">Business</div>
+        <div class="plan-price">$49 <span>/ month</span></div>
+        <div class="plan-description">For agencies and teams</div>
+        <ul class="plan-features">
+          <li><span class="check">✅</span> 50 published sites</li>
+          <li><span class="check">✅</span> All templates (Free + Premium)</li>
+          <li><span class="check">✅</span> Live preview</li>
+          <li><span class="check">✅</span> Premium templates</li>
+          <li><span class="check">✅</span> Edit after publish</li>
+          <li><span class="check">✅</span> Custom Site Name</li>
+          <li><span class="check">✅</span> Priority support</li>
+        </ul>
+        <button class="btn-plan business" id="btn-business" onclick="selectPlan('business')">Upgrade to Business</button>
+      </div>
+    </div>
   </div>
 
   <!-- ============================================================ -->
@@ -694,10 +719,9 @@
 
       if (success && sessionId) {
         try {
-          // IMPORTANT: استخدم Secret Key من Supabase Secrets
           const response = await fetch(`https://api.stripe.com/v1/checkout/sessions/${sessionId}`, {
             headers: {
-              'Authorization': `Bearer sk_test_51TuYRZJuptjQdtg4Udi7Gwit2nRWGQXc4tMP23I23dexGyiBrEVIy7g0iBjWKepLaBKSEFvMRUtvJx3FDIHebsqE00zBhZxETb` // هذا لا يعمل في المتصفح!
+              'Authorization': `Bearer sk_test_51TuYRZJuptjQdtg4Udi7Gwit2nRWGQXc4tMP23I23dexGyiBrEVIy7g0iBjWKepLaBKSEFvMRUtvJx3FDIHebsqE00zBhZxETb`
             }
           });
           const session = await response.json();
@@ -742,172 +766,175 @@
     };
 
     // ============================================================
-// ===== GET USER PLAN (للاستخدام في التحقق من الصلاحيات) =====
-// ============================================================
-async function getUserPlan(userId) {
-  try {
-    const { data: profile, error } = await supabase
-      .from('profiles')
-      .select('plan')
-      .eq('id', userId)
-      .maybeSingle();
+    // ===== GET USER PLAN (للاستخدام في التحقق من الصلاحيات) =====
+    // ============================================================
+    async function getUserPlan(userId) {
+      try {
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('plan')
+          .eq('id', userId)
+          .maybeSingle();
 
-    if (error) {
-      console.error('Error fetching profile:', error);
-      return 'free';
+        if (error) {
+          console.error('Error fetching profile:', error);
+          return 'free';
+        }
+
+        return profile?.plan || 'free';
+
+      } catch (err) {
+        console.error('getUserPlan error:', err);
+        return 'free';
+      }
     }
 
-    return profile?.plan || 'free';
+    // ============================================================
+    // ===== CHECK PERMISSIONS =====
+    // ============================================================
 
-  } catch (err) {
-    console.error('getUserPlan error:', err);
-    return 'free';
-  }
-}
+    // Live Preview مجاني للجميع (دائماً true)
+    function canLivePreview() {
+      return true;
+    }
 
-// ============================================================
-// ===== CHECK PERMISSIONS =====
-// ============================================================
+    // النشر مجاني للجميع (دائماً true)
+    function canPublish() {
+      return true;
+    }
 
-// Live Preview مجاني للجميع (دائماً true)
-function canLivePreview() {
-  return true;
-}
+    // تعديل البيانات بعد النشر (Pro و Business بس)
+    async function canEditSite(userId) {
+      const plan = await getUserPlan(userId);
+      return plan === 'pro' || plan === 'business';
+    }
 
-// النشر مجاني للجميع (دائماً true)
-function canPublish() {
-  return true;
-}
+    // Custom Slug (Business بس)
+    async function canUseCustomSlug(userId) {
+      const plan = await getUserPlan(userId);
+      return plan === 'business';
+    }
 
-// تعديل البيانات بعد النشر (Pro و Business بس)
-async function canEditSite(userId) {
-  const plan = await getUserPlan(userId);
-  return plan === 'pro' || plan === 'business';
-}
+    // Premium Templates (Pro و Business بس)
+    async function canAccessPremiumTemplates(userId) {
+      const plan = await getUserPlan(userId);
+      return plan === 'pro' || plan === 'business';
+    }
 
-// Custom Slug (Business بس)
-async function canUseCustomSlug(userId) {
-  const plan = await getUserPlan(userId);
-  return plan === 'business';
-}
-
-// ============================================================
-// ===== SELECT PLAN (مع إدارة الاشتراكات) =====
-// ============================================================
-window.selectPlan = async function(plan) {
-  if (!currentUser) {
-    showPopup({
-      icon: '🔒',
-      title: 'Please Sign In',
-      message: 'You need to sign in to change your plan.',
-      primaryText: 'Sign In',
-      primaryAction: () => handleAuth()
-    });
-    return;
-  }
-
-  if (plan === currentPlan) {
-    showPopup({
-      icon: 'ℹ️',
-      title: 'Already on this plan',
-      message: `You are already on the ${plan} plan.`,
-      primaryText: 'OK'
-    });
-    return;
-  }
-
-  // ===== خطة Free =====
-  if (plan === 'free') {
-    if (!confirm('Are you sure you want to downgrade to Free? You will lose access to premium features.')) return;
-
-    try {
-      // ===== 1. جيب الـ Subscription ID من Stripe =====
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('stripe_subscription_id')
-        .eq('id', currentUser.id)
-        .single();
-
-      // ===== 2. لو عنده اشتراك، ألغيه =====
-      if (profile?.stripe_subscription_id) {
-        await fetch(`https://api.stripe.com/v1/subscriptions/${profile.stripe_subscription_id}`, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer sk_test_51TuYRZJuptjQdtg4Udi7Gwit2nRWGQXc4tMP23I23dexGyiBrEVIy7g0iBjWKepLaBKSEFvMRUtvJx3FDIHebsqE00zBhZxETb`
-          }
+    // ============================================================
+    // ===== SELECT PLAN (مع إدارة الاشتراكات) =====
+    // ============================================================
+    window.selectPlan = async function(plan) {
+      if (!currentUser) {
+        showPopup({
+          icon: '🔒',
+          title: 'Please Sign In',
+          message: 'You need to sign in to change your plan.',
+          primaryText: 'Sign In',
+          primaryAction: () => handleAuth()
         });
+        return;
       }
 
-      // ===== 3. حدث الخطة في Supabase =====
-      await supabase
-        .from('profiles')
-        .update({
-          plan: 'free',
-          stripe_subscription_id: null,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', currentUser.id);
-
-      currentPlan = 'free';
-      updateUI();
-
-      showPopup({
-        icon: '✅',
-        title: 'Plan Updated',
-        message: 'You are now on the Free plan.',
-        primaryText: 'OK'
-      });
-
-    } catch (err) {
-      showPopup({ icon: '❌', title: 'Error', message: err.message, primaryText: 'OK' });
-    }
-    return;
-  }
-
-  // ===== خطة مدفوعة (Pro / Business) =====
-  try {
-    // ===== جيب الـ Subscription ID الحالي =====
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('stripe_subscription_id')
-      .eq('id', currentUser.id)
-      .single();
-
-    const response = await fetch(
-      'https://fhgszopuwnrnijxvghku.supabase.co/functions/v1/create-checkout-session',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${supabaseKey}`
-        },
-        body: JSON.stringify({
-          plan: plan,
-          user_id: currentUser.id,
-          email: currentUser.email,
-          subscription_id: profile?.stripe_subscription_id || null // نمرر الاشتراك القديم عشان يلغى
-        })
+      if (plan === currentPlan) {
+        showPopup({
+          icon: 'ℹ️',
+          title: 'Already on this plan',
+          message: `You are already on the ${plan} plan.`,
+          primaryText: 'OK'
+        });
+        return;
       }
-    );
 
-    const result = await response.json();
+      // ===== خطة Free =====
+      if (plan === 'free') {
+        if (!confirm('Are you sure you want to downgrade to Free? You will lose access to premium features.')) return;
 
-    if (result.url) {
-      window.location.href = result.url;
-    } else {
-      throw new Error('No checkout URL returned');
-    }
+        try {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('stripe_subscription_id')
+            .eq('id', currentUser.id)
+            .single();
 
-  } catch (err) {
-    showPopup({
-      icon: '❌',
-      title: 'Payment Error',
-      message: err.message,
-      primaryText: 'OK'
-    });
-    console.error('Stripe error:', err);
-  }
-};
+          if (profile?.stripe_subscription_id) {
+            await fetch(`https://api.stripe.com/v1/subscriptions/${profile.stripe_subscription_id}`, {
+              method: 'DELETE',
+              headers: {
+                'Authorization': `Bearer sk_test_51TuYRZJuptjQdtg4Udi7Gwit2nRWGQXc4tMP23I23dexGyiBrEVIy7g0iBjWKepLaBKSEFvMRUtvJx3FDIHebsqE00zBhZxETb`
+              }
+            });
+          }
+
+          await supabase
+            .from('profiles')
+            .update({
+              plan: 'free',
+              stripe_subscription_id: null,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', currentUser.id);
+
+          currentPlan = 'free';
+          updateUI();
+
+          showPopup({
+            icon: '✅',
+            title: 'Plan Updated',
+            message: 'You are now on the Free plan.',
+            primaryText: 'OK'
+          });
+
+        } catch (err) {
+          showPopup({ icon: '❌', title: 'Error', message: err.message, primaryText: 'OK' });
+        }
+        return;
+      }
+
+      // ===== خطة مدفوعة (Pro / Business) =====
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('stripe_subscription_id')
+          .eq('id', currentUser.id)
+          .single();
+
+        const response = await fetch(
+          'https://fhgszopuwnrnijxvghku.supabase.co/functions/v1/create-checkout-session',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${supabaseKey}`
+            },
+            body: JSON.stringify({
+              plan: plan,
+              user_id: currentUser.id,
+              email: currentUser.email,
+              subscription_id: profile?.stripe_subscription_id || null
+            })
+          }
+        );
+
+        const result = await response.json();
+
+        if (result.url) {
+          window.location.href = result.url;
+        } else {
+          throw new Error('No checkout URL returned');
+        }
+
+      } catch (err) {
+        showPopup({
+          icon: '❌',
+          title: 'Payment Error',
+          message: err.message,
+          primaryText: 'OK'
+        });
+        console.error('Stripe error:', err);
+      }
+    };
+
     // ============================================================
     // ===== INIT =====
     // ============================================================
