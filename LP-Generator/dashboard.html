@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>📊 My Sites - Dashboard</title>
   <style>
+    /* ============================================================ */
     /* ===== RESET & BASE ===== */
+    /* ============================================================ */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -39,7 +41,9 @@
       margin: 0 auto;
     }
 
+    /* ============================================================ */
     /* ===== HEADER ===== */
+    /* ============================================================ */
     .header {
       display: flex;
       justify-content: space-between;
@@ -101,8 +105,16 @@
       box-shadow: 0 8px 24px rgba(79, 172, 254, 0.3);
     }
 
+    .btn-success {
+      background: linear-gradient(135deg, #4ade80, #22c55e);
+      border: none;
+    }
+    .btn-success:hover {
+      box-shadow: 0 8px 24px rgba(74, 222, 128, 0.3);
+    }
+
     .btn-danger {
-      background: linear-gradient(135deg, #f5576c, #f093fb);
+      background: linear-gradient(135deg, #f5576c, #ef4444);
       border: none;
     }
     .btn-danger:hover {
@@ -114,7 +126,63 @@
       font-size: 0.8rem;
     }
 
+    /* ============================================================ */
+    /* ===== PLAN CARD ===== */
+    /* ============================================================ */
+    .plan-card-dashboard {
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(12px);
+      border-radius: 24px;
+      padding: 24px 28px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      margin-bottom: 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .plan-card-dashboard .plan-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .plan-card-dashboard .plan-badge {
+      background: rgba(79, 172, 254, 0.15);
+      color: #4facfe;
+      padding: 4px 16px;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .plan-card-dashboard .plan-badge.free {
+      background: rgba(255, 255, 255, 0.06);
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .plan-card-dashboard .plan-badge.pro {
+      background: rgba(79, 172, 254, 0.15);
+      color: #4facfe;
+    }
+
+    .plan-card-dashboard .plan-badge.business {
+      background: rgba(240, 147, 251, 0.15);
+      color: #f093fb;
+    }
+
+    .plan-card-dashboard .plan-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* ============================================================ */
     /* ===== STATS ===== */
+    /* ============================================================ */
     .stats {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -143,7 +211,9 @@
       margin-top: 4px;
     }
 
+    /* ============================================================ */
     /* ===== SITES GRID ===== */
+    /* ============================================================ */
     .sites-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -224,7 +294,9 @@
       font-size: 0.8rem;
     }
 
+    /* ============================================================ */
     /* ===== EMPTY STATE ===== */
+    /* ============================================================ */
     .empty-state {
       text-align: center;
       padding: 60px 20px;
@@ -245,7 +317,9 @@
       margin-bottom: 16px;
     }
 
+    /* ============================================================ */
     /* ===== LOADING ===== */
+    /* ============================================================ */
     .loading {
       text-align: center;
       padding: 60px 20px;
@@ -272,7 +346,9 @@
       }
     }
 
+    /* ============================================================ */
     /* ===== POPUP ===== */
+    /* ============================================================ */
     .popup-overlay {
       position: fixed;
       top: 0;
@@ -360,7 +436,9 @@
       background: rgba(255, 255, 255, 0.12);
     }
 
+    /* ============================================================ */
     /* ===== RESPONSIVE ===== */
+    /* ============================================================ */
     @media (max-width: 768px) {
       body {
         padding: 16px;
@@ -377,6 +455,17 @@
         width: 100%;
       }
       .header-actions .btn {
+        flex: 1;
+        justify-content: center;
+      }
+      .plan-card-dashboard {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .plan-card-dashboard .plan-actions {
+        width: 100%;
+      }
+      .plan-card-dashboard .plan-actions .btn {
         flex: 1;
         justify-content: center;
       }
@@ -405,7 +494,9 @@
       }
     }
 
+    /* ============================================================ */
     /* ===== SCROLLBAR ===== */
+    /* ============================================================ */
     ::-webkit-scrollbar {
       width: 6px;
     }
@@ -426,13 +517,25 @@
   <div class="container">
     <!-- ===== HEADER ===== -->
     <header class="header">
-      <h1>📊 My Sites</h1>
+      <h1>📊 Dashboard</h1>
       <div class="header-actions">
         <a href="index.html" class="btn">🏠 Home</a>
-        <button class="btn btn-primary" onclick="window.location.href='index.html'">➕ New Site</button>
+        <a href="plans" class="btn">💳 Plans</a>
         <button class="btn" onclick="logout()">🚪 Logout</button>
       </div>
     </header>
+
+    <!-- ===== PLAN CARD ===== -->
+    <div id="plan-card" class="plan-card-dashboard">
+      <div class="plan-info">
+        <span>📋 Current Plan</span>
+        <span class="plan-badge" id="current-plan-badge">Free</span>
+      </div>
+      <div class="plan-actions">
+        <button class="btn btn-sm" id="btn-downgrade" onclick="downgradePlan()" style="display:none;">⬇️ Downgrade to Free</button>
+        <a href="plans" class="btn btn-sm btn-primary">⬆️ Upgrade</a>
+      </div>
+    </div>
 
     <!-- ===== STATS ===== -->
     <div class="stats" id="stats">
@@ -457,7 +560,9 @@
     </div>
   </div>
 
+  <!-- ============================================================ -->
   <!-- ===== POPUP ===== -->
+  <!-- ============================================================ -->
   <div id="popup" class="popup-overlay" onclick="if(event.target===this) closePopup()">
     <div class="popup">
       <div class="popup-icon" id="popup-icon">✅</div>
@@ -484,18 +589,24 @@
   <script type="module">
     import { createClient } from '@supabase/supabase-js';
 
+    // ============================================================
     // ===== CONFIG =====
+    // ============================================================
     const supabaseUrl = 'https://fhgszopuwnrnijxvghku.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZoZ3N6b3B1d25ybmlqeHZnaGt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMzQ1MTUsImV4cCI6MjA5OTYxMDUxNX0.K2WVDxjRh6JC51nZHdJpR2l8kjS1jhXJ9EkmQ5ElPtQ';
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     const SITE_URL = window.location.origin + window.location.pathname.replace('dashboard.html', '');
 
+    // ============================================================
     // ===== DOM REFS =====
+    // ============================================================
     const sitesGrid = document.getElementById('sites-grid');
     const totalSites = document.getElementById('total-sites');
     const totalViews = document.getElementById('total-views');
     const publishedSites = document.getElementById('published-sites');
+    const currentPlanBadge = document.getElementById('current-plan-badge');
+    const btnDowngrade = document.getElementById('btn-downgrade');
     const popup = document.getElementById('popup');
     const popupIcon = document.getElementById('popup-icon');
     const popupTitle = document.getElementById('popup-title');
@@ -504,8 +615,11 @@
     const popupBtnSecondary = document.getElementById('popup-btn-secondary');
 
     let currentUser = null;
+    let currentPlan = 'free';
 
+    // ============================================================
     // ===== POPUP =====
+    // ============================================================
     function showPopup({ icon = '✅', title = 'Success!', message = '', primaryText = 'OK', primaryAction = null }) {
       popupIcon.textContent = icon;
       popupTitle.textContent = title;
@@ -524,13 +638,17 @@
     }
     window.closePopup = closePopup;
 
+    // ============================================================
     // ===== LOGOUT =====
+    // ============================================================
     window.logout = async function() {
       await supabase.auth.signOut();
       window.location.href = 'index.html';
     };
 
+    // ============================================================
     // ===== CHECK AUTH =====
+    // ============================================================
     async function checkAuth() {
       const { data: { session } } = await supabase.auth.getSession();
 
@@ -540,10 +658,101 @@
       }
 
       currentUser = session.user;
+      await loadUserPlan();
       loadSites();
     }
 
+    // ============================================================
+    // ===== LOAD USER PLAN =====
+    // ============================================================
+    async function loadUserPlan() {
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('plan')
+          .eq('id', currentUser.id)
+          .maybeSingle();
+
+        if (error) {
+          console.error('Error loading plan:', error);
+          return;
+        }
+
+        currentPlan = data?.plan || 'free';
+        updatePlanUI();
+
+      } catch (err) {
+        console.error('loadUserPlan error:', err);
+      }
+    }
+
+    // ============================================================
+    // ===== UPDATE PLAN UI =====
+    // ============================================================
+    function updatePlanUI() {
+      const planNames = {
+        free: 'Free',
+        pro: 'Pro',
+        business: 'Business'
+      };
+
+      currentPlanBadge.textContent = planNames[currentPlan] || 'Free';
+      currentPlanBadge.className = `plan-badge ${currentPlan}`;
+
+      // إظهار زر الرجوع للفري فقط لو مش فري
+      if (currentPlan !== 'free') {
+        btnDowngrade.style.display = 'inline-flex';
+      } else {
+        btnDowngrade.style.display = 'none';
+      }
+    }
+
+    // ============================================================
+    // ===== DOWNGRADE PLAN =====
+    // ============================================================
+    window.downgradePlan = async function() {
+      if (!confirm('Are you sure you want to downgrade to Free plan? You will lose access to premium features.')) {
+        return;
+      }
+
+      try {
+        const { error } = await supabase
+          .from('profiles')
+          .update({
+            plan: 'free',
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', currentUser.id);
+
+        if (error) throw error;
+
+        currentPlan = 'free';
+        updatePlanUI();
+
+        showPopup({
+          icon: '⬇️',
+          title: 'Downgraded to Free',
+          message: 'You are now on the Free plan.',
+          primaryText: 'OK'
+        });
+
+        // إعادة تحميل المواقع (لتحديث العدد)
+        loadSites();
+
+      } catch (err) {
+        showPopup({
+          icon: '❌',
+          title: 'Error',
+          message: err.message,
+          primaryText: 'OK'
+        });
+        console.error('Downgrade error:', err);
+      }
+    };
+
+    // ============================================================
     // ===== LOAD SITES =====
+    // ============================================================
     async function loadSites() {
       sitesGrid.innerHTML = '<div class="loading">Loading your sites...</div>';
 
@@ -610,7 +819,9 @@
       }
     }
 
+    // ============================================================
     // ===== DELETE SITE =====
+    // ============================================================
     window.deleteSite = async function(id) {
       if (!confirm('Are you sure you want to delete this site?')) return;
 
@@ -640,7 +851,9 @@
       }
     };
 
+    // ============================================================
     // ===== INIT =====
+    // ============================================================
     checkAuth();
   </script>
 </body>
