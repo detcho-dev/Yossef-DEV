@@ -960,56 +960,76 @@
     }
 
     // 2. Check site limit based on user's plan
-    async function checkSiteLimit(userId) {
-      try {
-        // Fetch plan from profiles table
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('plan')
-          .eq('id', userId)
-          .single();
+    // ============================================================
+// ===== CHECK SITE LIMIT (حسب الخطة) =====
+// ============================================================
+async function checkSiteLimit(userId) {
+  try {
+    // ===== 1. جيب الخطة من جدول profiles =====
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('plan')
+      .eq('id', userId)
+      .maybeSingle();
 
-        if (profileError) {
-          console.error('Error fetching profile:', profileError);
-          return { allowed: false, message: 'Error checking your plan.' };
-        }
-
-        const plan = profile?.plan || 'free';
-
-        // Count published sites
-        const { count, error: countError } = await supabase
-          .from('sites')
-          .select('*', { count: 'exact', head: true })
-          .eq('user_id', userId)
-          .eq('published', true);
-
-        if (countError) {
-          console.error('Error counting sites:', countError);
-          return { allowed: false, message: 'Error checking your sites.' };
-        }
-
-        const limits = {
-          free: 1,
-          pro: 5,
-          business: 50,
-        };
-
-        const maxSites = limits[plan] || 1;
-
-        if (count >= maxSites) {
-          return {
-            allowed: false,
-            message: `Your ${plan} plan allows only ${maxSites} published site${maxSites > 1 ? 's' : ''}. Please upgrade to publish more.`
-          };
-        }
-
-        return { allowed: true };
-
-      } catch (err) {
-        console.error('checkSiteLimit error:', err);
-        return { allowed: false, message: 'Error checking site limit.' };
-      }
+    if (profileError) {
+      console.error('Error fetching profile:', profileError);
+      return { allowed: false, message: 'Error checking your plan.' };
     }
+
+    // لو مفيش بروفايل، اعمل واحد
+    if (!profile) {
+      const { data: userData } = await supabase.auth.getUser();
+      const user = userData.user;
+      
+      await supabase
+        .from('profiles')
+        .insert({
+          id: userId,
+          email: user.email,
+          plan: 'free'
+        });
+
+      return { allowed: true };
+    }
+
+    const plan = profile?.plan || 'free';
+
+    // ===== 2. جيب عدد المواقع المنشورة =====
+    const { count, error: countError } = await supabase
+      .from('sites')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('published', true);
+
+    if (countError) {
+      console.error('Error counting sites:', countError);
+      return { allowed: false, message: 'Error checking your sites.' };
+    }
+
+    // ===== 3. الحدود حسب الخطة =====
+    const limits = {
+      free: 1,
+      pro: 5,
+      business: 50,
+    };
+
+    const maxSites = limits[plan] || 1;
+
+    if (count >= maxSites) {
+      return {
+        allowed: false,
+        message: `Your ${plan} plan allows only ${maxSites} published site${maxSites > 1 ? 's' : ''}. Please upgrade to publish more.`
+      };
+    }
+
+    return { allowed: true };
+
+  } catch (err) {
+    console.error('checkSiteLimit error:', err);
+    return { allowed: false, message: 'Error checking site limit.' };
+  }
+}
 
     // ============================================================
     // ===== PREVIEW =====
@@ -1320,17 +1340,35 @@
         if (input) data[key] = input.value.trim();
       }
 
-      // ===== 2. Check site limit =====
-      const limitCheck = await checkSiteLimit(currentUser.id);
-      if (!limitCheck.allowed) {
-        showPopup({
-          icon: '🔒',
-          title: 'Plan Limit Reached',
-          message: limitCheck.message,
-          primaryText: 'OK'
-        });
-        return;
-      }
+      // 1. التحقق من الصورة
+const fields = currentTemplateFields || {};
+for (const [key, config] of Object.entries(fields)) {
+  if (config.type === 'image') {
+    const input = document.getElementById(`split-field-${key}`);
+    const url = input?.value?.trim() || '';
+    if (url && !validateImageUrl(url)) {
+      showPopup({
+        icon: '⚠️',
+        title: 'Invalid Image URL',
+        message: `The "${config.label}" field must be a valid image URL.`,
+        primaryText: 'OK'
+      });
+      return;
+    }
+  }
+}
+
+// ===== 2. التحقق من عدد المواقع =====
+const limitCheck = await checkSiteLimit(currentUser.id);
+if (!limitCheck.allowed) {
+  showPopup({
+    icon: '🔒',
+    title: 'Plan Limit Reached',
+    message: limitCheck.message,
+    primaryText: 'OK'
+  });
+  return;
+}
 
       // ===== 3. Generate HTML =====
       let html = selectedTemplate.html;
