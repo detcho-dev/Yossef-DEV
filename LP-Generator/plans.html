@@ -457,11 +457,11 @@
         <div class="plan-price">$0 <span>/ forever</span></div>
         <div class="plan-description">Perfect for getting started</div>
         <ul class="plan-features">
-          <li><span class="check">✓</span> 1 published site</li>
-          <li><span class="check">✓</span> Basic templates</li>
-          <li><span class="cross">✗</span> Live preview</li>
-          <li><span class="cross">✗</span> Custom Site Name</li>
-          <li><span class="cross">✗</span> Priority support</li>
+          <li><span class="check">✅</span> 1 published site</li>
+          <li><span class="check">✅</span> Basic templates</li>
+          <li><span class="check">✅</span> Live preview</li>
+          <li><span class="cross">❌</span> Custom Site Name</li>
+          <li><span class="cross">❌</span> Priority support</li>
         </ul>
         <button class="btn-plan free" id="btn-free" onclick="selectPlan('free')">Current Plan</button>
       </div>
@@ -472,11 +472,11 @@
         <div class="plan-price">$19 <span>/ month</span></div>
         <div class="plan-description">For professionals and creators</div>
         <ul class="plan-features">
-          <li><span class="check">✓</span> 5 published sites</li>
-          <li><span class="check">✓</span> All templates</li>
-          <li><span class="check">✓</span> Live preview</li>
-          <li><span class="cross">✗</span> Custom Site Name</li>
-          <li><span class="cross">✗</span> Priority support</li>
+          <li><span class="check">✅</span> 5 published sites</li>
+          <li><span class="check">✅</span> All templates</li>
+          <li><span class="check">✅</span> Live preview</li>
+          <li><span class="check">✅</span> Custom Site Name</li>
+          <li><span class="check">✅</span> Priority support</li>
         </ul>
         <button class="btn-plan pro" id="btn-pro" onclick="selectPlan('pro')">Upgrade to Pro</button>
       </div>
@@ -487,11 +487,11 @@
         <div class="plan-price">$49 <span>/ month</span></div>
         <div class="plan-description">For agencies and teams</div>
         <ul class="plan-features">
-          <li><span class="check">✓</span> 50 published sites</li>
-          <li><span class="check">✓</span> All templates</li>
-          <li><span class="check">✓</span> Live preview</li>
-          <li><span class="check">✓</span> Custom Site Name</li>
-          <li><span class="check">✓</span> Priority support</li>
+          <li><span class="check">✅</span> 50 published sites</li>
+          <li><span class="check">✅</span> All templates</li>
+          <li><span class="check">✅</span> Live preview</li>
+          <li><span class="check">✅</span> Custom Site Name</li>
+          <li><span class="check">✅</span> Priority support</li>
         </ul>
         <button class="btn-plan business" id="btn-business" onclick="selectPlan('business')">Upgrade to Business</button>
       </div>
@@ -761,6 +761,56 @@
     };
 
     // ============================================================
+// ===== GET USER PLAN (للاستخدام في التحقق من الصلاحيات) =====
+// ============================================================
+async function getUserPlan(userId) {
+  try {
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('plan')
+      .eq('id', userId)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error fetching profile:', error);
+      return 'free';
+    }
+
+    return profile?.plan || 'free';
+
+  } catch (err) {
+    console.error('getUserPlan error:', err);
+    return 'free';
+  }
+}
+
+// ============================================================
+// ===== CHECK PERMISSIONS =====
+// ============================================================
+
+// Live Preview مجاني للجميع (دائماً true)
+function canLivePreview() {
+  return true;
+}
+
+// النشر مجاني للجميع (دائماً true)
+function canPublish() {
+  return true;
+}
+
+// تعديل البيانات بعد النشر (Pro و Business بس)
+async function canEditSite(userId) {
+  const plan = await getUserPlan(userId);
+  return plan === 'pro' || plan === 'business';
+}
+
+// Custom Slug (Business بس)
+async function canUseCustomSlug(userId) {
+  const plan = await getUserPlan(userId);
+  return plan === 'business';
+}
+
+// ============================================================
 // ===== SELECT PLAN (مع إدارة الاشتراكات) =====
 // ============================================================
 window.selectPlan = async function(plan) {
@@ -802,7 +852,7 @@ window.selectPlan = async function(plan) {
         await fetch(`https://api.stripe.com/v1/subscriptions/${profile.stripe_subscription_id}`, {
           method: 'DELETE',
           headers: {
-            'Authorization': `Bearer sk_test_...` // حط الـ Secret Key بتاعك
+            'Authorization': `Bearer sk_test_51TuYRZJuptjQdtg4Udi7Gwit2nRWGQXc4tMP23I23dexGyiBrEVIy7g0iBjWKepLaBKSEFvMRUtvJx3FDIHebsqE00zBhZxETb`
           }
         });
       }
