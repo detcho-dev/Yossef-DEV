@@ -155,6 +155,54 @@
     }
 
     /* ============================================================ */
+    /* ===== SEARCH SECTION ===== */
+    /* ============================================================ */
+    .search-section {
+      margin: 20px 0 10px;
+    }
+
+    .search-wrapper {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      flex-wrap: wrap;
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .search-wrapper input {
+      flex: 1;
+      padding: 14px 20px;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+      min-width: 150px;
+    }
+
+    .search-wrapper input::placeholder {
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    .search-stats {
+      padding: 8px 20px;
+      color: rgba(255, 255, 255, 0.3);
+      font-size: 0.85rem;
+      white-space: nowrap;
+      border-left: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .search-stats #search-count {
+      color: #fff;
+      font-weight: 600;
+    }
+
+    /* ============================================================ */
     /* ===== GRID ===== */
     /* ============================================================ */
     .templates-grid {
@@ -272,6 +320,27 @@
     }
     .btn-use:hover {
       box-shadow: 0 8px 24px rgba(79, 172, 254, 0.4);
+    }
+
+    /* ============================================================ */
+    /* ===== NO RESULTS ===== */
+    /* ============================================================ */
+    .no-results {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 60px 20px;
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    .no-results .icon {
+      font-size: 3rem;
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    .no-results .sub {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.2);
     }
 
     /* ============================================================ */
@@ -713,6 +782,21 @@
       .header p {
         font-size: 0.95rem;
       }
+      .search-wrapper {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 8px;
+      }
+      .search-wrapper input {
+        padding: 12px 16px;
+      }
+      .search-stats {
+        border-left: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        padding: 10px 16px;
+        text-align: center;
+      }
       .templates-grid {
         grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
         gap: 18px;
@@ -842,6 +926,16 @@
       </div>
     </header>
 
+    <!-- ===== SEARCH BAR ===== -->
+    <div class="search-section">
+      <div class="search-wrapper">
+        <input type="text" id="search-input" placeholder="🔍 Search templates by name..." oninput="filterTemplates()" />
+        <div class="search-stats">
+          <span id="search-count">0</span> templates found
+        </div>
+      </div>
+    </div>
+
     <!-- ===== TEMPLATES GRID ===== -->
     <div id="templates-grid" class="templates-grid">
       <div class="loading">Loading templates...</div>
@@ -918,8 +1012,7 @@
     import { createClient } from '@supabase/supabase-js';
 
     // ============================================================
-    // ===== CONFIG =====
-    // ============================================================
+    // ===== CONFIG =====    // ============================================================
     const supabaseUrl = 'https://fhgszopuwnrnijxvghku.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZoZ3N6b3B1d25ybmlqeHZnaGt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMzQ1MTUsImV4cCI6MjA5OTYxMDUxNX0.K2WVDxjRh6JC51nZHdJpR2l8kjS1jhXJ9EkmQ5ElPtQ';
     const supabase = createClient(supabaseUrl, supabaseKey);
@@ -950,6 +1043,7 @@
     let currentUser = null;
     let selectedTemplate = null;
     let currentTemplateFields = null;
+    let allTemplates = [];
 
     // ============================================================
     // ===== POPUP =====
@@ -1111,14 +1205,10 @@
     // ===== GENERATE UNIQUE SLUG =====
     // ============================================================
     function generateUniqueSlug(email) {
-      // خذ الجزء الأول من الإيميل
       const base = email.split('@')[0].toLowerCase()
-        .replace(/[^a-z0-9]/g, '') // شيل أي حروف خاصة
-        .substring(0, 15); // خذ أول 15 حرف
-  
-      // أضف رقم عشوائي مكون من 4 أرقام
+        .replace(/[^a-z0-9]/g, '')
+        .substring(0, 15);
       const random = Math.floor(1000 + Math.random() * 9000);
-  
       return `${base}-${random}`;
     }
 
@@ -1159,7 +1249,6 @@
         authBtn.textContent = `👤 ${name.split('@')[0]}`;
         mySites.style.display = 'inline-flex';
 
-        // ===== جيب الخطة من profiles =====
         const { data: profile, error } = await supabase
           .from('profiles')
           .select('plan')
@@ -1170,7 +1259,6 @@
           currentUser.plan = profile.plan;
         }
 
-        // ===== جعل المتغيرات متاحة في Console =====
         window.supabase = supabase;
         window.currentUser = currentUser;
 
@@ -1280,7 +1368,6 @@
         selectedTemplate = template;
         currentTemplateFields = template.fields || {};
 
-        // ===== تأكد من تحميل الخطة تاني قبل فتح الـ Split =====
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('plan')
@@ -1313,13 +1400,10 @@
       const fields = template.fields || {};
       const isBusiness = currentUser?.plan === 'business';
 
-      // ===== توليد Slug فريد =====
       let slugValue = '';
       if (isBusiness) {
-        // Business: المستخدم يقدر يكتب الـ Slug اللي يحبه
         slugValue = currentUser?.user_metadata?.username || currentUser?.email?.split('@')[0] || 'my-site';
       } else {
-        // Free / Pro: يتولد Slug فريد تلقائياً
         slugValue = generateUniqueSlug(currentUser?.email || 'user');
       }
 
@@ -1616,6 +1700,83 @@
     }
 
     // ============================================================
+    // ===== SEARCH / FILTER =====
+    // ============================================================
+    window.filterTemplates = function() {
+      const query = document.getElementById('search-input').value.toLowerCase().trim();
+      
+      if (!query) {
+        renderTemplates(allTemplates);
+        updateSearchCount(allTemplates.length);
+        return;
+      }
+
+      const filtered = allTemplates.filter(tpl => 
+        tpl.name.toLowerCase().includes(query) ||
+        tpl.slug.toLowerCase().includes(query)
+      );
+
+      renderTemplates(filtered);
+      updateSearchCount(filtered.length);
+    };
+
+    // ============================================================
+    // ===== RENDER TEMPLATES =====
+    // ============================================================
+    function renderTemplates(templates) {
+      if (!templates || templates.length === 0) {
+        grid.innerHTML = `
+          <div class="no-results">
+            <span class="icon">🔍</span>
+            <p>No templates found</p>
+            <p class="sub">Try adjusting your search terms</p>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      templates.forEach(tpl => {
+        var badgeHtml = '';
+        if (tpl.is_free) {
+          badgeHtml = `<span class="badge-free">🆓 Free</span>`;
+        } else {
+          badgeHtml = `<span class="badge-paid">💎 Paid</span>`;
+        }
+
+        html += `
+          <div class="template-card">
+            <img src="${tpl.cover_image || 'https://via.placeholder.com/400x200?text=Template'}" 
+                 alt="${tpl.name}" loading="lazy" />
+            <div class="info">
+              <div class="header-row">
+                <h3>${tpl.name}</h3>
+                ${badgeHtml}
+              </div>
+              <span class="id-badge">#${tpl.slug}</span>
+              <div class="card-actions">
+                <button class="btn btn-preview" onclick="openPreview('${tpl.slug}')">👁️ Preview</button>
+                <button class="btn btn-use" onclick="openSplit('${tpl.slug}')">🚀 Use Template</button>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      
+      grid.innerHTML = html;
+    }
+
+    // ============================================================
+    // ===== UPDATE SEARCH COUNT =====
+    // ============================================================
+    function updateSearchCount(count) {
+      const countEl = document.getElementById('search-count');
+      if (countEl) {
+        countEl.textContent = count;
+      }
+    }
+
+    // ============================================================
     // ===== LOAD TEMPLATES =====
     // ============================================================
     async function loadTemplates() {
@@ -1636,37 +1797,14 @@
               <p>✨ No templates yet. <br>Add one via the admin panel.</p>
             </div>
           `;
+          allTemplates = [];
+          updateSearchCount(0);
           return;
         }
 
-        let html = '';
-        data.forEach(tpl => {
-          var badgeHtml = '';
-          if (tpl.is_free) {
-            badgeHtml = `<span class="badge-free">🆓 Free</span>`;
-          } else {
-            badgeHtml = `<span class="badge-paid">💎 Paid</span>`;
-          }
-
-          html += `
-            <div class="template-card">
-              <img src="${tpl.cover_image || 'https://via.placeholder.com/400x200?text=Template'}" 
-                   alt="${tpl.name}" loading="lazy" />
-              <div class="info">
-                <div class="header-row">
-                  <h3>${tpl.name}</h3>
-                  ${badgeHtml}
-                </div>
-                <span class="id-badge">#${tpl.slug}</span>
-                <div class="card-actions">
-                  <button class="btn btn-preview" onclick="openPreview('${tpl.slug}')">👁️ Preview</button>
-                  <button class="btn btn-use" onclick="openSplit('${tpl.slug}')">🚀 Use Template</button>
-                </div>
-              </div>
-            </div>
-          `;
-        });
-        grid.innerHTML = html;
+        allTemplates = data;
+        renderTemplates(data);
+        updateSearchCount(data.length);
 
       } catch (err) {
         console.error(err);
