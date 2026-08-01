@@ -655,31 +655,50 @@
     const popupBtnSecondary = document.getElementById('popup-btn-secondary');
 
     // ============================================================
-    // ===== LOAD CATEGORIES FOR SELECT =====
-    // ============================================================
-    async function loadCategoriesSelect() {
-      const select = document.getElementById('tpl-category');
-      if (!select) return;
+// ===== LOAD CATEGORIES FOR SELECT =====
+// ============================================================
+async function loadCategoriesSelect() {
+  const select = document.getElementById('tpl-category');
+  if (!select) {
+    console.error('❌ Select element #tpl-category not found!');
+    return;
+  }
 
-      try {
-        const { data, error } = await supabase
-          .from('categories')
-          .select('*')
-          .eq('is_active', true)
-          .order('name');
+  try {
+    console.log('⏳ Loading categories...');
+    
+    // ===== 1. جيب الفئات من Supabase =====
+    const { data, error } = await supabase
+      .from('categories')
+      .select('*')
+      .eq('is_active', true)
+      .order('sort_order', { ascending: true });
 
-        if (error) throw error;
-
-        let html = '<option value="">-- Select Category --</option>';
-        data.forEach(cat => {
-          html += `<option value="${cat.id}">${cat.icon || '📁'} ${cat.name}</option>`;
-        });
-        select.innerHTML = html;
-
-      } catch (err) {
-        console.error('Error loading categories:', err);
-      }
+    if (error) {
+      console.error('❌ Error loading categories:', error);
+      return;
     }
+
+    console.log('✅ Categories loaded:', data);
+
+    // ===== 2. املأ الـ Select =====
+    let html = '<option value="">-- Select Category --</option>';
+    
+    if (data && data.length > 0) {
+      data.forEach(cat => {
+        html += `<option value="${cat.id}">${cat.icon || '📁'} ${cat.name}</option>`;
+      });
+    } else {
+      html += `<option value="" disabled>⚠️ No categories found</option>`;
+    }
+    
+    select.innerHTML = html;
+    console.log('✅ Select updated with', data?.length || 0, 'categories');
+
+  } catch (err) {
+    console.error('❌ loadCategoriesSelect error:', err);
+  }
+}
 
     // ============================================================
     // ===== POPUP =====
