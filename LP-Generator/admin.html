@@ -552,6 +552,13 @@
                 <option value="false">💎 Paid</option>
               </select>
             </div>
+            <div class="form-group">
+  <label>Category</label>
+  <select id="tpl-category">
+    <option value="">-- Select Category --</option>
+    <!-- هتتعبأ ديناميكياً -->
+  </select>
+</div>
             
           </div>
           <button type="submit" class="btn btn-primary">💾 Save Template</button>
@@ -751,7 +758,38 @@
         templatesTbody.innerHTML = `<tr><td colspan="6" style="color:#f87171;text-align:center;">❌ Error: ${err.message}</td></tr>`;
       }
     }
+// ===== LOAD CATEGORIES FOR SELECT =====
+async function loadCategoriesSelect() {
+  const select = document.getElementById('tpl-category');
+  if (!select) return;
 
+  const { data, error } = await supabase
+    .from('categories')
+    .select('*')
+    .eq('is_active', true)
+    .order('name');
+
+  if (error) {
+    console.error('Error loading categories:', error);
+    return;
+  }
+
+  let html = '<option value="">-- Select Category --</option>';
+  data.forEach(cat => {
+    html += `<option value="${cat.id}">${cat.icon || '📁'} ${cat.name}</option>`;
+  });
+  select.innerHTML = html;
+}
+
+// ===== IN SAVE TEMPLATE =====
+const category_id = document.getElementById('tpl-category').value || null;
+
+const { error } = await supabase
+  .from('templates')
+  .insert([{
+    // ... other fields
+    category_id: category_id
+  }]);
     // ===== Save Template =====
     templateForm.addEventListener('submit', async function(e) {
       e.preventDefault();
