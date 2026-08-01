@@ -1,3 +1,6 @@
+<!-- ============================================================ -->
+<!-- ===== index.html (كامل مع نظام اللغة) ===== -->
+<!-- ============================================================ -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -73,6 +76,12 @@
       box-shadow: 0 16px 56px rgba(0, 0, 0, 0.6);
     }
 
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
     .header h1 {
       font-size: 2.3rem;
       font-weight: 800;
@@ -125,13 +134,33 @@
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     }
 
-    .btn-success {
-      background: linear-gradient(135deg, #4ade80, #22c55e);
-      border: none;
+    /* ===== LANGUAGE SELECTOR ===== */
+    .language-selector {
+      display: flex;
+      gap: 8px;
+      margin-left: 12px;
+    }
+
+    .lang-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      color: rgba(255, 255, 255, 0.5);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .lang-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
       color: #fff;
     }
-    .btn-success:hover {
-      box-shadow: 0 8px 24px rgba(74, 222, 128, 0.4);
+
+    .lang-btn.active {
+      background: rgba(79, 172, 254, 0.15);
+      border-color: rgba(79, 172, 254, 0.3);
+      color: #4facfe;
     }
 
     /* ============================================================ */
@@ -989,6 +1018,10 @@
         width: 100%;
         padding: 10px;
       }
+      .language-selector {
+        margin-left: 0;
+        margin-top: 8px;
+      }
     }
 
     @media (max-width: 480px) {
@@ -1055,79 +1088,51 @@
     .split-right::-webkit-scrollbar-thumb:hover {
       background: rgba(255, 255, 255, 0.25);
     }
-
-    /* ===== LANGUAGE SELECTOR ===== */
-.language-selector {
-  display: flex;
-  gap: 8px;
-  margin-left: 12px;
-}
-
-.lang-btn {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  color: rgba(255, 255, 255, 0.5);
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 0.7rem;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.lang-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  color: #fff;
-}
-
-.lang-btn.active {
-  background: rgba(79, 172, 254, 0.15);
-  border-color: rgba(79, 172, 254, 0.3);
-  color: #4facfe;
-}
   </style>
 </head>
 <body>
   <div class="container">
     <!-- ===== HEADER ===== -->
     <header class="header">
-      <div>
-        <h1>🚀 Build Your Site</h1>
-        <p>Choose a template, customize it, and publish your own website</p>
+      <div class="header-left">
+        <div>
+          <h1 data-i18n="app.name">🚀 Build Your Site</h1>
+          <p data-i18n="app.tagline">Choose a template, customize it, and publish your own website</p>
+        </div>
+        <div class="language-selector">
+          <button class="lang-btn active" data-lang="en" onclick="setLanguage('en')">🇬🇧 EN</button>
+          <button class="lang-btn" data-lang="ar" onclick="setLanguage('ar')">🇸🇦 AR</button>
+        </div>
       </div>
       <div class="header-actions" id="auth-section">
-        <button class="btn" id="auth-btn" onclick="handleAuth()">🔑 Login</button>
-        <a href="dashboard.html" class="btn" id="mySites" style="display:none;">📊 My Sites</a>
-        <a href="plans.html" class="btn" id="plansBtn">💳 Plans</a>
+        <button class="btn" id="auth-btn" onclick="handleAuth()" data-i18n="nav.login">🔑 Login</button>
+        <a href="dashboard.html" class="btn" id="mySites" style="display:none;" data-i18n="nav.dashboard">📊 My Sites</a>
+        <a href="plans.html" class="btn" id="plansBtn" data-i18n="nav.plans">💳 Plans</a>
         <a href="notifications.html" class="btn" id="notif-btn">
           🔔 <span id="notif-count" style="background:#f5576c;border-radius:50%;padding:0 8px;font-size:0.7rem;margin-left:4px;display:none;">0</span>
         </a>
-        <!-- ===== LANGUAGE SELECTOR ===== -->
-<div class="language-selector">
-  <button onclick="setLanguage('en')" class="lang-btn">🇬🇧 EN</button>
-  <button onclick="setLanguage('ar')" class="lang-btn">🇸🇦 AR</button>
-</div>
       </div>
     </header>
 
     <!-- ===== SEARCH BAR ===== -->
     <div class="search-section">
       <div class="search-wrapper">
-        <input type="text" id="search-input" placeholder="🔍 Search templates by name..." oninput="applyFilters()" />
+        <input type="text" id="search-input" data-i18n-placeholder="templates.search" placeholder="🔍 Search templates by name..." oninput="applyFilters()" />
         <div class="search-stats">
-          <span id="search-count">0</span> templates found
+          <span id="search-count">0</span> <span data-i18n="templates.found">templates found</span>
         </div>
       </div>
     </div>
 
     <!-- ===== CATEGORIES FILTER ===== -->
     <div class="categories-filter">
-      <button class="cat-btn active" data-category="all" onclick="filterByCategory('all')">📋 All</button>
+      <button class="cat-btn active" data-category="all" onclick="filterByCategory('all')" data-i18n="templates.all">📋 All</button>
       <div id="categories-list"></div>
     </div>
 
     <!-- ===== TEMPLATES GRID ===== -->
     <div id="templates-grid" class="templates-grid">
-      <div class="loading">Loading templates...</div>
+      <div class="loading" data-i18n="templates.loading">Loading templates...</div>
     </div>
   </div>
 
@@ -1137,12 +1142,12 @@
   <div id="preview-overlay" class="preview-overlay" onclick="if(event.target===this) closePreview()">
     <div class="preview-popup">
       <div class="preview-header">
-        <h2 id="preview-title">👁️ Preview</h2>
-        <button class="btn-close" onclick="closePreview()">✕ Close</button>
+        <h2 id="preview-title" data-i18n="templates.preview_title">👁️ Preview</h2>
+        <button class="btn-close" onclick="closePreview()" data-i18n="templates.close">✕ Close</button>
       </div>
       <div class="preview-body">
         <div class="template-display" id="preview-content">
-          <p style="color:rgba(255,255,255,0.3);">Loading preview...</p>
+          <p style="color:rgba(255,255,255,0.3);" data-i18n="templates.loading_preview">Loading preview...</p>
         </div>
       </div>
     </div>
@@ -1155,17 +1160,17 @@
     <div class="split-container">
       <div class="split-left">
         <div class="split-header">
-          <h2>✏️ Customize Your Site</h2>
-          <button class="btn-close-split" onclick="closeSplit()">✕ Close</button>
+          <h2 data-i18n="templates.customize">✏️ Customize Your Site</h2>
+          <button class="btn-close-split" onclick="closeSplit()" data-i18n="templates.close">✕ Close</button>
         </div>
         <div id="split-form">
-          <p style="color:rgba(255,255,255,0.3);">Loading form...</p>
+          <p style="color:rgba(255,255,255,0.3);" data-i18n="templates.loading_form">Loading form...</p>
         </div>
       </div>
       <div class="split-right">
-        <div class="preview-label">🔮 Live Preview</div>
+        <div class="preview-label" data-i18n="templates.live_preview">🔮 Live Preview</div>
         <div class="live-preview" id="live-preview">
-          <p style="color:rgba(255,255,255,0.3);">Your template will appear here as you type...</p>
+          <p style="color:rgba(255,255,255,0.3);" data-i18n="templates.preview_placeholder">Your template will appear here as you type...</p>
         </div>
       </div>
     </div>
@@ -1177,11 +1182,11 @@
   <div id="popup" class="popup-overlay" onclick="if(event.target===this) closePopup()">
     <div class="popup">
       <div class="popup-icon" id="popup-icon">✅</div>
-      <h3 id="popup-title">Success!</h3>
-      <p id="popup-message">Operation completed.</p>
+      <h3 id="popup-title" data-i18n="popup.success">Success!</h3>
+      <p id="popup-message" data-i18n="popup.operation_complete">Operation completed.</p>
       <div class="popup-actions">
-        <button class="popup-btn" id="popup-btn-primary" onclick="closePopup()">OK</button>
-        <button class="popup-btn-secondary" id="popup-btn-secondary" style="display:none;" onclick="closePopup()">Cancel</button>
+        <button class="popup-btn" id="popup-btn-primary" onclick="closePopup()" data-i18n="popup.ok">OK</button>
+        <button class="popup-btn-secondary" id="popup-btn-secondary" style="display:none;" onclick="closePopup()" data-i18n="popup.cancel">Cancel</button>
       </div>
     </div>
   </div>
@@ -1196,6 +1201,7 @@
       }
     }
   </script>
+
   <script src="lang.js"></script>
 
   <script type="module">
@@ -1355,7 +1361,6 @@
       const comment = document.getElementById('review-comment')?.value.trim() || '';
 
       try {
-        // ===== 1. حفظ التقييم =====
         const { error: reviewError } = await supabase
           .from('reviews')
           .upsert({
@@ -1370,7 +1375,6 @@
 
         if (reviewError) throw reviewError;
 
-        // ===== 2. حساب المتوسط =====
         const { data: reviews, error: avgError } = await supabase
           .from('reviews')
           .select('rating')
@@ -1381,7 +1385,6 @@
         const total = reviews.reduce((sum, r) => sum + r.rating, 0);
         const avg = total / reviews.length;
 
-        // ===== 3. تحديث جدول templates =====
         const { error: updateError } = await supabase
           .from('templates')
           .update({
@@ -1392,7 +1395,6 @@
 
         if (updateError) throw updateError;
 
-        // ===== 4. عرض رسالة نجاح =====
         showPopup({
           icon: '⭐',
           title: 'Review Submitted!',
@@ -1400,7 +1402,6 @@
           primaryText: 'OK'
         });
 
-        // ===== 5. إعادة تحميل القوالب =====
         await loadTemplates();
 
       } catch (err) {
@@ -1429,7 +1430,6 @@
       }
 
       try {
-        // ===== 1. جمع البيانات =====
         const fields = currentTemplateFields || {};
         const data = {};
         
@@ -1440,7 +1440,6 @@
           }
         }
 
-        // ===== 2. إنشاء الـ HTML النهائي =====
         let html = selectedTemplate.html || '<p>No content</p>';
         for (const [key, value] of Object.entries(data)) {
           html = html.replace(new RegExp(`{{${key}}}`, 'g'), value || `[${key}]`);
@@ -1450,10 +1449,8 @@
         const slug = slugInput?.value || 'my-site';
         html = html.replace(/\{\{site_slug\}\}/g, slug);
 
-        // ===== 3. تجهيز الملفات =====
         const files = {};
 
-        // HTML
         files['index.html'] = `
     <!DOCTYPE html>
     <html lang="en">
@@ -1470,35 +1467,28 @@
     </html>
         `;
 
-        // CSS (منفصل)
         if (selectedTemplate.css) {
           files['style.css'] = selectedTemplate.css;
         }
 
-        // JS (منفصل)
         if (selectedTemplate.js) {
           files['script.js'] = selectedTemplate.js;
         }
 
-        // ===== 4. إنشاء الـ ZIP =====
-        // تحميل مكتبة JSZip من CDN
         const script = document.createElement('script');
         script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
         document.head.appendChild(script);
 
-        // انتظر تحميل المكتبة
         await new Promise((resolve) => {
           script.onload = resolve;
         });
 
         const zip = new JSZip();
 
-        // أضف الملفات
         Object.entries(files).forEach(([name, content]) => {
           zip.file(name, content);
         });
 
-        // ===== 5. تحميل الـ ZIP =====
         const zipBlob = await zip.generateAsync({ type: 'blob' });
         const downloadLink = document.createElement('a');
         downloadLink.href = URL.createObjectURL(zipBlob);
@@ -1607,8 +1597,8 @@
         grid.innerHTML = `
           <div class="no-results">
             <span class="icon">🔍</span>
-            <p>No templates found</p>
-            <p class="sub">Try adjusting your search terms</p>
+            <p data-i18n="templates.no_results">No templates found</p>
+            <p class="sub" data-i18n="templates.adjust_search">Try adjusting your search terms</p>
           </div>
         `;
         return;
@@ -1618,9 +1608,9 @@
       templates.forEach(tpl => {
         let badgeHtml = '';
         if (tpl.is_free) {
-          badgeHtml = `<span class="badge-free">🆓 Free</span>`;
+          badgeHtml = `<span class="badge-free" data-i18n="templates.free">🆓 Free</span>`;
         } else {
-          badgeHtml = `<span class="badge-paid">💎 Paid</span>`;
+          badgeHtml = `<span class="badge-paid" data-i18n="templates.paid">💎 Paid</span>`;
         }
 
         const ratingHtml = `
@@ -1642,8 +1632,8 @@
               ${ratingHtml}
               <span class="id-badge">#${tpl.slug}</span>
               <div class="card-actions">
-                <button class="btn btn-preview" onclick="openPreview('${tpl.slug}')">👁️ Preview</button>
-                <button class="btn btn-use" onclick="openSplit('${tpl.slug}')">🚀 Use Template</button>
+                <button class="btn btn-preview" onclick="openPreview('${tpl.slug}')" data-i18n="templates.preview">👁️ Preview</button>
+                <button class="btn btn-use" onclick="openSplit('${tpl.slug}')" data-i18n="templates.use">🚀 Use Template</button>
               </div>
             </div>
           </div>
@@ -1667,7 +1657,7 @@
     // ===== LOAD TEMPLATES =====
     // ============================================================
     async function loadTemplates() {
-      grid.innerHTML = '<div class="loading">Loading templates...</div>';
+      grid.innerHTML = '<div class="loading" data-i18n="templates.loading">Loading templates...</div>';
 
       try {
         const { data, error } = await supabase
@@ -1681,7 +1671,7 @@
         if (!data || data.length === 0) {
           grid.innerHTML = `
             <div class="empty-state" style="grid-column:1/-1;">
-              <p>✨ No templates yet. <br>Add one via the admin panel.</p>
+              <p data-i18n="templates.no_templates">✨ No templates yet. <br>Add one via the admin panel.</p>
             </div>
           `;
           allTemplates = [];
@@ -1906,10 +1896,10 @@
         if (!template.is_free) {
           previewHtml = `
             <div style="background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.2);border-radius:12px;padding:16px;margin-bottom:16px;text-align:center;">
-              <p style="color:#fbbf24;font-size:0.9rem;">
+              <p style="color:#fbbf24;font-size:0.9rem;" data-i18n="templates.premium_notice">
                 💎 <strong>Premium Template</strong><br>
                 This template is for paid users only. 
-                <a href="plans.html" style="color:#4facfe;text-decoration:underline;">Upgrade to Pro or Business</a> to use it.
+                <a href="plans.html" style="color:#4facfe;text-decoration:underline;" data-i18n="templates.upgrade_link">Upgrade to Pro or Business</a> to use it.
               </p>
             </div>
           `;
@@ -2029,7 +2019,7 @@
       let html = `
         <form id="split-site-form">
           <div class="form-group">
-            <label>Your Site Name (username)</label>
+            <label data-i18n="templates.site_name">Your Site Name (username)</label>
             <input type="text" id="split-site-slug" 
                    value="${slugValue}" 
                    placeholder="my-site" 
@@ -2124,21 +2114,21 @@
       // ===== REVIEW SECTION =====
       html += `
         <div class="review-section">
-          <h3>⭐ Rate this template</h3>
+          <h3 data-i18n="templates.rate">⭐ Rate this template</h3>
           <div class="star-rating">
             ${[1,2,3,4,5].map(i => `
               <span class="star" data-rating="${i}" onclick="setRating(${i})">☆</span>
             `).join('')}
           </div>
           <textarea id="review-comment" placeholder="Share your thoughts..."></textarea>
-          <button type="button" class="btn btn-sm btn-primary" onclick="submitReview()">📝 Submit Review</button>
+          <button type="button" class="btn btn-sm btn-primary" onclick="submitReview()" data-i18n="templates.submit_review">📝 Submit Review</button>
         </div>
       `;
 
       html += `
-          <button type="submit" class="btn-publish">🚀 Publish My Site</button>
+          <button type="submit" class="btn-publish" data-i18n="templates.publish">🚀 Publish My Site</button>
           <div class="export-section">
-            <button type="button" class="btn btn-success" onclick="exportTemplate()">📦 Download ZIP</button>
+            <button type="button" class="btn btn-success" onclick="exportTemplate()" data-i18n="templates.download_zip">📦 Download ZIP</button>
           </div>
         </form>
       `;
