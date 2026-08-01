@@ -805,97 +805,88 @@
     }
 
     // ============================================================
-    // ===== COUPON FUNCTIONS =====
-    // ============================================================
+// ===== APPLY COUPON =====
+// ============================================================
+window.applyCoupon = async function() {
+  const code = couponInput.value.trim().toUpperCase();
+  if (!code) {
+    couponMessage.innerHTML = '⚠️ Please enter a coupon code.';
+    couponMessage.style.color = '#f87171';
+    return;
+  }
 
-    window.applyCoupon = async function() {
-      const code = couponInput.value.trim().toUpperCase();
-      if (!code) {
-        couponMessage.innerHTML = '⚠️ Please enter a coupon code.';
+  try {
+    // ===== 1. جيب الكوبون من قاعدة البيانات =====
+    const { data, error } = await supabase
+      .from('coupons')
+      .select('*')
+      .eq('code', code)
+      .eq('is_active', true)
+      .maybeSingle(); // استخدم maybeSingle بدل single
+
+    // ===== 2. لو مفيش كوبون =====
+    if (error) {
+      if (error.code === 'PGRST116') {
+        couponMessage.innerHTML = '❌ Invalid coupon code.';
         couponMessage.style.color = '#f87171';
         return;
       }
-
-      try {
-        // ===== 1. جيب الكوبون من قاعدة البيانات =====
-        const { data, error } = await supabase
-          .from('coupons')
-          .select('*')
-          .eq('code', code)
-          .eq('is_active', true)
-          .single();
-
-        if (error) throw error;
-
-        // ===== 2. تحقق من الصلاحية =====
-        const now = new Date();
-        if (data.expires_at && new Date(data.expires_at) < now) {
-          couponMessage.innerHTML = '❌ This coupon has expired.';
-          couponMessage.style.color = '#f87171';
-          return;
-        }
-
-        if (data.max_uses && data.used_count >= data.max_uses) {
-          couponMessage.innerHTML = '❌ This coupon has reached its usage limit.';
-          couponMessage.style.color = '#f87171';
-          return;
-        }
-
-        // ===== 3. تحقق من نوع الخطة =====
-        if (data.plan_type && data.plan_type !== 'all' && data.plan_type !== currentPlan) {
-          couponMessage.innerHTML = `❌ This coupon is only valid for ${data.plan_type} plans.`;
-          couponMessage.style.color = '#f87171';
-          return;
-        }
-
-        // ===== 4. حساب الخصم =====
-        const priceMap = { pro: 19, business: 49 };
-        const originalPrice = priceMap[currentPlan] || 0;
-        if (data.discount_type === 'percentage') {
-          discountAmount = (originalPrice * data.discount_value) / 100;
-        } else {
-          discountAmount = data.discount_value;
-        }
-        // لا نسمح أن يكون السعر سالباً
-        discountAmount = Math.min(discountAmount, originalPrice);
-
-        appliedCoupon = data;
-
-        // ===== 5. عرض رسالة النجاح =====
-        couponMessage.innerHTML = '✅ Coupon applied successfully!';
-        couponMessage.style.color = '#4ade80';
-
-        couponDiscount.style.display = 'block';
-        couponDiscount.innerHTML = `🎉 Discount: -$${discountAmount.toFixed(2)} (${data.discount_type === 'percentage' ? data.discount_value + '%' : '$' + data.discount_value})`;
-
-        // ===== 6. تحديث السعر =====
-        updatePlanPrice(currentPlan, originalPrice, discountAmount);
-
-      } catch (err) {
-        couponMessage.innerHTML = '❌ Invalid coupon code.';
-        couponMessage.style.color = '#f87171';
-        console.error('Apply coupon error:', err);
-      }
-    };
-
-    // ===== UPDATE PLAN PRICE =====
-    function updatePlanPrice(plan, originalPrice, discount) {
-      const finalPrice = Math.max(0, originalPrice - discount);
-      const priceEl = document.querySelector(`#plan-${plan} .plan-price`);
-      if (priceEl) {
-        // Remove old price and old-price
-        const oldPriceSpan = priceEl.querySelector('.old-price');
-        if (oldPriceSpan) oldPriceSpan.remove();
-        // Update main price
-        priceEl.innerHTML = `$${finalPrice.toFixed(2)} <span>/ month</span>`;
-        if (discount > 0) {
-          const oldPriceEl = document.createElement('span');
-          oldPriceEl.className = 'old-price';
-          oldPriceEl.textContent = `$${originalPrice}`;
-          priceEl.appendChild(oldPriceEl);
-        }
-      }
+      throw error;
     }
+
+    if (!data) {
+      couponMessage.innerHTML = '❌ Invalid coupon code.';
+      couponMessage.style.color = '#f87171';
+      return;
+    }
+
+    // ===== 3. تحقق من الصلاحية =====
+    const now = new Date();
+    if (data.expires_at && new Date(data.expires_at) < now) {
+      couponMessage.innerHTML = '❌ This coupon has expired.';
+      couponMessage.style.color = '#f87171';
+      return;
+    }
+
+    if (data.max_uses && data.used_count >= data.max_uses) {
+      couponMessage.innerHTML = '❌ This coupon has reached its usage limit.';
+      couponMessage.style.color = '#f87171';
+      return;
+    }
+
+    // ===== 4. تحقق من نوع الخطة =====
+    if (data.plan_type && data.plan_type !== 'all' && data.plan_type !== currentPlan) {
+      couponMessage.innerHTML = `❌ This coupon is only valid for ${data.plan_type} plans.`;
+      couponMessage.style.color = '#f87171';
+      return;
+    }
+
+    // ===== 5. حساب الخصم =====
+    const priceMap = { pro: 19, business: 49 };
+    const originalPrice = priceMap[currentPlan] || 0;
+    if (data.discount_type === 'percentage') {
+      discountAmount = (originalPrice * data.discount_value) / 100;
+    } else {
+      discountAmount = data.discount_value;
+    }
+    discountAmount = Math.min(discountAmount, originalPrice);
+
+    appliedCoupon = data;
+
+    couponMessage.innerHTML = '✅ Coupon applied successfully!';
+    couponMessage.style.color = '#4ade80';
+
+    couponDiscount.style.display = 'block';
+    couponDiscount.innerHTML = `🎉 Discount: -$${discountAmount.toFixed(2)} (${data.discount_type === 'percentage' ? data.discount_value + '%' : '$' + data.discount_value})`;
+
+    updatePlanPrice(currentPlan, originalPrice, discountAmount);
+
+  } catch (err) {
+    console.error('Apply coupon error:', err);
+    couponMessage.innerHTML = '❌ Error applying coupon. Please try again.';
+    couponMessage.style.color = '#f87171';
+  }
+};
 
     // ============================================================
     // ===== HANDLE STRIPE RETURN =====
