@@ -2197,20 +2197,11 @@ body.ltr {
         }
       }
 
-      // ============================================================
-// ===== DEPLOY TO VERCEL =====
+     // ============================================================
+// ===== DEPLOY TO VERCEL (Business Only) =====
 // ============================================================
 window.deployToVercel = async function() {
-  if (!selectedTemplate) {
-    showPopup({
-      icon: '⚠️',
-      title: 'No Template Selected',
-      message: 'Please select and customize a template first.',
-      primaryText: 'OK'
-    });
-    return;
-  }
-
+  // ===== 1. Check if user is Business =====
   if (!currentUser) {
     showPopup({
       icon: '🔒',
@@ -2222,8 +2213,36 @@ window.deployToVercel = async function() {
     return;
   }
 
+  // ===== 2. Check if user has Business plan =====
+  const userPlan = currentUser.plan || 'free';
+  if (userPlan !== 'business') {
+    showPopup({
+      icon: '💎',
+      title: 'Business Plan Required',
+      message: 'Deploying to Vercel is a Business feature.\n\nUpgrade to Business to deploy your site to a live URL.',
+      primaryText: 'Upgrade Now',
+      primaryAction: () => {
+        window.location.href = 'plans.html';
+      },
+      secondaryText: 'OK',
+      secondaryAction: () => {}
+    });
+    return;
+  }
+
+  // ===== 3. Check if template is selected =====
+  if (!selectedTemplate) {
+    showPopup({
+      icon: '⚠️',
+      title: 'No Template Selected',
+      message: 'Please select and customize a template first.',
+      primaryText: 'OK'
+    });
+    return;
+  }
+
   try {
-    // ===== 1. جمع البيانات =====
+    // ===== 4. Collect data =====
     const fields = currentTemplateFields || {};
     const data = {};
     
@@ -2234,7 +2253,7 @@ window.deployToVercel = async function() {
       }
     }
 
-    // ===== 2. إنشاء الـ HTML النهائي =====
+    // ===== 5. Generate final HTML =====
     let html = selectedTemplate.html || '<p>No content</p>';
     for (const [key, value] of Object.entries(data)) {
       html = html.replace(new RegExp(`{{${key}}}`, 'g'), value || `[${key}]`);
@@ -2244,7 +2263,7 @@ window.deployToVercel = async function() {
     const slug = slugInput?.value || currentUser.email?.split('@')[0] || 'my-site';
     html = html.replace(/\{\{site_slug\}\}/g, slug);
 
-    // ===== 3. إظهار Popup تحميل =====
+    // ===== 6. Show loading popup =====
     showPopup({
       icon: '⏳',
       title: 'Deploying...',
@@ -2252,7 +2271,7 @@ window.deployToVercel = async function() {
       primaryText: 'OK'
     });
 
-    // ===== 4. إرسال الطلب =====
+    // ===== 7. Send to Vercel =====
     const response = await fetch(
       'https://fhgszopuwnrnijxvghku.supabase.co/functions/v1/deploy-to-vercel',
       {
@@ -2277,7 +2296,7 @@ window.deployToVercel = async function() {
       throw new Error(result.error);
     }
 
-    // ===== 5. عرض رابط الموقع =====
+    // ===== 8. Show success =====
     showPopup({
       icon: '🎉',
       title: 'Deployed Successfully!',
