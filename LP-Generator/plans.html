@@ -1,3 +1,6 @@
+<!-- ============================================================ -->
+<!-- ===== plans.html (كامل مع نظام الكوبونات لكل مستخدم) ===== -->
+<!-- ============================================================ -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -802,7 +805,7 @@
         }
       });
 
-      // Reset coupon
+      // Reset coupon if plan changes
       appliedCoupon = null;
       discountAmount = 0;
       couponMessage.innerHTML = '';
@@ -818,7 +821,7 @@
     }
 
     // ============================================================
-    // ===== APPLY COUPON =====
+    // ===== APPLY COUPON (مع التحقق من استخدام المستخدم) =====
     // ============================================================
     window.applyCoupon = async function() {
       const code = couponInput.value.trim().toUpperCase();
@@ -829,65 +832,80 @@
       }
 
       try {
-        const { data, error } = await supabase
+        // ===== 1. جيب الكوبون =====
+        const { data: coupon, error: couponError } = await supabase
           .from('coupons')
           .select('*')
           .eq('code', code)
           .eq('is_active', true)
           .maybeSingle();
 
-        if (error) {
-          if (error.code === 'PGRST116') {
-            couponMessage.innerHTML = '❌ Invalid coupon code.';
-            couponMessage.style.color = '#f87171';
-            return;
-          }
-          throw error;
-        }
-
-        if (!data) {
+        if (couponError || !coupon) {
           couponMessage.innerHTML = '❌ Invalid coupon code.';
           couponMessage.style.color = '#f87171';
           return;
         }
 
+        // ===== 2. تحقق من الصلاحية العامة =====
         const now = new Date();
-        if (data.expires_at && new Date(data.expires_at) < now) {
+        if (coupon.expires_at && new Date(coupon.expires_at) < now) {
           couponMessage.innerHTML = '❌ This coupon has expired.';
           couponMessage.style.color = '#f87171';
           return;
         }
 
-        if (data.max_uses && data.used_count >= data.max_uses) {
+        if (coupon.max_uses && coupon.used_count >= coupon.max_uses) {
           couponMessage.innerHTML = '❌ This coupon has reached its usage limit.';
           couponMessage.style.color = '#f87171';
           return;
         }
 
-        if (data.plan_type && data.plan_type !== 'all' && data.plan_type !== currentPlan) {
-          couponMessage.innerHTML = `❌ This coupon is only valid for ${data.plan_type} plans.`;
+        if (coupon.plan_type && coupon.plan_type !== 'all' && coupon.plan_type !== currentPlan) {
+          couponMessage.innerHTML = `❌ This coupon is only valid for ${coupon.plan_type} plans.`;
           couponMessage.style.color = '#f87171';
           return;
         }
 
+        // ===== 3. تحقق من استخدام المستخدم لهذا الكوبون =====
+        const { data: usage, error: usageError } = await supabase
+          .from('coupon_usage')
+          .select('count')
+          .eq('coupon_id', coupon.id)
+          .eq('user_id', currentUser.id)
+          .maybeSingle();
+
+        if (usageError) throw usageError;
+
+        const userUses = usage?.count || 0;
+        const perUserLimit = coupon.per_user_limit || 1;
+
+        if (userUses >= perUserLimit) {
+          couponMessage.innerHTML = `❌ You have already used this coupon (limit: ${perUserLimit} use${perUserLimit > 1 ? 's' : ''}).`;
+          couponMessage.style.color = '#f87171';
+          return;
+        }
+
+        // ===== 4. حساب الخصم =====
         const priceMap = { pro: 19, business: 49 };
         const originalPrice = priceMap[currentPlan] || 0;
-        if (data.discount_type === 'percentage') {
-          discountAmount = (originalPrice * data.discount_value) / 100;
+        let discount = 0;
+        if (coupon.discount_type === 'percentage') {
+          discount = (originalPrice * coupon.discount_value) / 100;
         } else {
-          discountAmount = data.discount_value;
+          discount = coupon.discount_value;
         }
-        discountAmount = Math.min(discountAmount, originalPrice);
+        discount = Math.min(discount, originalPrice);
 
-        appliedCoupon = data;
+        appliedCoupon = coupon;
+        discountAmount = discount;
 
         couponMessage.innerHTML = '✅ Coupon applied successfully!';
         couponMessage.style.color = '#4ade80';
 
         couponDiscount.style.display = 'block';
-        couponDiscount.innerHTML = `🎉 Discount: -$${discountAmount.toFixed(2)} (${data.discount_type === 'percentage' ? data.discount_value + '%' : '$' + data.discount_value})`;
+        couponDiscount.innerHTML = `🎉 Discount: -$${discount.toFixed(2)} (${coupon.discount_type === 'percentage' ? coupon.discount_value + '%' : '$' + coupon.discount_value})`;
 
-        window.updatePlanPrice(currentPlan, originalPrice, discountAmount);
+        window.updatePlanPrice(currentPlan, originalPrice, discount);
 
       } catch (err) {
         console.error('Apply coupon error:', err);
@@ -920,7 +938,7 @@
         try {
           const response = await fetch(`https://api.stripe.com/v1/checkout/sessions/${sessionId}`, {
             headers: {
-              'Authorization': `Bearer sk_test_...`
+              'Authorization': `Bearer sk_test_...` // استخدم الـ Secret Key
             }
           });
           const session = await response.json();
@@ -993,6 +1011,7 @@
         couponSection.style.display = 'none';
       } else {
         couponSection.style.display = 'block';
+        // Reset coupon when switching between paid plans
         appliedCoupon = null;
         discountAmount = 0;
         couponMessage.innerHTML = '';
@@ -1048,6 +1067,7 @@
         return;
       }
 
+      // ===== خطة مدفوعة (Pro / Business) =====
       try {
         const { data: profile } = await supabase
           .from('profiles')
@@ -1061,9 +1081,11 @@
           email: currentUser.email,
           subscription_id: profile?.stripe_subscription_id || null
         };
+
         if (appliedCoupon) {
           requestBody.coupon_code = appliedCoupon.code;
           requestBody.discount_amount = discountAmount;
+          requestBody.coupon_id = appliedCoupon.id;
         }
 
         const response = await fetch(
