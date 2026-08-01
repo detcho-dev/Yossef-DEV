@@ -1241,6 +1241,17 @@
     };
 
     // ============================================================
+// ===== RENDER STARS =====
+// ============================================================
+function renderStars(rating) {
+  const full = Math.floor(rating || 0);
+  const half = (rating || 0) % 1 >= 0.5 ? 1 : 0;
+  const empty = 5 - full - half;
+  
+  return '⭐'.repeat(full) + (half ? '⭐' : '') + '☆'.repeat(empty);
+}
+
+    // ============================================================
     // ===== RENDER TEMPLATES =====
     // ============================================================
     function renderTemplates(templates) {
@@ -1265,21 +1276,26 @@
         }
 
         html += `
-          <div class="template-card">
-            <img src="${tpl.cover_image || 'https://via.placeholder.com/400x200?text=Template'}" 
-                 alt="${tpl.name}" loading="lazy" />
-            <div class="info">
-              <div class="header-row">
-                <h3>${tpl.name}</h3>
-                ${badgeHtml}
-              </div>
-              <span class="id-badge">#${tpl.slug}</span>
-              <div class="card-actions">
-                <button class="btn btn-preview" onclick="openPreview('${tpl.slug}')">👁️ Preview</button>
-                <button class="btn btn-use" onclick="openSplit('${tpl.slug}')">🚀 Use Template</button>
-              </div>
-            </div>
-          </div>
+          <!-- في دالة renderTemplates -->
+<div class="template-card">
+  <img src="${tpl.cover_image}" alt="${tpl.name}" />
+  <div class="info">
+    <div class="header-row">
+      <h3>${tpl.name}</h3>
+      ${badgeHtml}
+    </div>
+    <!-- ===== RATING ===== -->
+    <div class="rating">
+      <span class="stars">${renderStars(tpl.avg_rating)}</span>
+      <span class="rating-count">(${tpl.reviews_count || 0})</span>
+    </div>
+    <span class="id-badge">#${tpl.slug}</span>
+    <div class="card-actions">
+      <button class="btn btn-preview" onclick="openPreview('${tpl.slug}')">👁️ Preview</button>
+      <button class="btn btn-use" onclick="openSplit('${tpl.slug}')">🚀 Use Template</button>
+    </div>
+  </div>
+</div>
         `;
       });
       
