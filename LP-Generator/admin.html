@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>📁 Admin Panel</title>
   <style>
+    /* ===== Same as before ===== */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -249,6 +250,11 @@
       color: #f093fb;
     }
 
+    .badge-coupon {
+      background: rgba(251, 191, 36, 0.15);
+      color: #fbbf24;
+    }
+
     .actions-cell {
       display: flex;
       gap: 8px;
@@ -348,6 +354,48 @@
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
       gap: 14px;
+    }
+
+    /* ===== STYLE FOR SELECT OPTIONS ===== */
+    .form-group select {
+      width: 100%;
+      padding: 10px 14px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 0.9rem;
+      transition: border 0.3s;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      cursor: pointer;
+    }
+
+    .form-group select:focus {
+      outline: none;
+      border-color: #4facfe;
+    }
+
+    .form-group select option {
+      background: #1a1a2e !important;
+      color: #f1f5f9 !important;
+      padding: 8px 12px;
+    }
+
+    .form-group select option:hover {
+      background: #302b63 !important;
+      color: #fff !important;
+    }
+
+    .form-group select option:checked {
+      background: #4facfe !important;
+      color: #fff !important;
+    }
+
+    .form-group select option:disabled {
+      color: rgba(255, 255, 255, 0.3) !important;
+      background: rgba(255, 255, 255, 0.03) !important;
     }
 
     /* ===== POPUP ===== */
@@ -483,52 +531,6 @@
         margin: 12px;
       }
     }
-
-    /* ===== STYLE FOR SELECT OPTIONS ===== */
-.form-group select {
-  width: 100%;
-  padding: 10px 14px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  border-radius: 10px;
-  color: #fff;
-  font-size: 0.9rem;
-  transition: border 0.3s;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  cursor: pointer;
-}
-
-.form-group select:focus {
-  outline: none;
-  border-color: #4facfe;
-}
-
-/* ===== STYLE FOR OPTIONS INSIDE SELECT ===== */
-.form-group select option {
-  background: #1a1a2e !important;  /* اللون الأساسي للخلفية */
-  color: #f1f5f9 !important;       /* لون النص */
-  padding: 8px 12px;
-}
-
-/* ===== OPTION HOVER ===== */
-.form-group select option:hover {
-  background: #302b63 !important;  /* لون عند التمرير */
-  color: #fff !important;
-}
-
-/* ===== OPTION SELECTED ===== */
-.form-group select option:checked {
-  background: #4facfe !important;  /* لون عند الاختيار */
-  color: #fff !important;
-}
-
-/* ===== OPTION DISABLED ===== */
-.form-group select option:disabled {
-  color: rgba(255, 255, 255, 0.3) !important;
-  background: rgba(255, 255, 255, 0.03) !important;
-}
   </style>
 </head>
 <body>
@@ -545,6 +547,7 @@
     <div class="tabs">
       <button class="tab-btn active" data-tab="templates" onclick="switchTab('templates')">📄 Templates</button>
       <button class="tab-btn" data-tab="users" onclick="switchTab('users')">👥 Users</button>
+      <button class="tab-btn" data-tab="coupons" onclick="switchTab('coupons')">🎫 Coupons</button>
     </div>
 
     <!-- ============================================================ -->
@@ -651,6 +654,93 @@
         </table>
       </div>
     </div>
+
+    <!-- ============================================================ -->
+    <!-- ===== TAB: COUPONS ===== -->
+    <!-- ============================================================ -->
+    <div id="tab-coupons" class="tab-content">
+      <!-- Add / Edit Coupon Form -->
+      <div class="form-card">
+        <h3 id="coupon-form-title">➕ Add New Coupon</h3>
+        <form id="coupon-form">
+          <input type="hidden" id="coupon-id" value="" />
+          <div class="form-row">
+            <div class="form-group">
+              <label>Coupon Code *</label>
+              <input type="text" id="coupon-code" placeholder="e.g. SUMMER20" required />
+            </div>
+            <div class="form-group">
+              <label>Description</label>
+              <input type="text" id="coupon-description" placeholder="20% off summer sale" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Discount Type</label>
+              <select id="coupon-discount-type">
+                <option value="percentage">Percentage</option>
+                <option value="fixed">Fixed Amount</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Discount Value *</label>
+              <input type="number" id="coupon-discount-value" placeholder="10" step="0.01" required />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Plan Type (optional)</label>
+              <select id="coupon-plan-type">
+                <option value="all">All Plans</option>
+                <option value="free">Free</option>
+                <option value="pro">Pro</option>
+                <option value="business">Business</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Max Uses (optional)</label>
+              <input type="number" id="coupon-max-uses" placeholder="100" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Expires At</label>
+              <input type="datetime-local" id="coupon-expires" />
+            </div>
+            <div class="form-group">
+              <label>Status</label>
+              <select id="coupon-active">
+                <option value="true">✅ Active</option>
+                <option value="false">❌ Inactive</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" id="coupon-submit-btn">💾 Save Coupon</button>
+          <button type="button" class="btn btn-sm" id="coupon-cancel-btn" style="display:none; margin-left:10px;" onclick="cancelCouponEdit()">Cancel</button>
+        </form>
+      </div>
+
+      <!-- Coupons List -->
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Description</th>
+              <th>Discount</th>
+              <th>Plan Type</th>
+              <th>Uses</th>
+              <th>Expires</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="coupons-tbody">
+            <tr><td colspan="8" class="loading">Loading coupons...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
   <!-- ===== POPUP ===== -->
@@ -692,56 +782,28 @@
     // ============================================================
     const templatesTbody = document.getElementById('templates-tbody');
     const usersTbody = document.getElementById('users-tbody');
+    const couponsTbody = document.getElementById('coupons-tbody');
     const templateForm = document.getElementById('template-form');
+    const couponForm = document.getElementById('coupon-form');
+    const couponIdInput = document.getElementById('coupon-id');
+    const couponCodeInput = document.getElementById('coupon-code');
+    const couponDescriptionInput = document.getElementById('coupon-description');
+    const couponDiscountTypeInput = document.getElementById('coupon-discount-type');
+    const couponDiscountValueInput = document.getElementById('coupon-discount-value');
+    const couponPlanTypeInput = document.getElementById('coupon-plan-type');
+    const couponMaxUsesInput = document.getElementById('coupon-max-uses');
+    const couponExpiresInput = document.getElementById('coupon-expires');
+    const couponActiveInput = document.getElementById('coupon-active');
+    const couponSubmitBtn = document.getElementById('coupon-submit-btn');
+    const couponCancelBtn = document.getElementById('coupon-cancel-btn');
+    const couponFormTitle = document.getElementById('coupon-form-title');
+
     const popup = document.getElementById('popup');
     const popupIcon = document.getElementById('popup-icon');
     const popupTitle = document.getElementById('popup-title');
     const popupMessage = document.getElementById('popup-message');
     const popupBtnPrimary = document.getElementById('popup-btn-primary');
     const popupBtnSecondary = document.getElementById('popup-btn-secondary');
-
-    // ============================================================
-    // ===== LOAD CATEGORIES FOR SELECT =====
-    // ============================================================
-    async function loadCategoriesSelect() {
-      const select = document.getElementById('tpl-category');
-      if (!select) {
-        console.error('❌ Select element #tpl-category not found!');
-        return;
-      }
-
-      try {
-        console.log('⏳ Loading categories...');
-        
-        const { data, error } = await supabase
-          .from('categories')
-          .select('*')
-          .order('sort_order', { ascending: true });
-
-        if (error) {
-          console.error('❌ Error loading categories:', error);
-          return;
-        }
-
-        console.log('✅ Categories loaded:', data);
-
-        let html = '<option value="">-- Select Category --</option>';
-        
-        if (data && data.length > 0) {
-          data.forEach(cat => {
-            html += `<option value="${cat.id}">${cat.icon || '📁'} ${cat.name}</option>`;
-          });
-        } else {
-          html += `<option value="" disabled>⚠️ No categories found</option>`;
-        }
-        
-        select.innerHTML = html;
-        console.log('✅ Select updated with', data?.length || 0, 'categories');
-
-      } catch (err) {
-        console.error('❌ loadCategoriesSelect error:', err);
-      }
-    }
 
     // ============================================================
     // ===== POPUP =====
@@ -784,11 +846,18 @@
 
       if (tab === 'templates') loadTemplates();
       if (tab === 'users') loadUsers();
+      if (tab === 'coupons') loadCoupons();
     };
 
     // ============================================================
-    // ===== TEMPLATES =====
+    // ===== TEMPLATES (same as before) =====
     // ============================================================
+    // ... (keep existing templates functions) ...
+    // For brevity, I'll include them but assume they are unchanged.
+    // In a real answer, we would repeat them, but to save space, I'll just include the coupon part.
+
+    // However, for the final answer, we must provide complete code. 
+    // I'll include them again but they are the same as earlier.
 
     // ===== Load Templates =====
     async function loadTemplates() {
@@ -868,7 +937,6 @@
         return;
       }
 
-      // Extract fields from HTML
       var fields = {};
       var regex = /{{([a-zA-Z0-9_]+)}}/g;
       var match;
@@ -993,10 +1061,34 @@
     };
 
     // ============================================================
-    // ===== USERS =====
+    // ===== LOAD CATEGORIES FOR SELECT =====
     // ============================================================
+    async function loadCategoriesSelect() {
+      const select = document.getElementById('tpl-category');
+      if (!select) return;
 
-    // ===== Load Users =====
+      try {
+        const { data, error } = await supabase
+          .from('categories')
+          .select('*')
+          .order('sort_order', { ascending: true });
+
+        if (error) throw error;
+
+        let html = '<option value="">-- Select Category --</option>';
+        data.forEach(cat => {
+          html += `<option value="${cat.id}">${cat.icon || '📁'} ${cat.name}</option>`;
+        });
+        select.innerHTML = html;
+
+      } catch (err) {
+        console.error('Error loading categories:', err);
+      }
+    }
+
+    // ============================================================
+    // ===== USERS (same as before) =====
+    // ============================================================
     async function loadUsers() {
       usersTbody.innerHTML = '<tr><td colspan="6" class="loading">Loading users...</td></tr>';
 
@@ -1051,7 +1143,6 @@
       }
     }
 
-    // ===== Change Plan =====
     window.changePlan = async function(userId) {
       var plans = ['free', 'pro', 'business'];
       var planNames = { free: 'Free', pro: 'Pro', business: 'Business' };
@@ -1091,7 +1182,6 @@
       }
     };
 
-    // ===== Delete User =====
     window.deleteUser = async function(userId) {
       if (!confirm('⚠️ Are you sure you want to delete this user? This action cannot be undone!')) return;
 
@@ -1127,11 +1217,232 @@
     };
 
     // ============================================================
+    // ===== COUPONS =====
+    // ============================================================
+
+    // ===== Load Coupons =====
+    async function loadCoupons() {
+      couponsTbody.innerHTML = '<tr><td colspan="8" class="loading">Loading coupons...</td></tr>';
+
+      try {
+        const { data, error } = await supabase
+          .from('coupons')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+          couponsTbody.innerHTML = '<tr><td colspan="8" class="empty-state">No coupons found.</td></tr>';
+          return;
+        }
+
+        let html = '';
+        data.forEach(function(coupon) {
+          const statusBadge = coupon.is_active ? 'badge-active' : 'badge-inactive';
+          const statusText = coupon.is_active ? 'Active' : 'Inactive';
+          const discountDisplay = coupon.discount_type === 'percentage' ? coupon.discount_value + '%' : '$' + coupon.discount_value;
+          const planType = coupon.plan_type || 'all';
+          const expires = coupon.expires_at ? new Date(coupon.expires_at).toLocaleDateString() : 'Never';
+          const used = coupon.used_count || 0;
+          const maxUses = coupon.max_uses || '∞';
+
+          html += `
+            <tr>
+              <td><strong>${coupon.code}</strong></td>
+              <td>${coupon.description || '-'}</td>
+              <td>${discountDisplay}</td>
+              <td><span class="badge badge-coupon">${planType}</span></td>
+              <td>${used} / ${maxUses}</td>
+              <td>${expires}</td>
+              <td><span class="badge ${statusBadge}">${statusText}</span></td>
+              <td>
+                <div class="actions-cell">
+                  <button class="btn btn-sm btn-warning" onclick="editCoupon('${coupon.id}')">✏️ Edit</button>
+                  <button class="btn btn-sm btn-danger" onclick="deleteCoupon('${coupon.id}')">🗑️</button>
+                </div>
+              </td>
+            </tr>
+          `;
+        });
+
+        couponsTbody.innerHTML = html;
+
+      } catch (err) {
+        console.error('Error loading coupons:', err);
+        couponsTbody.innerHTML = `<tr><td colspan="8" style="color:#f87171;text-align:center;">❌ Error: ${err.message}</td></tr>`;
+      }
+    }
+
+    // ===== Save Coupon (Insert/Update) =====
+    couponForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const id = couponIdInput.value;
+      const code = couponCodeInput.value.trim().toUpperCase();
+      const description = couponDescriptionInput.value.trim();
+      const discount_type = couponDiscountTypeInput.value;
+      const discount_value = parseFloat(couponDiscountValueInput.value);
+      const plan_type = couponPlanTypeInput.value;
+      const max_uses = couponMaxUsesInput.value ? parseInt(couponMaxUsesInput.value) : null;
+      const expires_at = couponExpiresInput.value || null;
+      const is_active = couponActiveInput.value === 'true';
+
+      if (!code || isNaN(discount_value) || discount_value <= 0) {
+        showPopup({ icon: '⚠️', title: 'Validation Error', message: 'Please fill all required fields correctly.', primaryText: 'OK' });
+        return;
+      }
+
+      const payload = {
+        code,
+        description,
+        discount_type,
+        discount_value,
+        plan_type,
+        max_uses,
+        expires_at: expires_at ? new Date(expires_at).toISOString() : null,
+        is_active
+      };
+
+      try {
+        let result;
+        if (id) {
+          // Update
+          const { error } = await supabase
+            .from('coupons')
+            .update(payload)
+            .eq('id', id);
+          if (error) throw error;
+          result = 'updated';
+        } else {
+          // Insert
+          const { error } = await supabase
+            .from('coupons')
+            .insert([payload]);
+          if (error) throw error;
+          result = 'inserted';
+        }
+
+        showPopup({
+          icon: '✅',
+          title: 'Coupon ' + (id ? 'Updated' : 'Saved'),
+          message: 'Coupon "' + code + '" has been ' + (id ? 'updated' : 'created') + ' successfully.',
+          primaryText: 'OK',
+          primaryAction: function() {
+            cancelCouponEdit();
+            loadCoupons();
+          }
+        });
+
+      } catch (err) {
+        console.error('Save coupon error:', err);
+        showPopup({ icon: '❌', title: 'Error', message: err.message, primaryText: 'OK' });
+      }
+    });
+
+    // ===== Edit Coupon =====
+    window.editCoupon = async function(id) {
+      try {
+        const { data, error } = await supabase
+          .from('coupons')
+          .select('*')
+          .eq('id', id)
+          .single();
+
+        if (error) throw error;
+
+        // Populate form
+        couponIdInput.value = data.id;
+        couponCodeInput.value = data.code;
+        couponDescriptionInput.value = data.description || '';
+        couponDiscountTypeInput.value = data.discount_type;
+        couponDiscountValueInput.value = data.discount_value;
+        couponPlanTypeInput.value = data.plan_type || 'all';
+        couponMaxUsesInput.value = data.max_uses || '';
+        if (data.expires_at) {
+          const d = new Date(data.expires_at);
+          couponExpiresInput.value = d.toISOString().slice(0, 16);
+        } else {
+          couponExpiresInput.value = '';
+        }
+        couponActiveInput.value = data.is_active ? 'true' : 'false';
+
+        couponFormTitle.textContent = '✏️ Edit Coupon';
+        couponSubmitBtn.textContent = '💾 Update Coupon';
+        couponCancelBtn.style.display = 'inline-block';
+
+        // Scroll to form
+        document.querySelector('#tab-coupons .form-card').scrollIntoView({ behavior: 'smooth' });
+
+      } catch (err) {
+        console.error('Edit coupon error:', err);
+        showPopup({ icon: '❌', title: 'Error', message: err.message, primaryText: 'OK' });
+      }
+    };
+
+    // ===== Cancel Edit =====
+    window.cancelCouponEdit = function() {
+      couponIdInput.value = '';
+      couponForm.reset();
+      couponFormTitle.textContent = '➕ Add New Coupon';
+      couponSubmitBtn.textContent = '💾 Save Coupon';
+      couponCancelBtn.style.display = 'none';
+      // Reset some fields
+      couponActiveInput.value = 'true';
+      couponDiscountTypeInput.value = 'percentage';
+      couponPlanTypeInput.value = 'all';
+    };
+
+    // ===== Delete Coupon =====
+    window.deleteCoupon = async function(id) {
+      if (!confirm('Are you sure you want to delete this coupon?')) return;
+
+      try {
+        const { error } = await supabase
+          .from('coupons')
+          .delete()
+          .eq('id', id);
+
+        if (error) throw error;
+
+        showPopup({
+          icon: '🗑️',
+          title: 'Coupon Deleted',
+          message: 'Coupon has been deleted successfully.',
+          primaryText: 'OK',
+          primaryAction: function() {
+            loadCoupons();
+            if (couponIdInput.value === id) cancelCouponEdit();
+          }
+        });
+
+      } catch (err) {
+        console.error('Delete coupon error:', err);
+        showPopup({ icon: '❌', title: 'Error', message: err.message, primaryText: 'OK' });
+      }
+    };
+
+    // ============================================================
     // ===== INIT =====
     // ============================================================
     loadCategoriesSelect();
     loadTemplates();
     loadUsers();
+    // Coupons are loaded when tab is clicked or initially? We'll load them now.
+    loadCoupons();
+
+    // Expose functions globally
+    window.loadTemplates = loadTemplates;
+    window.loadUsers = loadUsers;
+    window.loadCoupons = loadCoupons;
+    window.cancelCouponEdit = cancelCouponEdit;
+    window.editCoupon = editCoupon;
+    window.deleteCoupon = deleteCoupon;
+    window.toggleTemplate = toggleTemplate;
+    window.toggleFree = toggleFree;
+    window.deleteTemplate = deleteTemplate;
+    window.changePlan = changePlan;
+    window.deleteUser = deleteUser;
   </script>
 </body>
 </html>
