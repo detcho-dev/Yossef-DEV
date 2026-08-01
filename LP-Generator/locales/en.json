@@ -1,3 +1,6 @@
+// ============================================================
+// ===== locales/en.json =====
+// ============================================================
 {
   "app": {
     "name": "Build Your Site",
@@ -12,12 +15,30 @@
   },
   "templates": {
     "title": "📁 Template Gallery",
-    "search": "🔍 Search templates...",
+    "search": "🔍 Search templates by name...",
+    "found": "templates found",
+    "all": "📋 All",
+    "loading": "Loading templates...",
+    "loading_preview": "Loading preview...",
+    "loading_form": "Loading form...",
+    "preview_placeholder": "Your template will appear here as you type...",
     "no_results": "No templates found",
+    "adjust_search": "Try adjusting your search terms",
+    "no_templates": "✨ No templates yet. Add one via the admin panel.",
     "preview": "Preview",
     "use": "Use Template",
+    "close": "Close",
     "free": "Free",
-    "paid": "Paid"
+    "paid": "Paid",
+    "premium_notice": "💎 Premium Template. This template is for paid users only. Upgrade to Pro or Business to use it.",
+    "upgrade_link": "Upgrade to Pro or Business",
+    "customize": "✏️ Customize Your Site",
+    "live_preview": "🔮 Live Preview",
+    "site_name": "Your Site Name (username)",
+    "rate": "⭐ Rate this template",
+    "submit_review": "📝 Submit Review",
+    "publish": "🚀 Publish My Site",
+    "download_zip": "📦 Download ZIP"
   },
   "plans": {
     "free": "Free",
@@ -30,6 +51,12 @@
     "sign_up": "Sign Up",
     "email": "Email",
     "password": "Password"
+  },
+  "popup": {
+    "success": "Success!",
+    "operation_complete": "Operation completed.",
+    "ok": "OK",
+    "cancel": "Cancel"
   },
   "errors": {
     "generic": "An error occurred. Please try again.",
