@@ -824,13 +824,19 @@
     // ===== APPLY COUPON (مع التحقق من استخدام المستخدم) =====
     // ============================================================
     window.applyCoupon = async function() {
-      const code = couponInput.value.trim().toUpperCase();
-      if (!code) {
-        couponMessage.innerHTML = '⚠️ Please enter a coupon code.';
-        couponMessage.style.color = '#f87171';
-        return;
-      }
+  const code = couponInput.value.trim().toUpperCase();
+  if (!code) {
+    couponMessage.innerHTML = '⚠️ Please enter a coupon code.';
+    couponMessage.style.color = '#f87171';
+    return;
+  }
 
+  // ===== 1. منع تطبيق الكوبون على خطة Free =====
+  if (currentPlan === 'free') {
+    couponMessage.innerHTML = '❌ Coupons are not available for the Free plan. Please upgrade to a paid plan first.';
+    couponMessage.style.color = '#f87171';
+    return;
+  }
       try {
         // ===== 1. جيب الكوبون =====
         const { data: coupon, error: couponError } = await supabase
