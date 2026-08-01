@@ -821,8 +821,8 @@
       });
     }
 
-   // ============================================================
-// ===== APPLY COUPON (كاملة مع المنطق الجديد) =====
+  // ============================================================
+// ===== APPLY COUPON (النسخة النهائية) =====
 // ============================================================
 window.applyCoupon = async function() {
   const code = couponInput.value.trim().toUpperCase();
@@ -861,7 +861,7 @@ window.applyCoupon = async function() {
       return;
     }
 
-    // ===== 3. تحقق من استخدام المستخدم لهذا الكوبون =====
+    // ===== 3. تحقق من استخدام المستخدم =====
     const { data: usage, error: usageError } = await supabase
       .from('coupon_usage')
       .select('count')
@@ -882,7 +882,6 @@ window.applyCoupon = async function() {
 
     // ===== 4. تطبيق الخصم حسب نوع الخطة =====
     const priceMap = { pro: 19, business: 49 };
-    let discount = 0;
 
     // ===== 4a. لو plan_type = 'all' → طبق الخصم على كل الخطط =====
     if (coupon.plan_type === 'all') {
@@ -908,12 +907,12 @@ window.applyCoupon = async function() {
       businessDiscount = Math.min(businessDiscount, businessOriginal);
       window.updatePlanPrice('business', businessOriginal, businessDiscount);
 
-      // ===== خزن الكوبون =====
+      // Free مجاني، مفيش خصم عليه
+
       appliedCoupon = {
         ...coupon,
         targetPlan: 'all'
       };
-      discountAmount = 0; // مش هنستخدمها لأن الخصم على كل الخطط
 
       couponMessage.innerHTML = '✅ Coupon applied to all plans!';
       couponMessage.style.color = '#4ade80';
@@ -921,10 +920,10 @@ window.applyCoupon = async function() {
       couponDiscount.style.display = 'block';
       couponDiscount.innerHTML = `🎉 ${coupon.code}: ${coupon.discount_type === 'percentage' ? coupon.discount_value + '%' : '$' + coupon.discount_value} off all plans!`;
 
-      return; // نخرج من الدالة عشان ما نطبقش الخصم على خطة معينة
+      return;
     }
 
-    // ===== 4b. لو plan_type محدد =====
+    // ===== 4b. لو plan_type محدد (pro / business) =====
     if (coupon.plan_type && coupon.plan_type !== 'all') {
       const targetPlan = coupon.plan_type;
       const originalPrice = priceMap[targetPlan] || 0;
@@ -935,6 +934,7 @@ window.applyCoupon = async function() {
         return;
       }
 
+      let discount = 0;
       if (coupon.discount_type === 'percentage') {
         discount = (originalPrice * coupon.discount_value) / 100;
       } else {
@@ -942,12 +942,20 @@ window.applyCoupon = async function() {
       }
       discount = Math.min(discount, originalPrice);
 
-      // ===== خزن الكوبون مع الخطة المستهدفة =====
+      // ===== نطبق الخصم على الخطة المستهدفة =====
       appliedCoupon = {
         ...coupon,
         targetPlan: targetPlan
       };
       discountAmount = discount;
+
+      // ===== نعيد تعيين الأسعار لكل الخطط (لو كان فيه خصم سابق) =====
+      // إعادة Pro للسعر الأصلي
+      window.updatePlanPrice('pro', priceMap.pro, 0);
+      // إعادة Business للسعر الأصلي
+      window.updatePlanPrice('business', priceMap.business, 0);
+      // نطبق الخصم على الخطة المستهدفة
+      window.updatePlanPrice(targetPlan, originalPrice, discount);
 
       couponMessage.innerHTML = `✅ Coupon applied to ${targetPlan} plan!`;
       couponMessage.style.color = '#4ade80';
@@ -955,7 +963,6 @@ window.applyCoupon = async function() {
       couponDiscount.style.display = 'block';
       couponDiscount.innerHTML = `🎉 ${coupon.code}: ${coupon.discount_type === 'percentage' ? coupon.discount_value + '%' : '$' + coupon.discount_value} off ${targetPlan} plan!`;
 
-      window.updatePlanPrice(targetPlan, originalPrice, discount);
       return;
     }
 
@@ -968,6 +975,7 @@ window.applyCoupon = async function() {
       return;
     }
 
+    let discount = 0;
     if (coupon.discount_type === 'percentage') {
       discount = (currentOriginalPrice * coupon.discount_value) / 100;
     } else {
