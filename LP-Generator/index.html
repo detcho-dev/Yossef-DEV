@@ -1055,6 +1055,35 @@
     .split-right::-webkit-scrollbar-thumb:hover {
       background: rgba(255, 255, 255, 0.25);
     }
+
+    /* ===== LANGUAGE SELECTOR ===== */
+.language-selector {
+  display: flex;
+  gap: 8px;
+  margin-left: 12px;
+}
+
+.lang-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  color: rgba(255, 255, 255, 0.5);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.lang-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.lang-btn.active {
+  background: rgba(79, 172, 254, 0.15);
+  border-color: rgba(79, 172, 254, 0.3);
+  color: #4facfe;
+}
   </style>
 </head>
 <body>
@@ -1072,6 +1101,11 @@
         <a href="notifications.html" class="btn" id="notif-btn">
           🔔 <span id="notif-count" style="background:#f5576c;border-radius:50%;padding:0 8px;font-size:0.7rem;margin-left:4px;display:none;">0</span>
         </a>
+        <!-- ===== LANGUAGE SELECTOR ===== -->
+<div class="language-selector">
+  <button onclick="setLanguage('en')" class="lang-btn">🇬🇧 EN</button>
+  <button onclick="setLanguage('ar')" class="lang-btn">🇸🇦 AR</button>
+</div>
       </div>
     </header>
 
