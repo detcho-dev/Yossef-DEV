@@ -666,6 +666,24 @@
       loadSites();
     }
 
+    // ===== LOAD NOTIFICATION COUNT =====
+async function loadNotificationCount() {
+  if (!currentUser) return;
+
+  const { count, error } = await supabase
+    .from('notifications')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', currentUser.id)
+    .eq('is_read', false);
+
+  if (!error && count > 0) {
+    document.getElementById('notif-count').textContent = count;
+    document.getElementById('notif-count').style.display = 'inline';
+  } else {
+    document.getElementById('notif-count').style.display = 'none';
+  }
+}
+
     // ============================================================
 // ===== LOAD USER PLAN =====
 // ============================================================
