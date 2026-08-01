@@ -6,12 +6,21 @@ const translations = {};
 // ===== تحميل ملف الترجمة =====
 async function loadLanguage(lang = 'en') {
   try {
-    const response = await fetch(`/locales/${lang}.json`);
-    if (!response.ok) throw new Error('Language file not found');
+    // استخدم المسار النسبي الصحيح
+    const response = await fetch(`./locales/${lang}.json`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
     translations[lang] = await response.json();
+    console.log(`✅ Loaded language: ${lang}`);
     return translations[lang];
   } catch (error) {
     console.error('Error loading language:', error);
+    // Load English as fallback
+    if (lang !== 'en') {
+      console.log('🔄 Falling back to English');
+      return loadLanguage('en');
+    }
     return {};
   }
 }
@@ -24,23 +33,33 @@ function t(key, lang = 'en') {
     if (value && value[k]) {
       value = value[k];
     } else {
-      return key; // Return key if translation not found
+      // Try fallback to English
+      if (lang !== 'en') {
+        return t(key, 'en');
+      }
+      return key;
     }
   }
   return value;
 }
 
 // ===== تغيير اللغة =====
-async function setLanguage(lang) {
+window.setLanguage = async function(lang) {
   localStorage.setItem('language', lang);
   await loadLanguage(lang);
   updateUI();
-}
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.dataset.lang === lang) {
+      btn.classList.add('active');
+    }
+  });
+};
 
 // ===== الحصول على اللغة الحالية =====
-function getLanguage() {
+window.getLanguage = function() {
   return localStorage.getItem('language') || 'en';
-}
+};
 
 // ===== تحديث الواجهة =====
 function updateUI() {
@@ -61,3 +80,6 @@ async function initLanguage() {
   await loadLanguage(lang);
   updateUI();
 }
+
+// ===== تحميل اللغة عند بدء التشغيل =====
+initLanguage();
