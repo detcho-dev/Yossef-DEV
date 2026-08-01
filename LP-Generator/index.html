@@ -33,6 +33,91 @@
       color: #f1f5f9;
     }
 
+    /* ============================================================ */
+/* ===== RTL SUPPORT ===== */
+/* ============================================================ */
+
+/* ===== RTL للجسم ===== */
+body.rtl {
+  direction: rtl;
+  text-align: right;
+}
+
+body.ltr {
+  direction: ltr;
+  text-align: left;
+}
+
+/* ===== عكس التباعد ===== */
+.rtl .header-left {
+  flex-direction: row-reverse;
+}
+
+.rtl .header-actions {
+  flex-direction: row-reverse;
+}
+
+.rtl .search-stats {
+  border-left: none;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.rtl .template-card .info .header-row {
+  flex-direction: row-reverse;
+}
+
+.rtl .card-actions {
+  flex-direction: row-reverse;
+}
+
+.rtl .rating {
+  flex-direction: row-reverse;
+}
+
+/* ===== عكس هوامش و Padding ===== */
+.rtl .language-selector {
+  margin-left: 0;
+  margin-right: 12px;
+}
+
+.rtl .plan-card .plan-price .old-price {
+  margin-left: 0;
+  margin-right: 8px;
+}
+
+.rtl .popup .popup-btn-secondary {
+  margin-left: 0;
+  margin-right: 12px;
+}
+
+/* ===== تعديلات للـ Split Screen ===== */
+.rtl .split-left {
+  border-right: none;
+  border-left: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* ===== أيقونات السهم ===== */
+.rtl .btn svg {
+  transform: scaleX(-1);
+}
+
+/* ===== Responsive RTL ===== */
+@media (max-width: 768px) {
+  .rtl .search-stats {
+    border-right: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  
+  .rtl .language-selector {
+    margin-right: 0;
+  }
+  
+  .rtl .split-left {
+    border-left: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  }
+}
+
     @keyframes gradientBG {
       0% {
         background-position: 0% 50%;
