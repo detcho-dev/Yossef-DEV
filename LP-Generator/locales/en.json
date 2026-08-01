@@ -1,0 +1,39 @@
+{
+  "app": {
+    "name": "Build Your Site",
+    "tagline": "Choose a template, customize it, and publish your own website"
+  },
+  "nav": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "plans": "Plans",
+    "login": "Login",
+    "logout": "Logout"
+  },
+  "templates": {
+    "title": "📁 Template Gallery",
+    "search": "🔍 Search templates...",
+    "no_results": "No templates found",
+    "preview": "Preview",
+    "use": "Use Template",
+    "free": "Free",
+    "paid": "Paid"
+  },
+  "plans": {
+    "free": "Free",
+    "pro": "Pro",
+    "business": "Business",
+    "per_month": "/ month"
+  },
+  "auth": {
+    "sign_in": "Sign In",
+    "sign_up": "Sign Up",
+    "email": "Email",
+    "password": "Password"
+  },
+  "errors": {
+    "generic": "An error occurred. Please try again.",
+    "not_found": "Page not found",
+    "unauthorized": "Unauthorized"
+  }
+}
