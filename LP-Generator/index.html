@@ -125,6 +125,15 @@
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     }
 
+    .btn-success {
+      background: linear-gradient(135deg, #4ade80, #22c55e);
+      border: none;
+      color: #fff;
+    }
+    .btn-success:hover {
+      box-shadow: 0 8px 24px rgba(74, 222, 128, 0.4);
+    }
+
     /* ============================================================ */
     /* ===== BADGE ===== */
     /* ============================================================ */
@@ -693,6 +702,17 @@
     .review-section textarea:focus {
       outline: none;
       border-color: #4facfe;
+    }
+
+    .export-section {
+      margin-top: 12px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .export-section .btn {
+      flex: 1;
+      justify-content: center;
     }
 
     .split-right {
@@ -1360,6 +1380,118 @@
     };
 
     // ============================================================
+    // ===== EXPORT TEMPLATE AS ZIP =====
+    // ============================================================
+    window.exportTemplate = async function() {
+      if (!selectedTemplate) {
+        showPopup({
+          icon: '⚠️',
+          title: 'No Template Selected',
+          message: 'Please select and customize a template first.',
+          primaryText: 'OK'
+        });
+        return;
+      }
+
+      try {
+        // ===== 1. جمع البيانات =====
+        const fields = currentTemplateFields || {};
+        const data = {};
+        
+        for (const [key] of Object.entries(fields)) {
+          const input = document.getElementById(`split-field-${key}`);
+          if (input) {
+            data[key] = input.value.trim();
+          }
+        }
+
+        // ===== 2. إنشاء الـ HTML النهائي =====
+        let html = selectedTemplate.html || '<p>No content</p>';
+        for (const [key, value] of Object.entries(data)) {
+          html = html.replace(new RegExp(`{{${key}}}`, 'g'), value || `[${key}]`);
+        }
+
+        const slugInput = document.getElementById('split-site-slug');
+        const slug = slugInput?.value || 'my-site';
+        html = html.replace(/\{\{site_slug\}\}/g, slug);
+
+        // ===== 3. تجهيز الملفات =====
+        const files = {};
+
+        // HTML
+        files['index.html'] = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>${data.title || 'My Site'}</title>
+      ${selectedTemplate.css ? `<style>${selectedTemplate.css}</style>` : ''}
+    </head>
+    <body>
+      ${html}
+      ${selectedTemplate.js ? `<script>${selectedTemplate.js}<\/script>` : ''}
+    </body>
+    </html>
+        `;
+
+        // CSS (منفصل)
+        if (selectedTemplate.css) {
+          files['style.css'] = selectedTemplate.css;
+        }
+
+        // JS (منفصل)
+        if (selectedTemplate.js) {
+          files['script.js'] = selectedTemplate.js;
+        }
+
+        // ===== 4. إنشاء الـ ZIP =====
+        // تحميل مكتبة JSZip من CDN
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+        document.head.appendChild(script);
+
+        // انتظر تحميل المكتبة
+        await new Promise((resolve) => {
+          script.onload = resolve;
+        });
+
+        const zip = new JSZip();
+
+        // أضف الملفات
+        Object.entries(files).forEach(([name, content]) => {
+          zip.file(name, content);
+        });
+
+        // ===== 5. تحميل الـ ZIP =====
+        const zipBlob = await zip.generateAsync({ type: 'blob' });
+        const downloadLink = document.createElement('a');
+        downloadLink.href = URL.createObjectURL(zipBlob);
+        downloadLink.download = `${slug || 'template'}.zip`;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        URL.revokeObjectURL(downloadLink.href);
+
+        showPopup({
+          icon: '📦',
+          title: 'Template Exported!',
+          message: `Your template has been downloaded as ${slug || 'template'}.zip`,
+          primaryText: 'OK'
+        });
+
+      } catch (err) {
+        console.error('Export error:', err);
+        showPopup({
+          icon: '❌',
+          title: 'Export Failed',
+          message: err.message,
+          primaryText: 'OK'
+        });
+      }
+    };
+
+    // ============================================================
     // ===== LOAD CATEGORIES =====
     // ============================================================
     async function loadCategories() {
@@ -1970,6 +2102,9 @@
 
       html += `
           <button type="submit" class="btn-publish">🚀 Publish My Site</button>
+          <div class="export-section">
+            <button type="button" class="btn btn-success" onclick="exportTemplate()">📦 Download ZIP</button>
+          </div>
         </form>
       `;
 
@@ -2181,6 +2316,7 @@
     window.filterByCategory = filterByCategory;
     window.setRating = setRating;
     window.submitReview = submitReview;
+    window.exportTemplate = exportTemplate;
 
     await checkAuth();
     await loadTemplates();
