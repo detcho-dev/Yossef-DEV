@@ -520,11 +520,10 @@
       <h1>📊 Dashboard</h1>
       <div class="header-actions">
         <a href="index.html" class="btn">🏠 Home</a>
-        <a href="plans" class="btn">💳 Plans</a>
-        <!-- جوه الـ Header -->
-<a href="notifications" class="btn" id="notif-btn">
-  🔔 <span id="notif-count" style="background:#f5576c;border-radius:50%;padding:0 8px;font-size:0.7rem;margin-left:4px;">0</span>
-</a>
+        <a href="plans.html" class="btn">💳 Plans</a>
+        <a href="notifications.html" class="btn" id="notif-btn">
+          🔔 <span id="notif-count" style="background:#f5576c;border-radius:50%;padding:0 8px;font-size:0.7rem;margin-left:4px;display:none;">0</span>
+        </a>
         <button class="btn" onclick="logout()">🚪 Logout</button>
       </div>
     </header>
@@ -537,7 +536,7 @@
       </div>
       <div class="plan-actions">
         <button class="btn btn-sm" id="btn-downgrade" onclick="downgradePlan()" style="display:none;">⬇️ Downgrade to Free</button>
-        <a href="plans" class="btn btn-sm btn-primary">⬆️ Upgrade</a>
+        <a href="plans.html" class="btn btn-sm btn-primary">⬆️ Upgrade</a>
       </div>
     </div>
 
@@ -611,6 +610,7 @@
     const publishedSites = document.getElementById('published-sites');
     const currentPlanBadge = document.getElementById('current-plan-badge');
     const btnDowngrade = document.getElementById('btn-downgrade');
+    const notifCount = document.getElementById('notif-count');
     const popup = document.getElementById('popup');
     const popupIcon = document.getElementById('popup-icon');
     const popupTitle = document.getElementById('popup-title');
@@ -651,6 +651,33 @@
     };
 
     // ============================================================
+    // ===== NOTIFICATION COUNT =====
+    // ============================================================
+    async function loadNotificationCount() {
+      if (!currentUser) {
+        if (notifCount) notifCount.style.display = 'none';
+        return;
+      }
+
+      try {
+        const { count, error } = await supabase
+          .from('notifications')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', currentUser.id)
+          .eq('is_read', false);
+
+        if (!error && count > 0) {
+          notifCount.textContent = count;
+          notifCount.style.display = 'inline';
+        } else {
+          notifCount.style.display = 'none';
+        }
+      } catch (err) {
+        console.error('Error loading notification count:', err);
+      }
+    }
+
+    // ============================================================
     // ===== CHECK AUTH =====
     // ============================================================
     async function checkAuth() {
@@ -663,50 +690,34 @@
 
       currentUser = session.user;
       await loadUserPlan();
+      await loadNotificationCount();
       loadSites();
     }
 
-    // ===== LOAD NOTIFICATION COUNT =====
-async function loadNotificationCount() {
-  if (!currentUser) return;
-
-  const { count, error } = await supabase
-    .from('notifications')
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', currentUser.id)
-    .eq('is_read', false);
-
-  if (!error && count > 0) {
-    document.getElementById('notif-count').textContent = count;
-    document.getElementById('notif-count').style.display = 'inline';
-  } else {
-    document.getElementById('notif-count').style.display = 'none';
-  }
-}
-
     // ============================================================
-// ===== LOAD USER PLAN =====
-// ============================================================
-async function loadUserPlan() {
-  try {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('plan')
-      .eq('id', currentUser.id)
-      .maybeSingle();
+    // ===== LOAD USER PLAN =====
+    // ============================================================
+    async function loadUserPlan() {
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('plan')
+          .eq('id', currentUser.id)
+          .maybeSingle();
 
-    if (error) {
-      console.error('Error loading plan:', error);
-      return;
+        if (error) {
+          console.error('Error loading plan:', error);
+          return;
+        }
+
+        currentPlan = data?.plan || 'free';
+        updatePlanUI();
+
+      } catch (err) {
+        console.error('loadUserPlan error:', err);
+      }
     }
 
-    currentPlan = data?.plan || 'free';
-    updatePlanUI();
-
-  } catch (err) {
-    console.error('loadUserPlan error:', err);
-  }
-}
     // ============================================================
     // ===== UPDATE PLAN UI =====
     // ============================================================
@@ -720,7 +731,6 @@ async function loadUserPlan() {
       currentPlanBadge.textContent = planNames[currentPlan] || 'Free';
       currentPlanBadge.className = `plan-badge ${currentPlan}`;
 
-      // إظهار زر الرجوع للفري فقط لو مش فري
       if (currentPlan !== 'free') {
         btnDowngrade.style.display = 'inline-flex';
       } else {
@@ -757,7 +767,6 @@ async function loadUserPlan() {
           primaryText: 'OK'
         });
 
-        // إعادة تحميل المواقع (لتحديث العدد)
         loadSites();
 
       } catch (err) {
@@ -786,7 +795,6 @@ async function loadUserPlan() {
 
         if (error) throw error;
 
-        // Update stats
         const published = data ? data.filter(s => s.published).length : 0;
         const views = data ? data.reduce((sum, s) => sum + (s.views || 0), 0) : 0;
 
