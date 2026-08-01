@@ -1,12 +1,11 @@
 // ============================================================
-// ===== LANGUAGE MANAGER =====
+// ===== lang.js =====
 // ============================================================
 const translations = {};
 
 // ===== تحميل ملف الترجمة =====
 async function loadLanguage(lang = 'en') {
   try {
-    // استخدم المسار النسبي الصحيح
     const response = await fetch(`./locales/${lang}.json`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -66,11 +65,17 @@ function updateUI() {
   const lang = getLanguage();
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
-    el.textContent = t(key, lang);
+    const translation = t(key, lang);
+    if (translation && translation !== key) {
+      el.textContent = translation;
+    }
   });
   document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
     const key = el.getAttribute('data-i18n-placeholder');
-    el.placeholder = t(key, lang);
+    const translation = t(key, lang);
+    if (translation && translation !== key) {
+      el.placeholder = translation;
+    }
   });
 }
 
