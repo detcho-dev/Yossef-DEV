@@ -3,6 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- في <head> من site.html -->
+<meta property="og:title" content="{{title}}" />
+<meta property="og:description" content="{{description}}" />
+<meta property="og:image" content="{{image}}" />
+<meta property="og:url" content="{{url}}" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary_large_image" />
   <title>Loading...</title>
   <style>
     * {
@@ -229,6 +236,43 @@ function updateSEO(data) {
     document.head.appendChild(meta);
   }
 }
+
+    // ===== في site.html، أضف أزرار المشاركة =====
+function addSocialButtons(slug, title) {
+  const container = document.getElementById('social-share');
+  if (!container) return;
+
+  const url = window.location.href;
+  
+  container.innerHTML = `
+    <div style="display:flex;gap:12px;justify-content:center;padding:20px 0;border-top:1px solid rgba(255,255,255,0.06);">
+      <button onclick="shareSite('facebook')" style="background:transparent;border:none;color:#1877f2;font-size:1.5rem;cursor:pointer;">📘</button>
+      <button onclick="shareSite('twitter')" style="background:transparent;border:none;color:#1da1f2;font-size:1.5rem;cursor:pointer;">🐦</button>
+      <button onclick="shareSite('linkedin')" style="background:transparent;border:none;color:#0a66c2;font-size:1.5rem;cursor:pointer;">🔗</button>
+      <button onclick="shareSite('copy')" style="background:transparent;border:none;color:rgba(255,255,255,0.5);font-size:1.5rem;cursor:pointer;">📋</button>
+    </div>
+  `;
+}
+
+window.shareSite = function(platform) {
+  const url = window.location.href;
+  const title = document.title || 'My Site';
+  
+  const shareUrls = {
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+    twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`,
+    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
+    copy: null
+  };
+  
+  if (platform === 'copy') {
+    navigator.clipboard.writeText(url).then(() => {
+      alert('✅ Link copied!');
+    });
+  } else {
+    window.open(shareUrls[platform], '_blank', 'width=600,height=400');
+  }
+};
 
     loadSite();
   </script>
