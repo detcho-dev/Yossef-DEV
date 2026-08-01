@@ -1117,6 +1117,31 @@
         });
         console.error('Stripe error:', err);
       }
+
+      // ===== في selectPlan =====
+const requestBody = {
+  plan: plan,
+  user_id: currentUser.id,
+  email: currentUser.email,
+  subscription_id: profile?.stripe_subscription_id || null
+};
+
+// ===== أضف الكوبون =====
+if (appliedCoupon) {
+  requestBody.coupon_code = appliedCoupon.code;
+}
+
+const response = await fetch(
+  'https://fhgszopuwnrnijxvghku.supabase.co/functions/v1/create-checkout-session',
+  {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${supabaseKey}`
+    },
+    body: JSON.stringify(requestBody)
+  }
+);
     };
 
     // ============================================================
