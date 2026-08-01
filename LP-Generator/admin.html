@@ -1,3 +1,6 @@
+<!-- ============================================================ -->
+<!-- ===== admin.html (كامل مع تبويب الكوبونات و per_user_limit) ===== -->
+<!-- ============================================================ -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,7 +8,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>📁 Admin Panel</title>
   <style>
-    /* ===== Same as before ===== */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -704,9 +706,15 @@
           </div>
           <div class="form-row">
             <div class="form-group">
+              <label>Per User Limit</label>
+              <input type="number" id="coupon-per-user" placeholder="1" value="1" min="1" />
+            </div>
+            <div class="form-group">
               <label>Expires At</label>
               <input type="datetime-local" id="coupon-expires" />
             </div>
+          </div>
+          <div class="form-row">
             <div class="form-group">
               <label>Status</label>
               <select id="coupon-active">
@@ -730,13 +738,14 @@
               <th>Discount</th>
               <th>Plan Type</th>
               <th>Uses</th>
+              <th>Per User</th>
               <th>Expires</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody id="coupons-tbody">
-            <tr><td colspan="8" class="loading">Loading coupons...</td></tr>
+            <tr><td colspan="9" class="loading">Loading coupons...</td></tr>
           </tbody>
         </table>
       </div>
@@ -792,6 +801,7 @@
     const couponDiscountValueInput = document.getElementById('coupon-discount-value');
     const couponPlanTypeInput = document.getElementById('coupon-plan-type');
     const couponMaxUsesInput = document.getElementById('coupon-max-uses');
+    const couponPerUserInput = document.getElementById('coupon-per-user');
     const couponExpiresInput = document.getElementById('coupon-expires');
     const couponActiveInput = document.getElementById('coupon-active');
     const couponSubmitBtn = document.getElementById('coupon-submit-btn');
@@ -850,16 +860,8 @@
     };
 
     // ============================================================
-    // ===== TEMPLATES (same as before) =====
+    // ===== TEMPLATES =====
     // ============================================================
-    // ... (keep existing templates functions) ...
-    // For brevity, I'll include them but assume they are unchanged.
-    // In a real answer, we would repeat them, but to save space, I'll just include the coupon part.
-
-    // However, for the final answer, we must provide complete code. 
-    // I'll include them again but they are the same as earlier.
-
-    // ===== Load Templates =====
     async function loadTemplates() {
       templatesTbody.innerHTML = '<tr><td colspan="6" class="loading">Loading templates...</td></tr>';
 
@@ -884,9 +886,6 @@
 
           var typeBadge = tpl.is_free ? 'badge-free' : 'badge-paid';
           var typeText = tpl.is_free ? '🆓 Free' : '💎 Paid';
-
-          var categoryName = tpl.categories?.name || '-';
-          var categoryIcon = tpl.categories?.icon || '';
 
           html += `
             <tr>
@@ -1087,7 +1086,7 @@
     }
 
     // ============================================================
-    // ===== USERS (same as before) =====
+    // ===== USERS =====
     // ============================================================
     async function loadUsers() {
       usersTbody.innerHTML = '<tr><td colspan="6" class="loading">Loading users...</td></tr>';
@@ -1222,7 +1221,7 @@
 
     // ===== Load Coupons =====
     async function loadCoupons() {
-      couponsTbody.innerHTML = '<tr><td colspan="8" class="loading">Loading coupons...</td></tr>';
+      couponsTbody.innerHTML = '<tr><td colspan="9" class="loading">Loading coupons...</td></tr>';
 
       try {
         const { data, error } = await supabase
@@ -1233,7 +1232,7 @@
         if (error) throw error;
 
         if (!data || data.length === 0) {
-          couponsTbody.innerHTML = '<tr><td colspan="8" class="empty-state">No coupons found.</td></tr>';
+          couponsTbody.innerHTML = '<tr><td colspan="9" class="empty-state">No coupons found.</td></tr>';
           return;
         }
 
@@ -1246,6 +1245,7 @@
           const expires = coupon.expires_at ? new Date(coupon.expires_at).toLocaleDateString() : 'Never';
           const used = coupon.used_count || 0;
           const maxUses = coupon.max_uses || '∞';
+          const perUser = coupon.per_user_limit || 1;
 
           html += `
             <tr>
@@ -1254,6 +1254,7 @@
               <td>${discountDisplay}</td>
               <td><span class="badge badge-coupon">${planType}</span></td>
               <td>${used} / ${maxUses}</td>
+              <td>${perUser}</td>
               <td>${expires}</td>
               <td><span class="badge ${statusBadge}">${statusText}</span></td>
               <td>
@@ -1270,11 +1271,11 @@
 
       } catch (err) {
         console.error('Error loading coupons:', err);
-        couponsTbody.innerHTML = `<tr><td colspan="8" style="color:#f87171;text-align:center;">❌ Error: ${err.message}</td></tr>`;
+        couponsTbody.innerHTML = `<tr><td colspan="9" style="color:#f87171;text-align:center;">❌ Error: ${err.message}</td></tr>`;
       }
     }
 
-    // ===== Save Coupon (Insert/Update) =====
+    // ===== Save Coupon =====
     couponForm.addEventListener('submit', async function(e) {
       e.preventDefault();
 
@@ -1285,6 +1286,7 @@
       const discount_value = parseFloat(couponDiscountValueInput.value);
       const plan_type = couponPlanTypeInput.value;
       const max_uses = couponMaxUsesInput.value ? parseInt(couponMaxUsesInput.value) : null;
+      const per_user_limit = parseInt(couponPerUserInput.value) || 1;
       const expires_at = couponExpiresInput.value || null;
       const is_active = couponActiveInput.value === 'true';
 
@@ -1300,6 +1302,7 @@
         discount_value,
         plan_type,
         max_uses,
+        per_user_limit,
         expires_at: expires_at ? new Date(expires_at).toISOString() : null,
         is_active
       };
@@ -1307,7 +1310,6 @@
       try {
         let result;
         if (id) {
-          // Update
           const { error } = await supabase
             .from('coupons')
             .update(payload)
@@ -1315,7 +1317,6 @@
           if (error) throw error;
           result = 'updated';
         } else {
-          // Insert
           const { error } = await supabase
             .from('coupons')
             .insert([payload]);
@@ -1351,7 +1352,6 @@
 
         if (error) throw error;
 
-        // Populate form
         couponIdInput.value = data.id;
         couponCodeInput.value = data.code;
         couponDescriptionInput.value = data.description || '';
@@ -1359,6 +1359,7 @@
         couponDiscountValueInput.value = data.discount_value;
         couponPlanTypeInput.value = data.plan_type || 'all';
         couponMaxUsesInput.value = data.max_uses || '';
+        couponPerUserInput.value = data.per_user_limit || 1;
         if (data.expires_at) {
           const d = new Date(data.expires_at);
           couponExpiresInput.value = d.toISOString().slice(0, 16);
@@ -1371,7 +1372,6 @@
         couponSubmitBtn.textContent = '💾 Update Coupon';
         couponCancelBtn.style.display = 'inline-block';
 
-        // Scroll to form
         document.querySelector('#tab-coupons .form-card').scrollIntoView({ behavior: 'smooth' });
 
       } catch (err) {
@@ -1387,10 +1387,10 @@
       couponFormTitle.textContent = '➕ Add New Coupon';
       couponSubmitBtn.textContent = '💾 Save Coupon';
       couponCancelBtn.style.display = 'none';
-      // Reset some fields
       couponActiveInput.value = 'true';
       couponDiscountTypeInput.value = 'percentage';
       couponPlanTypeInput.value = 'all';
+      couponPerUserInput.value = 1;
     };
 
     // ===== Delete Coupon =====
@@ -1428,7 +1428,6 @@
     loadCategoriesSelect();
     loadTemplates();
     loadUsers();
-    // Coupons are loaded when tab is clicked or initially? We'll load them now.
     loadCoupons();
 
     // Expose functions globally
