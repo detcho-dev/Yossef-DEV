@@ -574,18 +574,23 @@
       font-family: inherit;
     }
     .split-left .form-group select option {
-      background: #1a1a2e;
-      color: #f1f5f9;
+      background: #1a1a2e !important;
+      color: #f1f5f9 !important;
       padding: 8px 12px;
     }
     .split-left .form-group select option:hover {
-      background: #302b63;
-      color: #fff;
+      background: #302b63 !important;
+      color: #fff !important;
     }
     .split-left .form-group select option:checked {
-      background: #4facfe;
-      color: #fff;
+      background: #4facfe !important;
+      color: #fff !important;
     }
+    .split-left .form-group select option:disabled {
+      color: rgba(255, 255, 255, 0.3) !important;
+      background: rgba(255, 255, 255, 0.03) !important;
+    }
+
     .split-left .form-group small {
       color: rgba(255, 255, 255, 0.4);
       display: block;
@@ -641,7 +646,25 @@
       box-shadow: 0 8px 32px rgba(245, 87, 108, 0.4);
     }
 
-    /* ===== REVIEW SECTION IN SPLIT ===== */
+    /* ===== STAR RATING (in Split Screen) ===== */
+    .star-rating {
+      display: flex;
+      gap: 4px;
+      margin: 8px 0 12px;
+    }
+
+    .star-rating .star {
+      font-size: 2rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: rgba(255, 255, 255, 0.2);
+    }
+
+    .star-rating .star:hover {
+      transform: scale(1.2);
+      color: #fbbf24;
+    }
+
     .review-section {
       margin-top: 20px;
       padding-top: 20px;
@@ -665,30 +688,11 @@
       min-height: 60px;
       resize: vertical;
       margin-bottom: 10px;
-      font-family: inherit;
     }
 
     .review-section textarea:focus {
       outline: none;
       border-color: #4facfe;
-    }
-
-    .star-rating {
-      display: flex;
-      gap: 4px;
-      margin: 8px 0 12px;
-    }
-
-    .star-rating .star {
-      font-size: 2rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      color: rgba(255, 255, 255, 0.2);
-    }
-
-    .star-rating .star:hover {
-      transform: scale(1.2);
-      color: #fbbf24;
     }
 
     .split-right {
@@ -1260,6 +1264,102 @@
     }
 
     // ============================================================
+    // ===== SET RATING =====
+    // ============================================================
+    window.setRating = function(rating) {
+      selectedRating = rating;
+      document.querySelectorAll('.star').forEach((el, i) => {
+        el.textContent = i < rating ? '⭐' : '☆';
+      });
+    };
+
+    // ============================================================
+    // ===== SUBMIT REVIEW =====
+    // ============================================================
+    window.submitReview = async function() {
+      if (!currentUser) {
+        showPopup({
+          icon: '🔒',
+          title: 'Please Sign In',
+          message: 'You need to sign in to submit a review.',
+          primaryText: 'OK'
+        });
+        return;
+      }
+
+      if (!selectedRating) {
+        showPopup({
+          icon: '⚠️',
+          title: 'Rating Required',
+          message: 'Please select a rating (1-5 stars).',
+          primaryText: 'OK'
+        });
+        return;
+      }
+
+      const comment = document.getElementById('review-comment')?.value.trim() || '';
+
+      try {
+        // ===== 1. حفظ التقييم =====
+        const { error: reviewError } = await supabase
+          .from('reviews')
+          .upsert({
+            template_id: selectedTemplate.id,
+            user_id: currentUser.id,
+            rating: selectedRating,
+            comment: comment,
+            is_approved: true
+          }, {
+            onConflict: 'template_id, user_id'
+          });
+
+        if (reviewError) throw reviewError;
+
+        // ===== 2. حساب المتوسط =====
+        const { data: reviews, error: avgError } = await supabase
+          .from('reviews')
+          .select('rating')
+          .eq('template_id', selectedTemplate.id);
+
+        if (avgError) throw avgError;
+
+        const total = reviews.reduce((sum, r) => sum + r.rating, 0);
+        const avg = total / reviews.length;
+
+        // ===== 3. تحديث جدول templates =====
+        const { error: updateError } = await supabase
+          .from('templates')
+          .update({
+            avg_rating: Math.round(avg * 100) / 100,
+            reviews_count: reviews.length
+          })
+          .eq('id', selectedTemplate.id);
+
+        if (updateError) throw updateError;
+
+        // ===== 4. عرض رسالة نجاح =====
+        showPopup({
+          icon: '⭐',
+          title: 'Review Submitted!',
+          message: `Thank you for rating this template ${selectedRating}/5 ⭐`,
+          primaryText: 'OK'
+        });
+
+        // ===== 5. إعادة تحميل القوالب =====
+        await loadTemplates();
+
+      } catch (err) {
+        showPopup({
+          icon: '❌',
+          title: 'Error',
+          message: err.message,
+          primaryText: 'OK'
+        });
+        console.error('Submit review error:', err);
+      }
+    };
+
+    // ============================================================
     // ===== LOAD CATEGORIES =====
     // ============================================================
     async function loadCategories() {
@@ -1356,6 +1456,13 @@
           badgeHtml = `<span class="badge-paid">💎 Paid</span>`;
         }
 
+        const ratingHtml = `
+          <div class="rating">
+            <span class="stars">${renderStars(tpl.avg_rating)}</span>
+            <span class="rating-count">(${tpl.reviews_count || 0})</span>
+          </div>
+        `;
+
         html += `
           <div class="template-card">
             <img src="${tpl.cover_image || 'https://via.placeholder.com/400x200?text=Template'}" 
@@ -1365,10 +1472,7 @@
                 <h3>${tpl.name}</h3>
                 ${badgeHtml}
               </div>
-              <div class="rating">
-                <span class="stars">${renderStars(tpl.avg_rating)}</span>
-                <span class="rating-count">(${tpl.reviews_count || 0})</span>
-              </div>
+              ${ratingHtml}
               <span class="id-badge">#${tpl.slug}</span>
               <div class="card-actions">
                 <button class="btn btn-preview" onclick="openPreview('${tpl.slug}')">👁️ Preview</button>
@@ -1428,102 +1532,6 @@
         grid.innerHTML = `<div class="error-msg">❌ Error: ${err.message}</div>`;
       }
     }
-
-    // ============================================================
-    // ===== SET RATING =====
-    // ============================================================
-    window.setRating = function(rating) {
-      selectedRating = rating;
-      document.querySelectorAll('.star').forEach((el, i) => {
-        el.textContent = i < rating ? '⭐' : '☆';
-      });
-    };
-
-    // ============================================================
-    // ===== SUBMIT REVIEW =====
-    // ============================================================
-    window.submitReview = async function() {
-      if (!currentUser) {
-        showPopup({
-          icon: '🔒',
-          title: 'Please Sign In',
-          message: 'You need to sign in to submit a review.',
-          primaryText: 'OK'
-        });
-        return;
-      }
-
-      if (!selectedRating) {
-        showPopup({
-          icon: '⚠️',
-          title: 'Rating Required',
-          message: 'Please select a rating (1-5 stars).',
-          primaryText: 'OK'
-        });
-        return;
-      }
-
-      const comment = document.getElementById('review-comment')?.value.trim() || '';
-
-      try {
-        // ===== 1. حفظ التقييم =====
-        const { error: reviewError } = await supabase
-          .from('reviews')
-          .upsert({
-            template_id: selectedTemplate.id,
-            user_id: currentUser.id,
-            rating: selectedRating,
-            comment: comment,
-            is_approved: true
-          }, {
-            onConflict: 'template_id, user_id'
-          });
-
-        if (reviewError) throw reviewError;
-
-        // ===== 2. حساب المتوسط =====
-        const { data: reviews, error: avgError } = await supabase
-          .from('reviews')
-          .select('rating')
-          .eq('template_id', selectedTemplate.id);
-
-        if (avgError) throw avgError;
-
-        const total = reviews.reduce((sum, r) => sum + r.rating, 0);
-        const avg = total / reviews.length;
-
-        // ===== 3. تحديث جدول templates =====
-        const { error: updateError } = await supabase
-          .from('templates')
-          .update({
-            avg_rating: Math.round(avg * 100) / 100,
-            reviews_count: reviews.length
-          })
-          .eq('id', selectedTemplate.id);
-
-        if (updateError) throw updateError;
-
-        // ===== 4. عرض رسالة نجاح =====
-        showPopup({
-          icon: '⭐',
-          title: 'Review Submitted!',
-          message: `Thank you for rating this template ${selectedRating}/5 ⭐`,
-          primaryText: 'OK'
-        });
-
-        // ===== 5. إعادة تحميل القوالب =====
-        await loadTemplates();
-
-      } catch (err) {
-        showPopup({
-          icon: '❌',
-          title: 'Error',
-          message: err.message,
-          primaryText: 'OK'
-        });
-        console.error('Submit review error:', err);
-      }
-    };
 
     // ============================================================
     // ===== VALIDATION =====
@@ -1810,7 +1818,6 @@
 
         selectedTemplate = template;
         currentTemplateFields = template.fields || {};
-        selectedRating = 0;
 
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
@@ -1824,6 +1831,7 @@
 
         buildSplitForm(template);
         window.updateLivePreview();
+        selectedRating = 0;
 
         splitOverlay.classList.add('active');
 
@@ -1956,7 +1964,7 @@
             `).join('')}
           </div>
           <textarea id="review-comment" placeholder="Share your thoughts..."></textarea>
-          <button type="button" class="btn btn-sm" onclick="submitReview()" style="background:linear-gradient(135deg,#f093fb,#f5576c);border:none;color:#fff;padding:8px 20px;border-radius:40px;cursor:pointer;">📝 Submit Review</button>
+          <button type="button" class="btn btn-sm btn-primary" onclick="submitReview()">📝 Submit Review</button>
         </div>
       `;
 
