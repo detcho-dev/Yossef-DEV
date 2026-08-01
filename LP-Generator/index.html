@@ -909,6 +909,48 @@
     .split-right::-webkit-scrollbar-thumb:hover {
       background: rgba(255, 255, 255, 0.25);
     }
+
+    /* ============================================================ */
+/* ===== CATEGORIES FILTER ===== */
+/* ============================================================ */
+.categories-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0 8px;
+  padding: 4px;
+}
+
+.cat-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.5);
+  padding: 8px 18px;
+  border-radius: 40px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.cat-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.cat-btn.active {
+  background: rgba(79, 172, 254, 0.15);
+  border-color: rgba(79, 172, 254, 0.3);
+  color: #4facfe;
+}
+
+.cat-btn .cat-count {
+  background: rgba(255, 255, 255, 0.06);
+  padding: 0 6px;
+  border-radius: 40px;
+  font-size: 0.7rem;
+  margin-left: 4px;
+}
   </style>
 </head>
 <body>
@@ -939,6 +981,13 @@
         </div>
       </div>
     </div>
+    <!-- ===== CATEGORIES FILTER ===== -->
+<div class="categories-filter">
+  <button class="cat-btn active" data-category="all" onclick="filterByCategory('all')">📋 All</button>
+  <div id="categories-list">
+    <!-- هتتعبأ ديناميكياً -->
+  </div>
+</div>
 
     <!-- ===== TEMPLATES GRID ===== -->
     <div id="templates-grid" class="templates-grid">
@@ -1107,6 +1156,135 @@ async function loadNotificationCount() {
   }
 }
 
+    // ============================================================
+// ===== GLOBALS =====
+// ============================================================
+let allTemplates = [];
+let allCategories = [];
+let selectedCategory = 'all';
+
+// ============================================================
+// ===== LOAD CATEGORIES =====
+// ============================================================
+async function loadCategories() {
+  try {
+    const { data, error } = await supabase
+      .from('categories')
+      .select('*')
+      .eq('is_active', true)
+      .order('sort_order', { ascending: true });
+
+    if (error) throw error;
+    allCategories = data || [];
+
+    // ===== Build category buttons =====
+    const container = document.getElementById('categories-list');
+    if (!container) return;
+
+    let html = '';
+    data.forEach(cat => {
+      // Count templates in this category
+      const count = allTemplates.filter(t => t.category_id === cat.id).length;
+      html += `
+        <button class="cat-btn" data-category="${cat.id}" onclick="filterByCategory('${cat.id}')">
+          ${cat.icon || '📁'} ${cat.name}
+          <span class="cat-count">${count}</span>
+        </button>
+      `;
+    });
+
+    container.innerHTML = html;
+
+  } catch (err) {
+    console.error('Error loading categories:', err);
+  }
+}
+
+// ============================================================
+// ===== FILTER BY CATEGORY =====
+// ============================================================
+window.filterByCategory = function(categoryId) {
+  selectedCategory = categoryId;
+
+  // Update active button
+  document.querySelectorAll('.cat-btn').forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.dataset.category === categoryId) {
+      btn.classList.add('active');
+    }
+  });
+
+  // Apply filter
+  applyFilters();
+};
+
+// ============================================================
+// ===== APPLY FILTERS (Category + Search) =====
+// ============================================================
+function applyFilters() {
+  let filtered = [...allTemplates];
+
+  // 1. Filter by category
+  if (selectedCategory !== 'all') {
+    filtered = filtered.filter(t => t.category_id === parseInt(selectedCategory));
+  }
+
+  // 2. Filter by search
+  const query = document.getElementById('search-input')?.value?.toLowerCase().trim() || '';
+  if (query) {
+    filtered = filtered.filter(tpl => 
+      tpl.name.toLowerCase().includes(query) ||
+      tpl.slug.toLowerCase().includes(query)
+    );
+  }
+
+  renderTemplates(filtered);
+  updateSearchCount(filtered.length);
+}
+
+// ============================================================
+// ===== UPDATE LOAD TEMPLATES =====
+// ============================================================
+async function loadTemplates() {
+  grid.innerHTML = '<div class="loading">Loading templates...</div>';
+
+  try {
+    const { data, error } = await supabase
+      .from('templates')
+      .select('*, categories(id, name, icon, color)')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    if (!data || data.length === 0) {
+      grid.innerHTML = `
+        <div class="empty-state" style="grid-column:1/-1;">
+          <p>✨ No templates yet. <br>Add one via the admin panel.</p>
+        </div>
+      `;
+      allTemplates = [];
+      updateSearchCount(0);
+      loadCategories();
+      return;
+    }
+
+    allTemplates = data;
+    await loadCategories();
+    applyFilters();
+
+  } catch (err) {
+    console.error(err);
+    grid.innerHTML = `<div class="error-msg">❌ Error: ${err.message}</div>`;
+  }
+}
+
+// ============================================================
+// ===== UPDATE SEARCH TO USE applyFilters =====
+// ============================================================
+window.filterTemplates = function() {
+  applyFilters();
+};
     // ============================================================
     // ===== VALIDATION =====
     // ============================================================
