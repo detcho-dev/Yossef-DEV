@@ -553,13 +553,11 @@
               </select>
             </div>
             <div class="form-group">
-  <label>Category</label>
-  <select id="tpl-category">
-    <option value="">-- Select Category --</option>
-    <!-- هتتعبأ ديناميكياً -->
-  </select>
-</div>
-            
+              <label>Category</label>
+              <select id="tpl-category">
+                <option value="">-- Select Category --</option>
+              </select>
+            </div>
           </div>
           <button type="submit" class="btn btn-primary">💾 Save Template</button>
         </form>
@@ -657,6 +655,33 @@
     const popupBtnSecondary = document.getElementById('popup-btn-secondary');
 
     // ============================================================
+    // ===== LOAD CATEGORIES FOR SELECT =====
+    // ============================================================
+    async function loadCategoriesSelect() {
+      const select = document.getElementById('tpl-category');
+      if (!select) return;
+
+      try {
+        const { data, error } = await supabase
+          .from('categories')
+          .select('*')
+          .eq('is_active', true)
+          .order('name');
+
+        if (error) throw error;
+
+        let html = '<option value="">-- Select Category --</option>';
+        data.forEach(cat => {
+          html += `<option value="${cat.id}">${cat.icon || '📁'} ${cat.name}</option>`;
+        });
+        select.innerHTML = html;
+
+      } catch (err) {
+        console.error('Error loading categories:', err);
+      }
+    }
+
+    // ============================================================
     // ===== POPUP =====
     // ============================================================
     function showPopup({ icon = '✅', title = 'Success!', message = '', primaryText = 'OK', primaryAction = null }) {
@@ -710,7 +735,7 @@
       try {
         const { data, error } = await supabase
           .from('templates')
-          .select('*')
+          .select('*, categories(id, name, icon, color)')
           .order('created_at', { ascending: false });
 
         if (error) throw error;
@@ -728,6 +753,9 @@
 
           var typeBadge = tpl.is_free ? 'badge-free' : 'badge-paid';
           var typeText = tpl.is_free ? '🆓 Free' : '💎 Paid';
+
+          var categoryName = tpl.categories?.name || '-';
+          var categoryIcon = tpl.categories?.icon || '';
 
           html += `
             <tr>
@@ -758,38 +786,7 @@
         templatesTbody.innerHTML = `<tr><td colspan="6" style="color:#f87171;text-align:center;">❌ Error: ${err.message}</td></tr>`;
       }
     }
-// ===== LOAD CATEGORIES FOR SELECT =====
-async function loadCategoriesSelect() {
-  const select = document.getElementById('tpl-category');
-  if (!select) return;
 
-  const { data, error } = await supabase
-    .from('categories')
-    .select('*')
-    .eq('is_active', true)
-    .order('name');
-
-  if (error) {
-    console.error('Error loading categories:', error);
-    return;
-  }
-
-  let html = '<option value="">-- Select Category --</option>';
-  data.forEach(cat => {
-    html += `<option value="${cat.id}">${cat.icon || '📁'} ${cat.name}</option>`;
-  });
-  select.innerHTML = html;
-}
-
-// ===== IN SAVE TEMPLATE =====
-const category_id = document.getElementById('tpl-category').value || null;
-
-const { error } = await supabase
-  .from('templates')
-  .insert([{
-    // ... other fields
-    category_id: category_id
-  }]);
     // ===== Save Template =====
     templateForm.addEventListener('submit', async function(e) {
       e.preventDefault();
@@ -802,6 +799,7 @@ const { error } = await supabase
       var js = document.getElementById('tpl-js').value.trim();
       var is_active = document.getElementById('tpl-active').value === 'true';
       var is_free = document.getElementById('tpl-free').value === 'true';
+      var category_id = document.getElementById('tpl-category').value || null;
 
       if (!name || !slug || !html) {
         showPopup({ icon: '⚠️', title: 'Missing Fields', message: 'Name, Slug, and HTML are required.', primaryText: 'OK' });
@@ -834,7 +832,8 @@ const { error } = await supabase
             js: js,
             fields: fields,
             is_active: is_active,
-            is_free: is_free
+            is_free: is_free,
+            category_id: category_id
           }]);
 
         if (error) throw error;
@@ -847,6 +846,7 @@ const { error } = await supabase
           primaryAction: function() {
             templateForm.reset();
             loadTemplates();
+            loadCategoriesSelect();
           }
         });
 
@@ -1067,6 +1067,7 @@ const { error } = await supabase
     // ============================================================
     // ===== INIT =====
     // ============================================================
+    loadCategoriesSelect();
     loadTemplates();
     loadUsers();
   </script>
