@@ -672,6 +672,7 @@ async function loadCategoriesSelect() {
       .from('categories')
       .select('*')
       .order('sort_order', { ascending: true });
+      .maybeSingle();
 
     if (error) {
       console.error('❌ Error loading categories:', error);
