@@ -483,6 +483,52 @@
         margin: 12px;
       }
     }
+
+    /* ===== STYLE FOR SELECT OPTIONS ===== */
+.form-group select {
+  width: 100%;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 0.9rem;
+  transition: border 0.3s;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+}
+
+.form-group select:focus {
+  outline: none;
+  border-color: #4facfe;
+}
+
+/* ===== STYLE FOR OPTIONS INSIDE SELECT ===== */
+.form-group select option {
+  background: #1a1a2e !important;  /* اللون الأساسي للخلفية */
+  color: #f1f5f9 !important;       /* لون النص */
+  padding: 8px 12px;
+}
+
+/* ===== OPTION HOVER ===== */
+.form-group select option:hover {
+  background: #302b63 !important;  /* لون عند التمرير */
+  color: #fff !important;
+}
+
+/* ===== OPTION SELECTED ===== */
+.form-group select option:checked {
+  background: #4facfe !important;  /* لون عند الاختيار */
+  color: #fff !important;
+}
+
+/* ===== OPTION DISABLED ===== */
+.form-group select option:disabled {
+  color: rgba(255, 255, 255, 0.3) !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+}
   </style>
 </head>
 <body>
