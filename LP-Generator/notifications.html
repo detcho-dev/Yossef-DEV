@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🔔 Notifications</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      padding: 24px;
+      background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #1a1a2e);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      color: #f1f5f9;
+    }
+
+    @keyframes gradientBG {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 32px;
+      padding: 20px 28px;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(16px);
+      border-radius: 60px;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #f093fb, #f5576c, #4facfe);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(8px);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 10px 24px;
+      border-radius: 40px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      transform: translateY(-2px);
+    }
+
+    .btn-sm {
+      padding: 6px 16px;
+      font-size: 0.8rem;
+    }
+
+    .btn-mark-all {
+      background: rgba(79, 172, 254, 0.15);
+      border-color: rgba(79, 172, 254, 0.2);
+    }
+    .btn-mark-all:hover {
+      background: rgba(79, 172, 254, 0.25);
+    }
+
+    /* ===== NOTIFICATIONS ===== */
+    .notifications-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .notification-item {
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: 18px 24px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .notification-item:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .notification-item .notif-content {
+      flex: 1;
+    }
+
+    .notification-item .notif-content .notif-title {
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 2px;
+    }
+
+    .notification-item .notif-content .notif-message {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.9rem;
+    }
+
+    .notification-item .notif-content .notif-time {
+      color: rgba(255, 255, 255, 0.2);
+      font-size: 0.7rem;
+      margin-top: 4px;
+    }
+
+    .notification-item .notif-badge {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4facfe;
+      flex-shrink: 0;
+    }
+
+    .notification-item.read .notif-badge {
+      background: transparent;
+    }
+
+    .notification-item .notif-icon {
+      font-size: 1.5rem;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    .empty-state .icon {
+      font-size: 3rem;
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 16px;
+      }
+      .header {
+        padding: 16px 20px;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .header h1 {
+        font-size: 1.5rem;
+      }
+      .header-actions {
+        width: 100%;
+      }
+      .header-actions .btn {
+        flex: 1;
+        justify-content: center;
+      }
+      .notification-item {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 16px 18px;
+      }
+      .notification-item .notif-badge {
+        align-self: flex-start;
+        margin-top: 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>🔔 Notifications</h1>
+      <div class="header-actions">
+        <button class="btn btn-sm btn-mark-all" onclick="markAllAsRead()">✅ Mark all as read</button>
+        <a href="index.html" class="btn btn-sm">🏠 Home</a>
+        <button class="btn btn-sm" onclick="logout()">🚪 Logout</button>
+      </div>
+    </header>
+
+    <div id="notifications-list" class="notifications-list">
+      <div class="loading" style="text-align:center;padding:40px;color:rgba(255,255,255,0.3);">Loading notifications...</div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- ===== SUPABASE ===== -->
+  <!-- ============================================================ -->
+  <script type="importmap">
+    {
+      "imports": {
+        "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import { createClient } from '@supabase/supabase-js';
+
+    const supabaseUrl = 'https://fhgszopuwnrnijxvghku.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZoZ3N6b3B1d25ybmlqeHZnaGt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMzQ1MTUsImV4cCI6MjA5OTYxMDUxNX0.K2WVDxjRh6JC51nZHdJpR2l8kjS1jhXJ9EkmQ5ElPtQ';
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    let currentUser = null;
+
+    // ===== LOGOUT =====
+    window.logout = async function() {
+      await supabase.auth.signOut();
+      window.location.href = 'index.html';
+    };
+
+    // ===== CHECK AUTH =====
+    async function checkAuth() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        window.location.href = 'index.html';
+        return;
+      }
+      currentUser = session.user;
+      loadNotifications();
+    }
+
+    // ===== LOAD NOTIFICATIONS =====
+    async function loadNotifications() {
+      const container = document.getElementById('notifications-list');
+
+      try {
+        const { data, error } = await supabase
+          .from('notifications')
+          .select('*')
+          .eq('user_id', currentUser.id)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <span class="icon">🔔</span>
+              <p>No notifications yet</p>
+            </div>
+          `;
+          return;
+        }
+
+        let html = '';
+        data.forEach(notif => {
+          const isRead = notif.is_read ? 'read' : '';
+          const iconMap = {
+            info: 'ℹ️',
+            success: '✅',
+            warning: '⚠️',
+            error: '❌'
+          };
+          const icon = iconMap[notif.type] || '📩';
+
+          html += `
+            <div class="notification-item ${isRead}" onclick="markAsRead('${notif.id}')">
+              <div class="notif-icon">${icon}</div>
+              <div class="notif-content">
+                <div class="notif-title">${notif.title}</div>
+                <div class="notif-message">${notif.message}</div>
+                <div class="notif-time">${new Date(notif.created_at).toLocaleDateString()} • ${new Date(notif.created_at).toLocaleTimeString()}</div>
+              </div>
+              <div class="notif-badge"></div>
+            </div>
+          `;
+        });
+
+        container.innerHTML = html;
+
+      } catch (err) {
+        console.error('Error loading notifications:', err);
+        container.innerHTML = `<div style="color:#f87171;text-align:center;padding:40px;">❌ Error: ${err.message}</div>`;
+      }
+    }
+
+    // ===== MARK AS READ =====
+    window.markAsRead = async function(id) {
+      try {
+        await supabase
+          .from('notifications')
+          .update({ is_read: true })
+          .eq('id', id);
+
+        loadNotifications();
+
+      } catch (err) {
+        console.error('Error marking as read:', err);
+      }
+    };
+
+    // ===== MARK ALL AS READ =====
+    window.markAllAsRead = async function() {
+      if (!confirm('Mark all notifications as read?')) return;
+
+      try {
+        await supabase
+          .from('notifications')
+          .update({ is_read: true })
+          .eq('user_id', currentUser.id);
+
+        loadNotifications();
+
+      } catch (err) {
+        console.error('Error marking all as read:', err);
+      }
+    };
+
+    // ===== REAL-TIME NOTIFICATIONS (Supabase Realtime) =====
+    function subscribeToNotifications() {
+      const channel = supabase
+        .channel('notifications')
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'notifications',
+            filter: `user_id=eq.${currentUser.id}`
+          },
+          () => {
+            loadNotifications();
+          }
+        )
+        .subscribe();
+    }
+
+    // ===== INIT =====
+    checkAuth();
+  </script>
+</body>
+</html>
