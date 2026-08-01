@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>❤️ My Wishlist</title>
+  <style>
+    /* ===== نفس استيل index.html ===== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      padding: 24px;
+      background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #1a1a2e);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      color: #f1f5f9;
+    }
+
+    @keyframes gradientBG {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 32px;
+      padding: 20px 28px;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(16px);
+      border-radius: 60px;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #f093fb, #f5576c, #4facfe);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(8px);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 10px 24px;
+      border-radius: 40px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      transform: translateY(-2px);
+    }
+
+    .templates-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 28px;
+      margin: 28px 0 40px;
+    }
+
+    .template-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(12px);
+      border-radius: 28px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      transition: all 0.4s;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .template-card:hover {
+      transform: translateY(-10px);
+      background: rgba(255, 255, 255, 0.10);
+      border-color: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+    }
+
+    .template-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .template-card .info {
+      padding: 22px 22px 26px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .template-card .info h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .template-card .info .btn-use {
+      margin-top: 16px;
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      border: none;
+      color: #fff;
+      padding: 8px 24px;
+      border-radius: 40px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .template-card .info .btn-use:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 24px rgba(79, 172, 254, 0.4);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    .empty-state .icon {
+      font-size: 4rem;
+      display: block;
+      margin-bottom: 16px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .loading::after {
+      content: '';
+      display: inline-block;
+      width: 28px;
+      height: 28px;
+      margin-left: 12px;
+      border: 3px solid rgba(255, 255, 255, 0.06);
+      border-top-color: #4facfe;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .templates-grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 18px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .templates-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      .template-card img {
+        height: 130px;
+      }
+      .template-card .info {
+        padding: 14px;
+      }
+      .template-card .info h3 {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>❤️ My Wishlist</h1>
+      <div class="header-actions">
+        <a href="index.html" class="btn">🏠 Home</a>
+        <button class="btn" onclick="logout()">🚪 Logout</button>
+      </div>
+    </header>
+
+    <div id="templates-grid" class="templates-grid">
+      <div class="loading">Loading your favorites...</div>
+    </div>
+  </div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import { createClient } from '@supabase/supabase-js';
+
+    const supabaseUrl = 'https://fhgszopuwnrnijxvghku.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZoZ3N6b3B1d25ybmlqeHZnaGt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMzQ1MTUsImV4cCI6MjA5OTYxMDUxNX0.K2WVDxjRh6JC51nZHdJpR2l8kjS1jhXJ9EkmQ5ElPtQ';
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const grid = document.getElementById('templates-grid');
+
+    let currentUser = null;
+
+    window.logout = async function() {
+      await supabase.auth.signOut();
+      window.location.href = 'index.html';
+    };
+
+    async function checkAuth() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        window.location.href = 'index.html';
+        return;
+      }
+      currentUser = session.user;
+      loadWishlist();
+    }
+
+    async function loadWishlist() {
+      grid.innerHTML = '<div class="loading">Loading your favorites...</div>';
+
+      try {
+        // ===== 1. جيب IDs المفضلة =====
+        const { data: wishlist, error: wishlistError } = await supabase
+          .from('wishlist')
+          .select('template_id')
+          .eq('user_id', currentUser.id);
+
+        if (wishlistError) throw wishlistError;
+
+        if (!wishlist || wishlist.length === 0) {
+          grid.innerHTML = `
+            <div class="empty-state" style="grid-column:1/-1;">
+              <span class="icon">💔</span>
+              <p>You haven't saved any templates yet.</p>
+              <p style="font-size:0.9rem;color:rgba(255,255,255,0.2);">Browse templates and click the ❤️ to save them.</p>
+              <a href="index.html" class="btn" style="margin-top:16px;">Browse Templates</a>
+            </div>
+          `;
+          return;
+        }
+
+        const templateIds = wishlist.map(item => item.template_id);
+
+        // ===== 2. جيب بيانات القوالب =====
+        const { data: templates, error: templatesError } = await supabase
+          .from('templates')
+          .select('*')
+          .in('id', templateIds)
+          .eq('is_active', true);
+
+        if (templatesError) throw templatesError;
+
+        if (!templates || templates.length === 0) {
+          grid.innerHTML = `
+            <div class="empty-state" style="grid-column:1/-1;">
+              <span class="icon">📂</span>
+              <p>Your favorites are empty.</p>
+            </div>
+          `;
+          return;
+        }
+
+        // ===== 3. عرض القوالب =====
+        let html = '';
+        templates.forEach(tpl => {
+          html += `
+            <div class="template-card">
+              <img src="${tpl.cover_image || 'https://via.placeholder.com/400x200?text=Template'}" 
+                   alt="${tpl.name}" loading="lazy" />
+              <div class="info">
+                <h3>${tpl.name}</h3>
+                <span class="id-badge" style="background:rgba(255,255,255,0.10);color:#c7d2fe;padding:4px 16px;border-radius:40px;font-size:0.75rem;display:inline-block;align-self:flex-start;">#${tpl.slug}</span>
+                <button class="btn-use" onclick="window.open('index.html', '_blank')">
+                  ✨ Use Template
+                </button>
+              </div>
+            </div>
+          `;
+        });
+
+        grid.innerHTML = html;
+
+      } catch (err) {
+        console.error('Error loading wishlist:', err);
+        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;color:#f87171;">❌ Error: ${err.message}</div>`;
+      }
+    }
+
+    checkAuth();
+  </script>
+</body>
+</html>
