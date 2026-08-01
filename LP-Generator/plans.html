@@ -197,6 +197,14 @@
       color: rgba(255, 255, 255, 0.4);
     }
 
+    .plan-card .plan-price .old-price {
+      font-size: 0.7rem;
+      color: #f87171;
+      text-decoration: line-through;
+      margin-left: 8px;
+      font-weight: 400;
+    }
+
     .plan-card .plan-description {
       color: rgba(255, 255, 255, 0.5);
       font-size: 0.95rem;
@@ -275,6 +283,69 @@
       border: 1px solid rgba(255, 255, 255, 0.10);
       cursor: default;
       opacity: 0.6;
+    }
+
+    /* ============================================================ */
+    /* ===== COUPON SECTION ===== */
+    /* ============================================================ */
+    .coupon-section {
+      margin: 20px 0 16px;
+      padding: 16px 20px;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .coupon-input-wrapper {
+      display: flex;
+      gap: 10px;
+    }
+
+    .coupon-input-wrapper input {
+      flex: 1;
+      padding: 10px 14px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+    }
+
+    .coupon-input-wrapper input:focus {
+      outline: none;
+      border-color: #4facfe;
+    }
+
+    .coupon-input-wrapper .btn {
+      padding: 10px 20px;
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      border: none;
+      color: #fff;
+      border-radius: 10px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .coupon-input-wrapper .btn:hover {
+      transform: scale(1.05);
+    }
+
+    #coupon-message {
+      margin-top: 8px;
+      font-size: 0.85rem;
+    }
+
+    #coupon-discount {
+      display: none;
+      margin-top: 8px;
+      padding: 8px 12px;
+      background: rgba(74, 222, 128, 0.1);
+      border-radius: 8px;
+      border: 1px solid rgba(74, 222, 128, 0.2);
+      color: #4ade80;
+      font-size: 0.85rem;
     }
 
     /* ============================================================ */
@@ -407,6 +478,9 @@
         padding: 24px 20px;
         margin: 12px;
       }
+      .coupon-input-wrapper {
+        flex-direction: column;
+      }
     }
 
     @media (max-width: 480px) {
@@ -502,6 +576,16 @@
         <button class="btn-plan business" id="btn-business" onclick="selectPlan('business')">Upgrade to Business</button>
       </div>
     </div>
+
+    <!-- ===== COUPON SECTION (shown only for paid plans) ===== -->
+    <div class="coupon-section" id="coupon-section" style="display:none;">
+      <div class="coupon-input-wrapper">
+        <input type="text" id="coupon-code" placeholder="🎫 Enter coupon code" />
+        <button class="btn" onclick="applyCoupon()">Apply</button>
+      </div>
+      <div id="coupon-message"></div>
+      <div id="coupon-discount"></div>
+    </div>
   </div>
 
   <!-- ============================================================ -->
@@ -553,8 +637,15 @@
     const popupBtnPrimary = document.getElementById('popup-btn-primary');
     const popupBtnSecondary = document.getElementById('popup-btn-secondary');
 
+    const couponSection = document.getElementById('coupon-section');
+    const couponInput = document.getElementById('coupon-code');
+    const couponMessage = document.getElementById('coupon-message');
+    const couponDiscount = document.getElementById('coupon-discount');
+
     let currentUser = null;
     let currentPlan = 'free';
+    let appliedCoupon = null;
+    let discountAmount = 0;
 
     // ============================================================
     // ===== POPUP =====
@@ -629,6 +720,8 @@
         const name = session.user.user_metadata?.full_name || session.user.email || 'User';
         authBtn.textContent = `👤 ${name.split('@')[0]}`;
         await loadUserPlan();
+        // Show coupon section for paid plans (will be toggled)
+        couponSection.style.display = 'block';
       } else {
         currentUser = null;
         authBtn.textContent = '🔑 Login';
@@ -637,6 +730,7 @@
           btn.textContent = 'Sign in to upgrade';
           btn.onclick = () => handleAuth();
         });
+        couponSection.style.display = 'none';
       }
     }
 
@@ -693,6 +787,114 @@
           btn.onclick = () => selectPlan(plan);
         }
       });
+
+      // Reset coupon when plan changes
+      appliedCoupon = null;
+      discountAmount = 0;
+      couponMessage.innerHTML = '';
+      couponMessage.style.color = '';
+      couponDiscount.style.display = 'none';
+      couponInput.value = '';
+      // Reset prices
+      document.querySelectorAll('.plan-price .old-price').forEach(el => el.remove());
+      document.querySelectorAll('.plan-price').forEach(el => {
+        const text = el.textContent.trim();
+        if (text.includes('$19')) el.innerHTML = '$19 <span>/ month</span>';
+        if (text.includes('$49')) el.innerHTML = '$49 <span>/ month</span>';
+      });
+    }
+
+    // ============================================================
+    // ===== COUPON FUNCTIONS =====
+    // ============================================================
+
+    window.applyCoupon = async function() {
+      const code = couponInput.value.trim().toUpperCase();
+      if (!code) {
+        couponMessage.innerHTML = '⚠️ Please enter a coupon code.';
+        couponMessage.style.color = '#f87171';
+        return;
+      }
+
+      try {
+        // ===== 1. جيب الكوبون من قاعدة البيانات =====
+        const { data, error } = await supabase
+          .from('coupons')
+          .select('*')
+          .eq('code', code)
+          .eq('is_active', true)
+          .single();
+
+        if (error) throw error;
+
+        // ===== 2. تحقق من الصلاحية =====
+        const now = new Date();
+        if (data.expires_at && new Date(data.expires_at) < now) {
+          couponMessage.innerHTML = '❌ This coupon has expired.';
+          couponMessage.style.color = '#f87171';
+          return;
+        }
+
+        if (data.max_uses && data.used_count >= data.max_uses) {
+          couponMessage.innerHTML = '❌ This coupon has reached its usage limit.';
+          couponMessage.style.color = '#f87171';
+          return;
+        }
+
+        // ===== 3. تحقق من نوع الخطة =====
+        if (data.plan_type && data.plan_type !== 'all' && data.plan_type !== currentPlan) {
+          couponMessage.innerHTML = `❌ This coupon is only valid for ${data.plan_type} plans.`;
+          couponMessage.style.color = '#f87171';
+          return;
+        }
+
+        // ===== 4. حساب الخصم =====
+        const priceMap = { pro: 19, business: 49 };
+        const originalPrice = priceMap[currentPlan] || 0;
+        if (data.discount_type === 'percentage') {
+          discountAmount = (originalPrice * data.discount_value) / 100;
+        } else {
+          discountAmount = data.discount_value;
+        }
+        // لا نسمح أن يكون السعر سالباً
+        discountAmount = Math.min(discountAmount, originalPrice);
+
+        appliedCoupon = data;
+
+        // ===== 5. عرض رسالة النجاح =====
+        couponMessage.innerHTML = '✅ Coupon applied successfully!';
+        couponMessage.style.color = '#4ade80';
+
+        couponDiscount.style.display = 'block';
+        couponDiscount.innerHTML = `🎉 Discount: -$${discountAmount.toFixed(2)} (${data.discount_type === 'percentage' ? data.discount_value + '%' : '$' + data.discount_value})`;
+
+        // ===== 6. تحديث السعر =====
+        updatePlanPrice(currentPlan, originalPrice, discountAmount);
+
+      } catch (err) {
+        couponMessage.innerHTML = '❌ Invalid coupon code.';
+        couponMessage.style.color = '#f87171';
+        console.error('Apply coupon error:', err);
+      }
+    };
+
+    // ===== UPDATE PLAN PRICE =====
+    function updatePlanPrice(plan, originalPrice, discount) {
+      const finalPrice = Math.max(0, originalPrice - discount);
+      const priceEl = document.querySelector(`#plan-${plan} .plan-price`);
+      if (priceEl) {
+        // Remove old price and old-price
+        const oldPriceSpan = priceEl.querySelector('.old-price');
+        if (oldPriceSpan) oldPriceSpan.remove();
+        // Update main price
+        priceEl.innerHTML = `$${finalPrice.toFixed(2)} <span>/ month</span>`;
+        if (discount > 0) {
+          const oldPriceEl = document.createElement('span');
+          oldPriceEl.className = 'old-price';
+          oldPriceEl.textContent = `$${originalPrice}`;
+          priceEl.appendChild(oldPriceEl);
+        }
+      }
     }
 
     // ============================================================
@@ -719,9 +921,10 @@
 
       if (success && sessionId) {
         try {
+          // IMPORTANT: استخدم Secret Key من Supabase Secrets
           const response = await fetch(`https://api.stripe.com/v1/checkout/sessions/${sessionId}`, {
             headers: {
-              'Authorization': `Bearer sk_test_51TuYRZJuptjQdtg4Udi7Gwit2nRWGQXc4tMP23I23dexGyiBrEVIy7g0iBjWKepLaBKSEFvMRUtvJx3FDIHebsqE00zBhZxETb`
+              'Authorization': `Bearer sk_test_...` // استخدم الـ Secret Key بتاعك
             }
           });
           const session = await response.json();
@@ -766,63 +969,7 @@
     };
 
     // ============================================================
-    // ===== GET USER PLAN (للاستخدام في التحقق من الصلاحيات) =====
-    // ============================================================
-    async function getUserPlan(userId) {
-      try {
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('plan')
-          .eq('id', userId)
-          .maybeSingle();
-
-        if (error) {
-          console.error('Error fetching profile:', error);
-          return 'free';
-        }
-
-        return profile?.plan || 'free';
-
-      } catch (err) {
-        console.error('getUserPlan error:', err);
-        return 'free';
-      }
-    }
-
-    // ============================================================
-    // ===== CHECK PERMISSIONS =====
-    // ============================================================
-
-    // Live Preview مجاني للجميع (دائماً true)
-    function canLivePreview() {
-      return true;
-    }
-
-    // النشر مجاني للجميع (دائماً true)
-    function canPublish() {
-      return true;
-    }
-
-    // تعديل البيانات بعد النشر (Pro و Business بس)
-    async function canEditSite(userId) {
-      const plan = await getUserPlan(userId);
-      return plan === 'pro' || plan === 'business';
-    }
-
-    // Custom Slug (Business بس)
-    async function canUseCustomSlug(userId) {
-      const plan = await getUserPlan(userId);
-      return plan === 'business';
-    }
-
-    // Premium Templates (Pro و Business بس)
-    async function canAccessPremiumTemplates(userId) {
-      const plan = await getUserPlan(userId);
-      return plan === 'pro' || plan === 'business';
-    }
-
-    // ============================================================
-    // ===== SELECT PLAN (مع إدارة الاشتراكات) =====
+    // ===== SELECT PLAN =====
     // ============================================================
     window.selectPlan = async function(plan) {
       if (!currentUser) {
@@ -846,6 +993,24 @@
         return;
       }
 
+      // Show coupon section for paid plans
+      if (plan === 'free') {
+        couponSection.style.display = 'none';
+      } else {
+        couponSection.style.display = 'block';
+        // Reset coupon when switching between paid plans
+        appliedCoupon = null;
+        discountAmount = 0;
+        couponMessage.innerHTML = '';
+        couponDiscount.style.display = 'none';
+        couponInput.value = '';
+        // Reset price
+        const priceMap = { pro: 19, business: 49 };
+        updatePlanPrice(plan, priceMap[plan], 0);
+        // Reset current plan price display
+        document.querySelectorAll('.plan-price .old-price').forEach(el => el.remove());
+      }
+
       // ===== خطة Free =====
       if (plan === 'free') {
         if (!confirm('Are you sure you want to downgrade to Free? You will lose access to premium features.')) return;
@@ -861,7 +1026,7 @@
             await fetch(`https://api.stripe.com/v1/subscriptions/${profile.stripe_subscription_id}`, {
               method: 'DELETE',
               headers: {
-                'Authorization': `Bearer sk_test_51TuYRZJuptjQdtg4Udi7Gwit2nRWGQXc4tMP23I23dexGyiBrEVIy7g0iBjWKepLaBKSEFvMRUtvJx3FDIHebsqE00zBhZxETb`
+                'Authorization': `Bearer sk_test_...`
               }
             });
           }
@@ -885,6 +1050,9 @@
             primaryText: 'OK'
           });
 
+          // Hide coupon section
+          couponSection.style.display = 'none';
+
         } catch (err) {
           showPopup({ icon: '❌', title: 'Error', message: err.message, primaryText: 'OK' });
         }
@@ -899,6 +1067,18 @@
           .eq('id', currentUser.id)
           .single();
 
+        // Prepare body with coupon if applied
+        const requestBody = {
+          plan: plan,
+          user_id: currentUser.id,
+          email: currentUser.email,
+          subscription_id: profile?.stripe_subscription_id || null
+        };
+        if (appliedCoupon) {
+          requestBody.coupon_code = appliedCoupon.code;
+          requestBody.discount_amount = discountAmount;
+        }
+
         const response = await fetch(
           'https://fhgszopuwnrnijxvghku.supabase.co/functions/v1/create-checkout-session',
           {
@@ -907,12 +1087,7 @@
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${supabaseKey}`
             },
-            body: JSON.stringify({
-              plan: plan,
-              user_id: currentUser.id,
-              email: currentUser.email,
-              subscription_id: profile?.stripe_subscription_id || null
-            })
+            body: JSON.stringify(requestBody)
           }
         );
 
@@ -947,6 +1122,7 @@
     window.selectPlan = selectPlan;
     window.showPopup = showPopup;
     window.closePopup = closePopup;
+    window.applyCoupon = applyCoupon;
   </script>
 </body>
 </html>
