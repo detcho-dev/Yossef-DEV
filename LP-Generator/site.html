@@ -182,6 +182,54 @@
       }
     }
 
+    // ===== في site.html =====
+function updateSEO(data) {
+  // ===== Title =====
+  const title = data.title || 'My Site';
+  document.title = `${title} | LP Generator`;
+
+  // ===== Meta Description =====
+  const metaDesc = document.querySelector('meta[name="description"]');
+  if (metaDesc) {
+    metaDesc.content = data.description || `Check out ${title} - built with LP Generator`;
+  } else {
+    const meta = document.createElement('meta');
+    meta.name = 'description';
+    meta.content = data.description || `Check out ${title} - built with LP Generator`;
+    document.head.appendChild(meta);
+  }
+
+  // ===== Open Graph (Facebook, LinkedIn) =====
+  const ogTitle = document.querySelector('meta[property="og:title"]');
+  if (ogTitle) {
+    ogTitle.content = title;
+  } else {
+    const meta = document.createElement('meta');
+    meta.property = 'og:title';
+    meta.content = title;
+    document.head.appendChild(meta);
+  }
+
+  const ogUrl = document.querySelector('meta[property="og:url"]');
+  if (ogUrl) {
+    ogUrl.content = window.location.href;
+  } else {
+    const meta = document.createElement('meta');
+    meta.property = 'og:url';
+    meta.content = window.location.href;
+    document.head.appendChild(meta);
+  }
+
+  // ===== Twitter Card =====
+  const twitterCard = document.querySelector('meta[name="twitter:card"]');
+  if (!twitterCard) {
+    const meta = document.createElement('meta');
+    meta.name = 'twitter:card';
+    meta.content = 'summary_large_image';
+    document.head.appendChild(meta);
+  }
+}
+
     loadSite();
   </script>
 </body>
