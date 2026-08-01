@@ -2136,6 +2136,58 @@
       }
     };
 
+    // ===== في دالة handleAuth (بعد تسجيل الدخول) =====
+async function sendWelcomeEmail(user) {
+  try {
+    const name = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
+    const html = getWelcomeEmail(name);
+    
+    await fetch(
+      'https://fhgszopuwnrnijxvghku.supabase.co/functions/v1/send-email',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabaseKey}`
+        },
+        body: JSON.stringify({
+          to: user.email,
+          subject: '🚀 Welcome to LP Generator!',
+          html: html,
+          type: 'welcome',
+          user_id: user.id
+        })
+      }
+    );
+  } catch (err) {
+    console.error('Error sending welcome email:', err);
+  }
+}
+
+// ===== في دالة selectPlan (بعد الدفع الناجح) =====
+async function sendPaymentEmail(user, plan, amount) {
+  const name = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
+  const html = getPaymentEmail(name, plan, amount);
+  
+  await fetch(
+    'https://fhgszopuwnrnijxvghku.supabase.co/functions/v1/send-email',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${supabaseKey}`
+      },
+      body: JSON.stringify({
+        to: user.email,
+        subject: '✅ Payment Confirmed!',
+        html: html,
+        type: 'payment',
+        user_id: user.id
+      })
+    }
+  );
+}
+
     // ============================================================
     // ===== CHECK AUTH =====
     // ============================================================
