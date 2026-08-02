@@ -151,6 +151,22 @@
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     }
 
+    .btn-primary {
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      border: none;
+    }
+    .btn-primary:hover {
+      box-shadow: 0 8px 24px rgba(79, 172, 254, 0.4);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #4ade80, #22c55e);
+      border: none;
+    }
+    .btn-success:hover {
+      box-shadow: 0 8px 24px rgba(74, 222, 128, 0.4);
+    }
+
     /* ===== LANGUAGE SELECTOR ===== */
     .language-selector {
       display: flex;
@@ -182,6 +198,83 @@
       background: rgba(79, 172, 254, 0.15);
       border-color: rgba(79, 172, 254, 0.3);
       color: #4facfe;
+    }
+
+    /* ============================================================ */
+    /* ===== AUTH FORMS ===== */
+    /* ============================================================ */
+    #login-form,
+    #otp-form {
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(12px);
+      border-radius: 24px;
+      padding: 32px;
+      margin-bottom: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      max-width: 420px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    #login-form h2,
+    #otp-form h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 1.3rem;
+    }
+
+    #login-form .form-group,
+    #otp-form .form-group {
+      margin-bottom: 16px;
+    }
+
+    #login-form input,
+    #otp-form input {
+      width: 100%;
+      padding: 14px 18px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      border-radius: 12px;
+      color: #fff;
+      font-size: 1rem;
+      transition: border 0.3s;
+      text-align: center;
+    }
+
+    #login-form input:focus,
+    #otp-form input:focus {
+      outline: none;
+      border-color: #4facfe;
+    }
+
+    #login-form .btn-primary,
+    #otp-form .btn-primary {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      justify-content: center;
+    }
+
+    #login-form .auth-helper,
+    #otp-form .auth-helper {
+      text-align: center;
+      margin-top: 12px;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    #otp-form .otp-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 12px;
+    }
+
+    #otp-form .otp-actions .btn {
+      font-size: 0.8rem;
+      padding: 8px 16px;
     }
 
     /* ============================================================ */
@@ -1206,6 +1299,32 @@
       </div>
     </header>
 
+    <!-- ===== LOGIN FORM ===== -->
+    <div id="login-form">
+      <h2>🔐 Sign In</h2>
+      <div class="form-group">
+        <input type="email" id="email-input" placeholder="Enter your email" />
+      </div>
+      <button class="btn btn-primary" onclick="sendOTP()" style="width:100%;justify-content:center;">📧 Send OTP Code</button>
+      <div class="auth-helper">You'll receive a 6-digit code via email.</div>
+    </div>
+
+    <!-- ===== OTP FORM ===== -->
+    <div id="otp-form" style="display:none;">
+      <h2>🔐 Verify Code</h2>
+      <p style="text-align:center;margin-bottom:16px;color:rgba(255,255,255,0.6);">
+        We sent a code to <strong id="otp-email"></strong>
+      </p>
+      <div class="form-group">
+        <input type="text" id="otp-input" placeholder="Enter 6-digit code" maxlength="6" inputmode="numeric" />
+      </div>
+      <button class="btn btn-primary" onclick="verifyOTP()" style="width:100%;justify-content:center;">✅ Verify & Login</button>
+      <div class="otp-actions">
+        <button class="btn" onclick="resendOTP()" style="font-size:0.8rem;">🔄 Resend Code</button>
+        <button class="btn" onclick="backToLogin()" style="font-size:0.8rem;">⬅️ Back</button>
+      </div>
+    </div>
+
     <!-- ===== SEARCH BAR ===== -->
     <div class="search-section">
       <div class="search-wrapper">
@@ -1330,6 +1449,12 @@
     const splitForm = document.getElementById('split-form');
     const livePreview = document.getElementById('live-preview');
 
+    const loginForm = document.getElementById('login-form');
+    const otpForm = document.getElementById('otp-form');
+    const emailInput = document.getElementById('email-input');
+    const otpInput = document.getElementById('otp-input');
+    const otpEmail = document.getElementById('otp-email');
+
     let currentUser = null;
     let selectedTemplate = null;
     let currentTemplateFields = null;
@@ -1338,6 +1463,144 @@
     let selectedCategory = 'all';
     let selectedRating = 0;
     let wishlistState = {};
+
+    // ============================================================
+    // ===== AUTH: OTP Functions =====
+    // ============================================================
+
+    // ===== Send OTP =====
+    window.sendOTP = async function() {
+      const email = emailInput.value.trim();
+      if (!email) {
+        showPopup({
+          icon: '⚠️',
+          title: 'Email Required',
+          message: 'Please enter your email address.',
+          primaryText: 'OK'
+        });
+        return;
+      }
+
+      try {
+        const { error } = await supabase.auth.signInWithOtp({
+          email: email,
+          options: {
+            shouldCreateUser: true,
+          }
+        });
+
+        if (error) throw error;
+
+        loginForm.style.display = 'none';
+        otpForm.style.display = 'block';
+        otpEmail.textContent = email;
+        otpInput.value = '';
+        otpInput.focus();
+
+        showPopup({
+          icon: '📧',
+          title: 'OTP Sent!',
+          message: `We sent a 6-digit code to ${email}`,
+          primaryText: 'OK'
+        });
+
+      } catch (err) {
+        if (err.message.includes('rate limit')) {
+          showPopup({
+            icon: '⏳',
+            title: 'Too Many Attempts',
+            message: 'Please wait a few minutes before trying again.',
+            primaryText: 'OK'
+          });
+        } else {
+          showPopup({
+            icon: '❌',
+            title: 'Error',
+            message: err.message,
+            primaryText: 'OK'
+          });
+        }
+        console.error('OTP error:', err);
+      }
+    };
+
+    // ===== Verify OTP =====
+    window.verifyOTP = async function() {
+      const email = otpEmail.textContent;
+      const token = otpInput.value.trim();
+
+      if (!token || token.length < 6) {
+        showPopup({
+          icon: '⚠️',
+          title: 'Invalid Code',
+          message: 'Please enter the 6-digit code you received.',
+          primaryText: 'OK'
+        });
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase.auth.verifyOtp({
+          email: email,
+          token: token,
+          type: 'email',
+        });
+
+        if (error) throw error;
+
+        showPopup({
+          icon: '🎉',
+          title: 'Login Successful!',
+          message: 'You are now logged in.',
+          primaryText: 'OK',
+          primaryAction: () => location.reload()
+        });
+
+      } catch (err) {
+        showPopup({
+          icon: '❌',
+          title: 'Invalid Code',
+          message: err.message || 'The code you entered is incorrect or expired.',
+          primaryText: 'Try Again'
+        });
+        console.error('Verify OTP error:', err);
+      }
+    };
+
+    // ===== Resend OTP =====
+    window.resendOTP = async function() {
+      const email = otpEmail.textContent;
+      try {
+        const { error } = await supabase.auth.signInWithOtp({
+          email: email,
+          options: { shouldCreateUser: true }
+        });
+
+        if (error) throw error;
+
+        showPopup({
+          icon: '📧',
+          title: 'OTP Resent!',
+          message: `A new code has been sent to ${email}`,
+          primaryText: 'OK'
+        });
+
+      } catch (err) {
+        showPopup({
+          icon: '❌',
+          title: 'Error',
+          message: err.message,
+          primaryText: 'OK'
+        });
+        console.error('Resend OTP error:', err);
+      }
+    };
+
+    // ===== Back to Login =====
+    window.backToLogin = function() {
+      otpForm.style.display = 'none';
+      loginForm.style.display = 'block';
+    };
 
     // ============================================================
     // ===== POPUP =====
@@ -2113,26 +2376,12 @@
     // ============================================================
     // ===== AUTH =====
     // ============================================================
-    window.handleAuth = async function() {
-      if (currentUser) {
-        await supabase.auth.signOut();
-        location.reload();
-        return;
-      }
-
-      const email = prompt('Enter your email:');
-      if (!email) return;
-
-      const { error } = await supabase.auth.signInWithOtp({
-        email: email,
-        options: { emailRedirectTo: SITE_URL }
-      });
-
-      if (error) {
-        showPopup({ icon: '❌', title: 'Error', message: error.message, primaryText: 'OK' });
-      } else {
-        showPopup({ icon: '✅', title: 'Magic Link Sent!', message: 'Check your email.', primaryText: 'OK' });
-      }
+    window.handleAuth = function() {
+      // Show the login form
+      loginForm.style.display = 'block';
+      otpForm.style.display = 'none';
+      emailInput.value = '';
+      otpInput.value = '';
     };
 
     // ============================================================
@@ -2145,6 +2394,10 @@
         currentUser = session.user;
         const name = session.user.user_metadata?.full_name || session.user.email || 'User';
         authBtn.textContent = `👤 ${name.split('@')[0]}`;
+        authBtn.onclick = async () => {
+          await supabase.auth.signOut();
+          location.reload();
+        };
         mySites.style.display = 'inline-flex';
 
         const { data: profile, error } = await supabase
@@ -2160,14 +2413,23 @@
         window.supabase = supabase;
         window.currentUser = currentUser;
 
+        // Hide auth forms
+        loginForm.style.display = 'none';
+        otpForm.style.display = 'none';
+
         await loadNotificationCount();
         await loadWishlist();
 
       } else {
         currentUser = null;
         authBtn.textContent = '🔑 Login';
+        authBtn.onclick = handleAuth;
         mySites.style.display = 'none';
         if (notifCount) notifCount.style.display = 'none';
+        
+        // Show login form if not authenticated
+        loginForm.style.display = 'block';
+        otpForm.style.display = 'none';
       }
     }
 
@@ -2641,6 +2903,10 @@
     window.exportTemplate = exportTemplate;
     window.deployToVercel = deployToVercel;
     window.toggleWishlist = toggleWishlist;
+    window.sendOTP = sendOTP;
+    window.verifyOTP = verifyOTP;
+    window.resendOTP = resendOTP;
+    window.backToLogin = backToLogin;
 
     await checkAuth();
     await loadTemplates();
