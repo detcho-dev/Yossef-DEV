@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎫 Support Tickets</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      padding: 24px;
+      background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #1a1a2e);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      color: #f1f5f9;
+    }
+
+    @keyframes gradientBG {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 32px;
+      padding: 20px 28px;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(16px);
+      border-radius: 60px;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #f093fb, #f5576c, #4facfe);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(8px);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 10px 24px;
+      border-radius: 40px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      border: none;
+    }
+    .btn-primary:hover {
+      box-shadow: 0 8px 24px rgba(79, 172, 254, 0.3);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #4ade80, #22c55e);
+      border: none;
+    }
+    .btn-success:hover {
+      box-shadow: 0 8px 24px rgba(74, 222, 128, 0.3);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #f5576c, #ef4444);
+      border: none;
+    }
+    .btn-danger:hover {
+      box-shadow: 0 8px 24px rgba(245, 87, 108, 0.3);
+    }
+
+    .btn-sm {
+      padding: 6px 16px;
+      font-size: 0.8rem;
+    }
+
+    /* ===== TICKETS LIST ===== */
+    .tickets-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .ticket-item {
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: 20px 24px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .ticket-item:hover {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .ticket-item .ticket-info {
+      flex: 1;
+    }
+
+    .ticket-item .ticket-info .subject {
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .ticket-item .ticket-info .meta {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .badge {
+      padding: 2px 12px;
+      border-radius: 40px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .badge-open {
+      background: rgba(74, 222, 128, 0.15);
+      color: #4ade80;
+    }
+
+    .badge-in_progress {
+      background: rgba(251, 191, 36, 0.15);
+      color: #fbbf24;
+    }
+
+    .badge-resolved {
+      background: rgba(79, 172, 254, 0.15);
+      color: #4facfe;
+    }
+
+    .badge-closed {
+      background: rgba(255, 255, 255, 0.06);
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .badge-low {
+      background: rgba(74, 222, 128, 0.10);
+      color: #4ade80;
+    }
+
+    .badge-medium {
+      background: rgba(251, 191, 36, 0.10);
+      color: #fbbf24;
+    }
+
+    .badge-high {
+      background: rgba(245, 87, 108, 0.15);
+      color: #f87171;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: rgba(255, 255, 255, 0.3);
+      grid-column: 1 / -1;
+    }
+
+    .empty-state .icon {
+      font-size: 3rem;
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .loading::after {
+      content: '';
+      display: inline-block;
+      width: 28px;
+      height: 28px;
+      margin-left: 12px;
+      border: 3px solid rgba(255, 255, 255, 0.06);
+      border-top-color: #4facfe;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ===== MODAL ===== */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(12px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 24px;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal {
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(24px);
+      border-radius: 32px;
+      max-width: 700px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+      padding: 32px 36px;
+      animation: modalSlideUp 0.35s ease;
+    }
+    @keyframes modalSlideUp {
+      0% {
+        opacity: 0;
+        transform: translateY(40px) scale(0.96);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding-bottom: 18px;
+      margin-bottom: 24px;
+    }
+    .modal-header h2 {
+      color: #fff;
+      font-size: 1.3rem;
+    }
+    .modal-close {
+      background: rgba(255, 255, 255, 0.06);
+      color: #fca5a5;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 8px 20px;
+      border-radius: 40px;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .modal-close:hover {
+      background: rgba(239, 68, 68, 0.2);
+    }
+    .modal-body {
+      color: #e2e8f0;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+    .form-group label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 6px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      border-radius: 12px;
+      color: #fff;
+      font-size: 1rem;
+      transition: border 0.3s;
+    }
+    .form-group textarea:focus,
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #4facfe;
+    }
+    .form-group textarea {
+      min-height: 100px;
+      font-family: inherit;
+    }
+
+    /* ===== REPLIES ===== */
+    .replies-section {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .reply-item {
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 12px;
+      margin-bottom: 12px;
+    }
+
+    .reply-item .reply-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.4);
+      margin-bottom: 4px;
+    }
+
+    .reply-item .reply-meta .admin-badge {
+      color: #4facfe;
+    }
+
+    .reply-item .reply-message {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 16px;
+      }
+      .header {
+        padding: 16px 20px;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .header h1 {
+        font-size: 1.5rem;
+      }
+      .header-actions {
+        width: 100%;
+      }
+      .header-actions .btn {
+        flex: 1;
+        justify-content: center;
+      }
+      .ticket-item {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .modal {
+        padding: 20px 18px;
+        margin: 12px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .ticket-item .ticket-info .meta {
+        flex-direction: column;
+        gap: 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- ===== HEADER ===== -->
+    <header class="header">
+      <h1>🎫 Support Tickets</h1>
+      <div class="header-actions">
+        <a href="index.html" class="btn">🏠 Home</a>
+        <button class="btn btn-primary" onclick="openNewTicket()">➕ New Ticket</button>
+        <button class="btn" onclick="logout()">🚪 Logout</button>
+      </div>
+    </header>
+
+    <!-- ===== TICKETS LIST ===== -->
+    <div id="tickets-container">
+      <div class="loading">Loading tickets...</div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- ===== MODAL: New Ticket ===== -->
+  <!-- ============================================================ -->
+  <div id="new-ticket-modal" class="modal-overlay" onclick="if(event.target===this) closeNewTicket()">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>➕ Create New Ticket</h2>
+        <button class="modal-close" onclick="closeNewTicket()">✕ Close</button>
+      </div>
+      <div class="modal-body">
+        <form id="new-ticket-form">
+          <div class="form-group">
+            <label>Subject *</label>
+            <input type="text" id="ticket-subject" placeholder="Brief summary of your issue" required />
+          </div>
+          <div class="form-group">
+            <label>Category</label>
+            <select id="ticket-category">
+              <option value="general">General</option>
+              <option value="technical">Technical</option>
+              <option value="billing">Billing</option>
+              <option value="feature">Feature Request</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Priority</label>
+            <select id="ticket-priority">
+              <option value="low">Low</option>
+              <option value="medium" selected>Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Message *</label>
+            <textarea id="ticket-message" placeholder="Describe your issue in detail..." required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">📤 Submit Ticket</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- ===== MODAL: Ticket Detail ===== -->
+  <!-- ============================================================ -->
+  <div id="ticket-detail-modal" class="modal-overlay" onclick="if(event.target===this) closeTicketDetail()">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="detail-title">Ticket</h2>
+        <button class="modal-close" onclick="closeTicketDetail()">✕ Close</button>
+      </div>
+      <div class="modal-body" id="detail-body">
+        <div class="loading">Loading...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- ===== SUPABASE ===== -->
+  <!-- ============================================================ -->
+  <script type="importmap">
+    {
+      "imports": {
+        "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import { createClient } from '@supabase/supabase-js';
+
+    // ============================================================
+    // ===== CONFIG =====
+    // ============================================================
+    const supabaseUrl = 'https://fhgszopuwnrnijxvghku.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZoZ3N6b3B1d25ybmlqeHZnaGt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMzQ1MTUsImV4cCI6MjA5OTYxMDUxNX0.K2WVDxjRh6JC51nZHdJpR2l8kjS1jhXJ9EkmQ5ElPtQ';
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // ============================================================
+    // ===== DOM REFS =====
+    // ============================================================
+    const ticketsContainer = document.getElementById('tickets-container');
+    const newTicketModal = document.getElementById('new-ticket-modal');
+    const detailModal = document.getElementById('ticket-detail-modal');
+    const detailTitle = document.getElementById('detail-title');
+    const detailBody = document.getElementById('detail-body');
+
+    let currentUser = null;
+    let isAdmin = false;
+
+    // ============================================================
+    // ===== AUTH =====
+    // ============================================================
+    window.logout = async function() {
+      await supabase.auth.signOut();
+      window.location.href = 'index.html';
+    };
+
+    async function checkAuth() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        window.location.href = 'index.html';
+        return;
+      }
+      currentUser = session.user;
+
+      // Check if admin
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('is_admin')
+        .eq('id', currentUser.id)
+        .single();
+
+      isAdmin = profile?.is_admin || false;
+      loadTickets();
+    }
+
+    // ============================================================
+    // ===== LOAD TICKETS =====
+    // ============================================================
+    async function loadTickets() {
+      ticketsContainer.innerHTML = '<div class="loading">Loading tickets...</div>';
+
+      try {
+        let query = supabase
+          .from('tickets')
+          .select('*, profiles(full_name)')
+          .order('created_at', { ascending: false });
+
+        // If not admin, only show user's tickets
+        if (!isAdmin) {
+          query = query.eq('user_id', currentUser.id);
+        }
+
+        const { data, error } = await query;
+
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+          ticketsContainer.innerHTML = `
+            <div class="empty-state">
+              <span class="icon">🎫</span>
+              <p>${isAdmin ? 'No tickets yet.' : 'You haven\'t created any tickets yet.'}</p>
+              ${!isAdmin ? '<button class="btn btn-primary" onclick="openNewTicket()" style="margin-top:12px;">➕ Create Ticket</button>' : ''}
+            </div>
+          `;
+          return;
+        }
+
+        let html = '<div class="tickets-list">';
+        data.forEach(ticket => {
+          const statusBadge = `badge-${ticket.status}`;
+          const priorityBadge = `badge-${ticket.priority}`;
+          const userName = ticket.profiles?.full_name || ticket.user_id?.slice(0, 8) || 'User';
+
+          html += `
+            <div class="ticket-item" onclick="openTicketDetail('${ticket.id}')">
+              <div class="ticket-info">
+                <div class="subject">${ticket.subject}</div>
+                <div class="meta">
+                  <span>#${ticket.id}</span>
+                  <span>👤 ${userName}</span>
+                  <span>📅 ${new Date(ticket.created_at).toLocaleDateString()}</span>
+                  <span class="badge ${statusBadge}">${ticket.status.replace('_', ' ')}</span>
+                  <span class="badge ${priorityBadge}">${ticket.priority}</span>
+                  <span>${ticket.category}</span>
+                </div>
+              </div>
+              <span style="color:rgba(255,255,255,0.2);font-size:1.2rem;">›</span>
+            </div>
+          `;
+        });
+        html += '</div>';
+        ticketsContainer.innerHTML = html;
+
+      } catch (err) {
+        console.error('Error loading tickets:', err);
+        ticketsContainer.innerHTML = `<div class="empty-state"><p style="color:#f87171;">❌ Error: ${err.message}</p></div>`;
+      }
+    }
+
+    // ============================================================
+    // ===== NEW TICKET =====
+    // ============================================================
+    window.openNewTicket = function() {
+      newTicketModal.classList.add('active');
+      document.getElementById('new-ticket-form').reset();
+    };
+
+    window.closeNewTicket = function() {
+      newTicketModal.classList.remove('active');
+    };
+
+    document.getElementById('new-ticket-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const subject = document.getElementById('ticket-subject').value.trim();
+      const category = document.getElementById('ticket-category').value;
+      const priority = document.getElementById('ticket-priority').value;
+      const message = document.getElementById('ticket-message').value.trim();
+
+      if (!subject || !message) {
+        alert('Subject and message are required.');
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('tickets')
+          .insert({
+            user_id: currentUser.id,
+            subject: subject,
+            message: message,
+            category: category,
+            priority: priority,
+            status: 'open'
+          });
+
+        if (error) throw error;
+
+        closeNewTicket();
+        loadTickets();
+
+        alert('✅ Ticket created successfully!');
+
+      } catch (err) {
+        alert('❌ Error: ' + err.message);
+        console.error(err);
+      }
+    });
+
+    // ============================================================
+    // ===== TICKET DETAIL =====
+    // ============================================================
+    window.openTicketDetail = async function(ticketId) {
+      detailModal.classList.add('active');
+      detailBody.innerHTML = '<div class="loading">Loading ticket...</div>';
+
+      try {
+        // ===== 1. Get ticket =====
+        const { data: ticket, error: ticketError } = await supabase
+          .from('tickets')
+          .select('*, profiles(full_name)')
+          .eq('id', ticketId)
+          .single();
+
+        if (ticketError) throw ticketError;
+
+        // Check permission (if not admin, check if user owns ticket)
+        if (!isAdmin && ticket.user_id !== currentUser.id) {
+          detailBody.innerHTML = '<p style="color:#f87171;">❌ You don\'t have permission to view this ticket.</p>';
+          return;
+        }
+
+        // ===== 2. Get replies =====
+        const { data: replies, error: repliesError } = await supabase
+          .from('ticket_replies')
+          .select('*, profiles(full_name)')
+          .eq('ticket_id', ticketId)
+          .order('created_at', { ascending: true });
+
+        if (repliesError) throw repliesError;
+
+        // ===== 3. Render =====
+        const userName = ticket.profiles?.full_name || 'User';
+
+        let repliesHtml = '';
+        if (replies && replies.length > 0) {
+          repliesHtml = `
+            <div class="replies-section">
+              <h4 style="color:rgba(255,255,255,0.6);margin-bottom:12px;">💬 Replies</h4>
+              ${replies.map(reply => `
+                <div class="reply-item">
+                  <div class="reply-meta">
+                    <span>${reply.profiles?.full_name || 'User'} ${reply.is_admin ? '🛡️' : ''}</span>
+                    <span>${new Date(reply.created_at).toLocaleString()}</span>
+                  </div>
+                  <div class="reply-message">${reply.message}</div>
+                </div>
+              `).join('')}
+            </div>
+          `;
+        }
+
+        // ===== 4. Admin controls (only for admins) =====
+        let adminControls = '';
+        if (isAdmin) {
+          const statusOptions = ['open', 'in_progress', 'resolved', 'closed'];
+          adminControls = `
+            <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);">
+              <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <select id="admin-status-change" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10);border-radius:10px;padding:10px 14px;color:#fff;">
+                  ${statusOptions.map(s => `<option value="${s}" ${s === ticket.status ? 'selected' : ''}>${s.replace('_', ' ')}</option>`).join('')}
+                </select>
+                <button class="btn btn-sm btn-primary" onclick="updateTicketStatus('${ticket.id}')">Update Status</button>
+                ${ticket.status !== 'closed' ? `<button class="btn btn-sm btn-success" onclick="resolveTicket('${ticket.id}')">✅ Resolve</button>` : ''}
+              </div>
+            </div>
+          `;
+        }
+
+        detailTitle.textContent = `#${ticket.id} - ${ticket.subject}`;
+
+        detailBody.innerHTML = `
+          <div>
+            <div style="margin-bottom:16px;">
+              <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:8px;">
+                <span class="badge badge-${ticket.status}">${ticket.status.replace('_', ' ')}</span>
+                <span class="badge badge-${ticket.priority}">${ticket.priority}</span>
+                <span style="color:rgba(255,255,255,0.3);font-size:0.8rem;">${ticket.category}</span>
+              </div>
+              <p style="color:rgba(255,255,255,0.6);font-size:0.85rem;">Opened by ${userName} on ${new Date(ticket.created_at).toLocaleString()}</p>
+            </div>
+            <div style="background:rgba(0,0,0,0.15);border-radius:12px;padding:16px;border:1px solid rgba(255,255,255,0.04);">
+              <p>${ticket.message}</p>
+            </div>
+            ${repliesHtml}
+            ${adminControls}
+            <!-- Reply Form -->
+            <div style="margin-top:20px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.06);">
+              <h4 style="color:rgba(255,255,255,0.6);margin-bottom:12px;">✏️ Add Reply</h4>
+              <textarea id="reply-message" style="width:100%;padding:12px 16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10);border-radius:12px;color:#fff;font-size:1rem;min-height:80px;resize:vertical;" placeholder="Type your reply..."></textarea>
+              <button class="btn btn-sm btn-primary" onclick="addReply('${ticket.id}')" style="margin-top:10px;">📤 Send Reply</button>
+            </div>
+          </div>
+        `;
+
+      } catch (err) {
+        console.error('Error loading ticket detail:', err);
+        detailBody.innerHTML = `<p style="color:#f87171;">❌ Error: ${err.message}</p>`;
+      }
+    };
+
+    window.closeTicketDetail = function() {
+      detailModal.classList.remove('active');
+    };
+
+    // ============================================================
+    // ===== ADD REPLY =====
+    // ============================================================
+    window.addReply = async function(ticketId) {
+      const message = document.getElementById('reply-message')?.value.trim();
+      if (!message) {
+        alert('Please enter a reply.');
+        return;
+      }
+
+      try {
+        const { error } = await supabase
+          .from('ticket_replies')
+          .insert({
+            ticket_id: ticketId,
+            user_id: currentUser.id,
+            message: message,
+            is_admin: isAdmin
+          });
+
+        if (error) throw error;
+
+        // Update ticket status to in_progress if it's open
+        const { data: ticket } = await supabase
+          .from('tickets')
+          .select('status')
+          .eq('id', ticketId)
+          .single();
+
+        if (ticket.status === 'open') {
+          await supabase
+            .from('tickets')
+            .update({ status: 'in_progress', updated_at: new Date().toISOString() })
+            .eq('id', ticketId);
+        }
+
+        // Reload detail
+        openTicketDetail(ticketId);
+        loadTickets();
+
+      } catch (err) {
+        alert('❌ Error: ' + err.message);
+        console.error(err);
+      }
+    };
+
+    // ============================================================
+    // ===== ADMIN ACTIONS =====
+    // ============================================================
+    window.updateTicketStatus = async function(ticketId) {
+      const status = document.getElementById('admin-status-change')?.value;
+      if (!status) return;
+
+      try {
+        const { error } = await supabase
+          .from('tickets')
+          .update({ status: status, updated_at: new Date().toISOString() })
+          .eq('id', ticketId);
+
+        if (error) throw error;
+
+        openTicketDetail(ticketId);
+        loadTickets();
+
+      } catch (err) {
+        alert('❌ Error: ' + err.message);
+        console.error(err);
+      }
+    };
+
+    window.resolveTicket = async function(ticketId) {
+      if (!confirm('Mark this ticket as resolved?')) return;
+
+      try {
+        const { error } = await supabase
+          .from('tickets')
+          .update({ status: 'resolved', updated_at: new Date().toISOString() })
+          .eq('id', ticketId);
+
+        if (error) throw error;
+
+        openTicketDetail(ticketId);
+        loadTickets();
+
+      } catch (err) {
+        alert('❌ Error: ' + err.message);
+        console.error(err);
+      }
+    };
+
+    // ============================================================
+    // ===== INIT =====
+    // ============================================================
+    checkAuth();
+  </script>
+</body>
+</html>
