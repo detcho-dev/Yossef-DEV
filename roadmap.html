@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>خريطة الطريق | Roadmap</title>
+  <meta name="description" content="خريطة طريق واضحة خطوة بخطوة للوصول إلى الهدف." />
+
+  <!-- الخطوط -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Tajawal:wght@400;500;700;800&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- الأيقونات -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+  />
+
+  <!-- الاستايل الأساسي بتاعك (الملف اللي فيه :root والهيدر والكاردز) -->
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- استايلات صفحة الـ Roadmap -->
+  <link rel="stylesheet" href="roadmap.css" />
+</head>
+
+<body>
+
+  <!-- ================= Header (Desktop) ================= -->
+  <header class="computer-header" id="computerHeader">
+    <div class="logo-container">
+      <span class="logo-slot" data-logo></span>
+    </div>
+
+    <nav aria-label="التنقل الرئيسي">
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link">الرئيسية</a></li>
+        <li><a href="roadmap.html" class="nav-link active">خريطة الطريق</a></li>
+        <li><a href="index.html#projects" class="nav-link">المشاريع</a></li>
+        <li><a href="index.html#certificates" class="nav-link">الشهادات</a></li>
+        <li><a href="index.html#reviews" class="nav-link">آراء العملاء</a></li>
+        <li><a href="index.html#contact" class="nav-link">تواصل معي</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- ================= Header (Mobile) ================= -->
+  <header class="mobile-header">
+    <div class="mobile-header-content">
+      <div class="logo-container">
+        <span class="logo-slot" data-logo></span>
+      </div>
+
+      <button
+        class="menu-toggle"
+        id="menuToggle"
+        aria-label="فتح القائمة"
+        aria-expanded="false"
+        aria-controls="mobileMenu"
+      >
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- ================= Mobile Menu ================= -->
+  <div class="overlay" id="overlay"></div>
+
+  <aside class="mobile-menu" id="mobileMenu" aria-hidden="true">
+    <div class="mobile-menu-header">
+      <div class="logo-container">
+        <span class="logo-slot" data-logo></span>
+      </div>
+
+      <button class="close-menu" id="closeMenu" aria-label="إغلاق القائمة">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <nav class="mobile-nav-links" aria-label="قائمة الجوال">
+      <a href="index.html" class="mobile-nav-link">الرئيسية</a>
+      <a href="roadmap.html" class="mobile-nav-link active">خريطة الطريق</a>
+      <a href="index.html#projects" class="mobile-nav-link">المشاريع</a>
+      <a href="index.html#certificates" class="mobile-nav-link">الشهادات</a>
+      <a href="index.html#reviews" class="mobile-nav-link">آراء العملاء</a>
+      <a href="index.html#contact" class="mobile-nav-link">تواصل معي</a>
+    </nav>
+  </aside>
+
+  <!-- ================= Main ================= -->
+  <main>
+
+    <!-- ---------- Hero ---------- -->
+    <section class="hero hero--page">
+      <div class="hero-shapes" aria-hidden="true">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+      </div>
+
+      <div class="hero-content">
+        <div class="hero-badge">
+          <i class="fas fa-route"></i>
+          خريطة الطريق
+        </div>
+
+        <h1>خطة <span>واضحة</span> خطوة بخطوة</h1>
+
+        <p>
+          هنا هتلاقي المسار الكامل من الصفر للاحتراف — مراحل مرتبة، مصادر،
+          ولينكات كل مرحلة.
+        </p>
+
+        <div class="hero-btns">
+          <a href="#roadmap-content" class="btn btn-primary">
+            <i class="fas fa-compass"></i>
+            ابدأ من هنا
+          </a>
+
+          <a href="index.html" class="btn btn-outline">
+            <i class="fas fa-house"></i>
+            رجوع للرئيسية
+          </a>
+        </div>
+      </div>
+
+      <a href="#roadmap-content" class="scroll-indicator" aria-label="انزل للأسفل">
+        <i class="fas fa-chevron-down"></i>
+        <span>انزل</span>
+      </a>
+    </section>
+
+    <!-- ---------- منطقة المحتوى (فاضية لك) ---------- -->
+    <section class="section" id="roadmap">
+      <div class="container">
+
+        <div class="section-title">
+          <h2>خريطة الطريق</h2>
+          <p>
+            كل مرحلة في مكانها — امشي بالترتيب وهتلاقي نفسك وصلت.
+          </p>
+        </div>
+
+        <!-- ============================================================
+             ✍️ اكتب محتواك من هنا — العناصر دي كلها متنسقة تلقائياً
+             ============================================================ -->
+        <div class="roadmap-content" id="roadmap-content">
+
+          <!--
+            ============ أمثلة جاهزة — شيل الكومنت واستخدم اللي تحتاجه ============
+
+            <h2>المرحلة الأولى: الأساسيات</h2>
+            <p>
+              ابدأ بـ <strong>HTML</strong> و <strong>CSS</strong>، وبعدها ادخل على
+              <a href="https://developer.mozilla.org" target="_blank" rel="noopener">MDN</a>.
+            </p>
+
+            <ul>
+              <li>عناصر HTML الدلالية</li>
+              <li>Flexbox و Grid</li>
+              <li>التجاوب مع الشاشات</li>
+            </ul>
+
+            <div class="timeline">
+              <div class="timeline-item">
+                <h3>المرحلة الأولى</h3>
+                <p>وصف قصير للمرحلة.</p>
+              </div>
+              <div class="timeline-item">
+                <h3>المرحلة الثانية</h3>
+                <p>وصف قصير للمرحلة.</p>
+              </div>
+            </div>
+
+            <div class="links-grid">
+              <a class="link-card" href="https://example.com" target="_blank" rel="noopener">
+                <i class="fas fa-book-open"></i>
+                <span class="link-card-text">
+                  <span class="link-card-title">اسم المصدر</span>
+                  <span class="link-card-sub">وصف قصير</span>
+                </span>
+              </a>
+            </div>
+
+            <div class="note">
+              <i class="fas fa-circle-info"></i>
+              <p>ملاحظة مهمة للزائر.</p>
+            </div>
+
+            <p><span class="tag">HTML</span><span class="tag">CSS</span><span class="tag">JS</span></p>
+
+            <blockquote>اقتباس أو نص مميز.</blockquote>
+
+            <table>
+              <thead><tr><th>المرحلة</th><th>المدة</th></tr></thead>
+              <tbody><tr><td>الأساسيات</td><td>4 أسابيع</td></tr></tbody>
+            </table>
+
+            <hr />
+          -->
+
+        </div>
+        <!-- ===================== نهاية منطقة المحتوى ===================== -->
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= Footer ================= -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-logo">
+          <span class="logo-slot" data-logo></span>
+        </div>
+
+        <p class="copyright">
+          © <span id="year"></span> جميع الحقوق محفوظة.
+        </p>
+
+        <div class="social-links">
+          <a href="#" class="social-link" aria-label="GitHub"><i class="fab fa-github"></i></a>
+          <a href="#" class="social-link" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+          <a href="#" class="social-link" aria-label="Behance"><i class="fab fa-behance"></i></a>
+          <a href="#" class="social-link" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- زر الرجوع لأعلى -->
+  <button class="back-to-top" id="backToTop" aria-label="الرجوع لأعلى">
+    <i class="fas fa-arrow-up"></i>
+  </button>
+
+  <!-- ================= Scripts ================= -->
+  <script>
+    (function () {
+      "use strict";
+
+      /* ---------- 1) تحميل اللوجو من logo.html ---------- */
+      var logoSlots = document.querySelectorAll("[data-logo]");
+
+      if (logoSlots.length) {
+        fetch("logo.html")
+          .then(function (res) {
+            if (!res.ok) throw new Error("logo.html not found");
+            return res.text();
+          })
+          .then(function (html) {
+            var doc = new DOMParser().parseFromString(html, "text/html");
+            var markup = doc.body && doc.body.innerHTML.trim() ? doc.body.innerHTML : html;
+            logoSlots.forEach(function (slot) {
+              slot.innerHTML = markup;
+            });
+          })
+          .catch(function () {
+            /* لو الملف مش موجود أو فتحت الصفحة بـ file:// */
+            logoSlots.forEach(function (slot) {
+              slot.innerHTML =
+                '<span class="logo"><i class="fas fa-code logo-icon"></i> Roadmap</span>';
+            });
+          });
+      }
+
+      /* ---------- 2) الهيدر عند التمرير ---------- */
+      var header = document.getElementById("computerHeader");
+      var backToTop = document.getElementById("backToTop");
+
+      function onScroll() {
+        var y = window.pageYOffset || window.scrollY;
+        if (header) header.classList.toggle("scrolled", y > 40);
+        if (backToTop) backToTop.classList.toggle("visible", y > 500);
+      }
+
+      window.addEventListener("scroll", onScroll, { passive: true });
+      onScroll();
+
+      /* ---------- 3) قائمة الموبايل ---------- */
+      var menu = document.getElementById("mobileMenu");
+      var overlay = document.getElementById("overlay");
+      var openBtn = document.getElementById("menuToggle");
+      var closeBtn = document.getElementById("closeMenu");
+
+      function openMenu() {
+        if (!menu) return;
+        menu.classList.add("active");
+        overlay.classList.add("active");
+        document.body.style.overflow = "hidden";
+        if (openBtn) openBtn.setAttribute("aria-expanded", "true");
+        menu.setAttribute("aria-hidden", "false");
+      }
+
+      function closeMenu() {
+        if (!menu) return;
+        menu.classList.remove("active");
+        overlay.classList.remove("active");
+        document.body.style.overflow = "";
+        if (openBtn) openBtn.setAttribute("aria-expanded", "false");
+        menu.setAttribute("aria-hidden", "true");
+      }
+
+      if (openBtn) openBtn.addEventListener("click", openMenu);
+      if (closeBtn) closeBtn.addEventListener("click", closeMenu);
+      if (overlay) overlay.addEventListener("click", closeMenu);
+
+      document.querySelectorAll(".mobile-nav-link").forEach(function (link) {
+        link.addEventListener("click", closeMenu);
+      });
+
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") closeMenu();
+      });
+
+      /* ---------- 4) زر الرجوع لأعلى ---------- */
+      if (backToTop) {
+        backToTop.addEventListener("click", function () {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+      }
+
+      /* ---------- 5) تمرير سلس للروابط الداخلية ---------- */
+      document.querySelectorAll('a[href^="#"]').forEach(function (link) {
+        link.addEventListener("click", function (e) {
+          var id = link.getAttribute("href");
+          if (!id || id === "#" || id.length < 2) return;
+
+          var target = document.querySelector(id);
+          if (!target) return;
+
+          e.preventDefault();
+          var offset = (header ? header.offsetHeight : 0) + 50;
+          var top = target.getBoundingClientRect().top + window.pageYOffset - offset;
+          window.scrollTo({ top: top, behavior: "smooth" });
+        });
+      });
+
+      /* ---------- 6) سنة الفوتر ---------- */
+      var yearEl = document.getElementById("year");
+      if (yearEl) yearEl.textContent = new Date().getFullYear();
+    })();
+  </script>
+
+</body>
+</html>
