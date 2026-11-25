@@ -599,8 +599,8 @@ html[dir="rtl"] .input {
           <p>مسار الBackend لا يقل اهمية عن مسار الFrontend لأنه هو المسار اللي فيه بتبدأ تعالج الفورم وتستقبل وتبعت بيانات وتتعامل مع قواعد بيانات ولو قفلت المسار ده هيبقى اسمك Full-Stack Developer</p>
 
           <h2>حدد مسارك الجاي عشان انزلك فيه مصادر زي اللي فاتوا</h2>
-          <h4>الاول اكتب اسمك ثنائي هنا</h4>
-          <input type="text" class="input" id="input" placeholder="أكتب أسمك هنا" />
+          <h4>الاول اكتب اسمك ثنائي بالعربي هنا</h4>
+          <input type="text" class="input" id="input" placeholder="أكتب أسمك بالعربي هنا" />
           <h4>حدد المسار اللي عايز تكمل فيه عشان اكتر مسار عليه طلب هو اول مسار هتكلم عنه قبل المسار التاني</h4>
           <div class="links-grid">
               <a class="link-card" href="https://www.wa.me/yossef_el_gammal" id="front" target="_blank" rel="noopener">
@@ -759,6 +759,38 @@ html[dir="rtl"] .input {
       var yearEl = document.getElementById("year");
       if (yearEl) yearEl.textContent = new Date().getFullYear();
     })();
+
+    // 1) رقم الواتساب بتاعك (من غير + أو مسافات)
+  const WHATSAPP_NUMBER = "yossef_el_gammal"; // ← حط رقم يوسف هنا بصيغة دولية (مثال: 2010...)
+
+  // 2) دالة بتعمل الرابط وتشفّر الرسالة
+  function buildWhatsAppLink(message) {
+    return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+  }
+
+  // 3) دالة بتحدث اللينكات بناءً على الاسم اللي في الإنبوت
+  function updateWhatsAppLinks() {
+    const nameInput = document.getElementById("input");
+    const backendLink = document.getElementById("back");
+    const frontendLink = document.getElementById("front");
+
+    const name = nameInput.value.trim() || "متعلم";
+
+    // رسالة الـ Backend
+    const backendMessage = `أزيك يا يوسف، أنا ${name} وهخش في مسار الBackend`;
+
+    // رسالة الـ Frontend
+    const frontendMessage = `أزيك يا يوسف، أنا ${name} وهكمل في مسار الFrontend`;
+
+    backendLink.href = buildWhatsAppLink(backendMessage);
+    frontendLink.href = buildWhatsAppLink(frontendMessage);
+  }
+
+  // 4) تحديث اللينكات أول ما الصفحة تفتح
+  updateWhatsAppLinks();
+
+  // 5) تحديث اللينكات كل ما المستخدم يكتب في الإنبوت
+  document.getElementById("input").addEventListener("input", updateWhatsAppLinks);
   </script>
 
 </body>
