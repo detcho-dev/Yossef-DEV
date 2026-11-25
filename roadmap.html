@@ -25,6 +25,199 @@
 
   <!-- استايلات صفحة الـ Roadmap -->
   <link rel="stylesheet" href="roadmap.css" />
+  <style>
+    /* ============================================================
+   Input (بدون label وبدون form)
+   ============================================================ */
+
+.input {
+  display: block;
+  width: 100%;
+  padding: 0.85rem 1.25rem;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--light);
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius);
+  box-shadow: 0 6px 18px -10px rgba(0, 0, 0, 0.35);
+  transition: var(--transition);
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+/* placeholder */
+.input::placeholder {
+  color: var(--gray);
+  opacity: 0.8;
+  font-weight: 400;
+}
+
+/* hover */
+.input:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* focus */
+.input:focus,
+.input:focus-visible {
+  border-color: var(--primary);
+  background: rgba(30, 30, 45, 0.9);
+  box-shadow:
+    0 0 0 3px rgba(108, 92, 231, 0.25),
+    0 10px 25px -10px rgba(108, 92, 231, 0.5);
+}
+
+/* disabled */
+.input:disabled,
+.input[disabled] {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background: rgba(30, 30, 45, 0.5);
+}
+
+/* read-only */
+.input[readonly] {
+  color: var(--gray);
+  cursor: default;
+  border-style: dashed;
+}
+
+/* invalid */
+.input:invalid:not(:placeholder-shown) {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px rgba(255, 118, 117, 0.2);
+}
+
+/* valid */
+.input:valid:not(:placeholder-shown) {
+  border-color: var(--success);
+}
+
+/* types لها سلوك مختلف */
+.input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 14px;
+  width: 14px;
+  background: currentColor;
+  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z'/></svg>") center / contain no-repeat;
+  color: var(--gray);
+  cursor: pointer;
+}
+
+/* إخفاء أزرار الزيادة/النقصان في type=number */
+.input[type="number"]::-webkit-outer-spin-button,
+.input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* تعديل لون التقويم في type=date/time */
+.input[type="date"],
+.input[type="time"],
+.input[type="datetime-local"],
+.input[type="month"],
+.input[type="week"] {
+  color-scheme: dark;
+}
+
+.input[type="date"]::-webkit-calendar-picker-indicator,
+.input[type="time"]::-webkit-calendar-picker-indicator,
+.input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+.input[type="month"]::-webkit-calendar-picker-indicator,
+.input[type="week"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: invert(0.8);
+  transition: var(--transition);
+}
+
+.input[type="date"]::-webkit-calendar-picker-indicator:hover,
+.input[type="time"]::-webkit-calendar-picker-indicator:hover,
+.input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+  filter: invert(1);
+}
+
+/* لون التحديد */
+.input::selection {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* ===================== أحجام إضافية ===================== */
+
+.input--sm {
+  padding: 0.55rem 1rem;
+  font-size: 0.9rem;
+  border-radius: 12px;
+}
+
+.input--lg {
+  padding: 1.05rem 1.5rem;
+  font-size: 1.1rem;
+}
+
+/* ===================== variants ===================== */
+
+/* الحدود بس */
+.input--outline {
+  background: transparent;
+}
+
+.input--outline:hover {
+  background: rgba(108, 92, 231, 0.05);
+}
+
+.input--outline:focus {
+  background: transparent;
+}
+
+/* محدب شوية */
+.input--pill {
+  border-radius: 50px;
+  padding-inline: 1.5rem;
+}
+
+/* حالة خطأ دائمة */
+.input--error,
+.input.is-error {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px rgba(255, 118, 117, 0.15);
+}
+
+/* حالة نجاح دائمة */
+.input--success,
+.input.is-success {
+  border-color: var(--success);
+  box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.15);
+}
+
+/* بدون ظل */
+.input--flat {
+  box-shadow: none;
+}
+
+/* ===================== RTL ===================== */
+html[dir="rtl"] .input {
+  text-align: right;
+}
+
+/* ===================== Accessibility ===================== */
+@media (prefers-reduced-motion: reduce) {
+  .input {
+    transition: none;
+  }
+}
+  </style>
 </head>
 
 <body>
